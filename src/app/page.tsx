@@ -14,6 +14,9 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 
+console.log("🔎 Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
+console.log("🔑 Supabase KEY:", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.substring(0, 10) + "...");
+
 const supabase = createClient(
   "https://vlmxcyputvvxfccegyae.supabase.co",
   "vyivZGM5pwMoV8JdPP3Wq0lJGz7HBJPHjYO9OTK6epustMoT6z6if293MEvltcBzJe87J60dU82SLLt8EYUInA=="
