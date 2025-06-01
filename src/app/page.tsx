@@ -45,15 +45,23 @@ export default function KioskForm() {
     fetchData();
   }, []);
 
-  const handleLogin = () => {
-    const match = users.find(u => u.name === loginName && u.password === password);
-    if (match) {
-      setUser(match);
-      setLoginError("");
-    } else {
-      setLoginError("Falscher Name oder Passwort");
-    }
-  };
+const handleLogin = () => {
+  const match = users.find(u =>
+    u.name.trim().toLowerCase() === loginName.trim().toLowerCase() &&
+    u.password.trim() === password.trim()
+  );
+
+  console.log("Login attempt:", loginName, password);
+  console.log("Matched user:", match);
+
+  if (match) {
+    setUser(match);
+    setLoginError("");
+  } else {
+    setLoginError("Falscher Name oder Passwort");
+  }
+};
+
 
   const handleSubmit = async () => {
     const mengeNum = parseInt(menge);
