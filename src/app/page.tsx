@@ -35,15 +35,22 @@ export default function KioskForm() {
   const [newProductBestand, setNewProductBestand] = useState("");
   const [guthabenAufladen, setGuthabenAufladen] = useState("");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data: usersData } = await supabase.from("users").select("*");
-      setUsers(usersData || []);
-      const { data: productsData } = await supabase.from("produkte").select("*");
-      setProducts(productsData || []);
-    };
-    fetchData();
-  }, []);
+useEffect(() => {
+  const fetchData = async () => {
+    const { data: usersData, error: userErr } = await supabase.from("users").select("*");
+    const { data: productsData, error: productErr } = await supabase.from("produkte").select("*");
+
+    console.log("Users:", usersData);
+    console.log("Products:", productsData);
+    if (userErr) console.error("Fehler beim Laden der Benutzer:", userErr);
+    if (productErr) console.error("Fehler beim Laden der Produkte:", productErr);
+
+    setUsers(usersData || []);
+    setProducts(productsData || []);
+  };
+  fetchData();
+}, []);
+
 
 const handleLogin = () => {
   const match = users.find(u =>
