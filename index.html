@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rischis Kiosk – Chill & Kauf</title>
+  <title>Rischis Kiosk – Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa&family=Rock+Salt&display=swap" rel="stylesheet">
@@ -13,16 +13,12 @@
       background: radial-gradient(circle at top left, #c7f9cc, #80ed99 40%, #57cc99 90%, #38a3a5);
       animation: background-float 24s ease-in-out infinite;
     }
-    h1, h2 {
+    h1 {
       font-family: 'Rock Salt', cursive;
     }
     @keyframes background-float {
       0%, 100% { background-position: 0% 0%; }
       50% { background-position: 100% 100%; }
-    }
-    @keyframes fade-in {
-      0% { opacity: 0; transform: translateY(40px); }
-      100% { opacity: 1; transform: translateY(0); }
     }
     .animate-fade-in {
       animation: fade-in 1.4s ease-out forwards;
@@ -108,18 +104,16 @@
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          persistSession: remember
-        }
+        options: { persistSession: remember }
       });
 
       if (error) return showMessage("Login fehlgeschlagen: " + error.message);
 
       await createUserIfNotExists(data.user);
-      const { data: profile } = await supabase.from('users').select('role').eq('id', data.user.id).single();
       showMessage("Login erfolgreich! Weiterleitung...", true);
+
       setTimeout(() => {
-        window.location.href = profile?.role === 'admin' ? 'admin.html' : 'shop.html';
+        window.location.href = 'dashboard.html';
       }, 1000);
     });
 
