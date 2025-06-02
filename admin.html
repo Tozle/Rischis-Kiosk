@@ -5,11 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Adminbereich – Rischis Kiosk</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
-</head>
-<body class="bg-gray-100 text-gray-800">
+<script>
+  tailwind.config = { darkMode: 'class' };
+</script>
 
-  <div class="w-full px-3 py-6 max-w-screen-lg mx-auto mt-8 p-6 bg-white rounded-xl shadow-lg">
+</head>
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-white">
+
+  <!-- Dark Mode Schalter -->
+  <div class="fixed top-4 right-4 z-50">
+    <button onclick="toggleDarkMode()" class="bg-gray-300 dark:bg-gray-700 text-black dark:text-white px-4 py-2 rounded shadow">
+      🌙 / ☀️
+    </button>
+  </div>
+
+  <div class="w-full px-3 py-6 max-w-screen-lg mx-auto mt-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
     <h1 class="text-xl sm:text-2xl font-semibold mb-6 text-center">Adminbereich – Rischis Kiosk</h1>
 
     <!-- Produkt hinzufügen -->
@@ -17,10 +31,10 @@
       <h2 class="text-lg sm:text-xl font-semibold mb-4">Produkt hinzufügen</h2>
       <form class="space-y-4" id="add-product">
         <div class="space-y-2">
-          <input type="text" class="p-3 border rounded w-full shadow-sm" id="product-name" placeholder="Produktname" required />
-          <input type="number" step="0.01" class="p-3 border rounded w-full shadow-sm" id="product-price" placeholder="Verkaufspreis in €" required />
-          <input type="number" step="0.01" class="p-3 border rounded w-full shadow-sm" id="product-purchase" placeholder="Einkaufspreis in €" required />
-          <input type="number" class="p-3 border rounded w-full shadow-sm" id="product-stock" placeholder="Anfangsbestand" required />
+          <input type="text" class="p-3 border rounded w-full shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" id="product-name" placeholder="Produktname" required />
+          <input type="number" step="0.01" class="p-3 border rounded w-full shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" id="product-price" placeholder="Verkaufspreis in €" required />
+          <input type="number" step="0.01" class="p-3 border rounded w-full shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" id="product-purchase" placeholder="Einkaufspreis in €" required />
+          <input type="number" class="p-3 border rounded w-full shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" id="product-stock" placeholder="Anfangsbestand" required />
         </div>
         <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none">Produkt speichern</button>
       </form>
@@ -43,16 +57,15 @@
     </section>
 
     <!-- Käufe -->
-   <section class="mb-8">
-  <button onclick="togglePurchases()" class="w-full text-left bg-gray-200 hover:bg-gray-300 px-4 py-3 rounded-lg font-semibold text-gray-800 transition">
-    Käufe anzeigen / ausblenden
-  </button>
-  <div id="purchase-container" class="mt-4 hidden max-h-80 overflow-y-auto border rounded-lg bg-gray-50 p-4">
-    <ul id="purchase-history" class="space-y-2 text-sm text-gray-700"></ul>
-    <button onclick="loadMorePurchases()" class="mt-4 text-blue-600 hover:underline text-sm">Weitere anzeigen</button>
-  </div>
-  </section>
-
+    <section class="mb-8">
+      <button onclick="togglePurchases()" class="w-full text-left bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition">
+        Käufe anzeigen / ausblenden
+      </button>
+      <div id="purchase-container" class="mt-4 hidden max-h-80 overflow-y-auto border rounded-lg bg-gray-50 dark:bg-gray-700 p-4">
+        <ul id="purchase-history" class="space-y-2 text-sm text-gray-700 dark:text-white"></ul>
+        <button onclick="loadMorePurchases()" class="mt-4 text-blue-600 hover:underline text-sm">Weitere anzeigen</button>
+      </div>
+    </section>
 
     <!-- Benutzernamen und Passwörter -->
     <section class="mb-8">
@@ -68,6 +81,16 @@
   </div>
 
   <script>
+function toggleDarkMode() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+}
+
+if (localStorage.getItem('darkMode') === 'true') {
+  document.documentElement.classList.add('dark');
+}
+
+  
     const supabase = window.supabase.createClient(
       "https://izkuiqjhzeeirmcikbef.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a3VpcWpoemVlaXJtY2lrYmVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4MDAwOTQsImV4cCI6MjA2NDM3NjA5NH0.mPu0jQYnt0uGoLgehNFDHZprEcmrzGJ667D31sLSbj0"
