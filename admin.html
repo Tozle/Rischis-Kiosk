@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adminbereich – Rischis Kiosk</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="w-full px-3 py-2 max-w-screen-sm mx-auto mt-8 p-6 bg-white rounded-xl shadow">
+    <h1 class="text-lg sm:text-xl sm:text-2xl font-bold mb-4">Adminbereich – Rischis Kiosk</h1>
+
+    <!-- Produkt hinzufügen -->
+    <section class="mb-6">
+      <h2 class="text-lg sm:text-xl font-semibold mb-2">Produkt hinzufügen</h2>
+      <form class="space-y-2" id="add-product">
+        <input type="text" class="p-2 border rounded w-full" id="product-name" placeholder="Produktname" required />
+        <input type="number" step="0.01" class="p-2 border rounded w-full" id="product-price" placeholder="Verkaufspreis in €" required />
+        <input type="number" step="0.01" class="p-2 border rounded w-full" id="product-purchase" placeholder="Einkaufspreis in €" required />
+        <input type="number" class="p-2 border rounded w-full" id="product-stock" placeholder="Anfangsbestand" required />
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Produkt speichern</button>
+      </form>
+      <p class="mt-2" id="product-result"></p>
+    </section>
+
+    <!-- Statistik -->
+    <section class="mb-6">
+      <div class="flex flex-col sm:flex-row justify-between items-center">
+        <h2 class="text-lg sm:text-xl font-semibold mb-2">Statistik</h2>
+        <button onclick="confirmResetStats()" class="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">Statistik zurücksetzen</button>
+      </div>
+      <div id="stats" class="space-y-2"></div>
+    </section>
+
+    <!-- Produkte -->
+    <section class="mb-6">
+      <h2 class="text-lg sm:text-xl font-semibold mb-2">Aktuelle Produkte</h2>
+      <ul class="overflow-x-auto block "id="product-list" class="space-y-2 list-disc ml-6"></ul>
+    </section>
+
+    <!-- Käufe -->
+    <section class="mb-6">
+      <h2 class="text-lg sm:text-xl font-semibold mb-2">Käufe</h2>
+      <ul class="overflow-x-auto block "id="purchase-history" class="space-y-1 list-disc ml-6"></ul>
+    </section>
+
+    <!-- Passwörter -->
+    <section class="mb-6">
+      <h2 class="text-lg sm:text-xl font-semibold mb-2">Passwörter verwalten</h2>
+      <ul class="overflow-x-auto block "id="password-reset-list" class="space-y-2 list-disc ml-6"></ul>
+    </section>
+
+    <!-- Guthaben -->
+    <section class="mb-6">
+      <h2 class="text-lg sm:text-xl font-semibold mb-2">Guthaben verwalten</h2>
+      <ul class="overflow-x-auto block "id="balance-control-list" class="space-y-2 list-disc ml-6"></ul>
+    </section>
+  </div>
+
+  <script>
+    const supabase = window.supabase.createClient(
+      "https://izkuiqjhzeeirmcikbef.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a3VpcWpoemVlaXJtY2lrYmVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4MDAwOTQsImV4cCI6MjA2NDM3NjA5NH0.mPu0jQYnt0uGoLgehNFDHZprEcmrzGJ667D31sLSbj0"
+    );
+    const adminClient = window.supabase.createClient(
+      "https://izkuiqjhzeeirmcikbef.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a3VpcWpoemVlaXJtY2lrYmVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODgwMDA5NCwiZXhwIjoyMDY0Mzc2MDk0fQ.yF2-AKGKcHFNpkIt-bg-YMhWjjLK74cLw6t3VfjDl8w"
+    );
+
+    // Produkt hinzufügen
+    document.getElementById('add-product').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('product-name').value.trim();
+      const price = parseFloat(document.getElementById('product-price').value.replace(',', '.'));
+      const purchase = parseFloat(document.getElementById('product-purchase').value.replace(',', '.'));
+      const stock = parseInt(document.getElementById('product-stock').value);
+      const userResult = await supabase.auth.getUser();
+      const user = userResult?.data?.user;
+
+      if (!user) return document.getElementById('product-result').textContent = 'Fehler: Nutzer nicht eingeloggt.';
+
+      const { error } = await supabase.from('products').insert({
+        name, price, purchase_price: purchase, available: true, created_by: user.id, stock
+      });
+
+      document.getElementById('product-result').textContent = error ? 'Fehler: ' + error.message : 'Produkt gespeichert!';
+      if (!error) loadStats(), loadProducts();
+    });
+
+    async function confirmResetStats() {
+      if (!confirm("Bist du sicher, dass du alle Statistiken zurücksetzen möchtest?")) return;
+      const { error: uErr } = await supabase.from('users').update({ balance: 0 }).not('id', 'is', null);
+      const { error: dErr } = await supabase.from('purchases').delete().not('id', 'is', null);
+      alert(uErr || dErr ? "Fehler beim Zurücksetzen" : "Zurückgesetzt!");
+      loadStats(); loadPurchases();
+    }
+
+    async function loadStats() {
+      const { data: users } = await supabase.from('users').select('name, balance');
+      const { data: products } = await supabase.from('products').select('id, name, price, purchase_price, stock');
+      const { data: purchases } = await supabase.from('purchases').select('product_id, price, quantity');
+
+      const userList = users.map(u => `<li>${u.name}: ${u.balance.toFixed(2)} €</li>`).join('');
+      const totalBalance = users.reduce((sum, u) => sum + (u.balance || 0), 0);
+      const shopValue = products.reduce((sum, p) => sum + ((p.stock || 0) * (p.price || 0)), 0);
+      const totalRevenue = purchases.reduce((sum, p) => sum + (p.price || 0), 0);
+      let totalCost = 0;
+
+      purchases.forEach(p => {
+        const product = products.find(x => x.id === p.product_id);
+        if (product) totalCost += (product.purchase_price || 0) * (p.quantity || 1);
+      });
+
+      const profit = totalRevenue - totalCost;
+
+      document.getElementById('stats').innerHTML = `
+        <p class="mt-4"><strong>Produkte im Shop:</strong> ${products.length}</p>
+        <p><strong>Shop-Warenwert:</strong> ${shopValue.toFixed(2)} €</p>
+        <hr class="my-2" />
+        <p><strong>Verkaufserlöse:</strong> ${totalRevenue.toFixed(2)} €</p>
+        <p><strong>Einkaufskosten:</strong> ${totalCost.toFixed(2)} €</p>
+        <p><strong>Gewinn / Verlust:</strong> <span class="${profit >= 0 ? 'text-green-600' : 'text-red-600'}">${profit.toFixed(2)} €</span></p>
+        <hr class="my-2" />
+        <p><strong>Gesamtsaldo aller Nutzer:</strong> ${totalBalance.toFixed(2)} €</p>`;
+    }
+
+    async function loadProducts() {
+      const { data } = await supabase.from('products').select('id, name, price, stock, available');
+      document.getElementById('product-list').innerHTML = data.map(p => `
+        <li class="flex flex-col sm:flex-row justify-between items-center">
+          <span>${p.name}: ${p.price.toFixed(2)} € – Bestand: ${p.stock} ${!p.available ? '<span class="text-orange-500 ml-2">(versteckt)</span>' : ''}</span>
+          <span class="flex flex-col sm:flex-row gap-1">
+            <button onclick="toggleAvailability('${p.id}', ${p.available})" class="text-sm bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600">${p.available ? 'Verstecken' : 'Anzeigen'}</button>
+            <button onclick="deleteProduct('${p.id}')" class="text-sm bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">Löschen</button>
+          </span>
+        </li>`).join('');
+    }
+
+    async function toggleAvailability(id, current) {
+      const { error } = await supabase.from('products').update({ available: !current }).eq('id', id);
+      if (error) alert("Fehler: " + error.message);
+      else loadProducts();
+    }
+
+    async function deleteProduct(productId) {
+  const confirm1 = confirm("⚠️ Dieses Produkt wurde möglicherweise schon gekauft.\n\nWenn du es löscht, werden ALLE zugehörigen Käufe gelöscht und können NICHT wiederhergestellt werden.\n\nMöchtest du trotzdem fortfahren?");
+  if (!confirm1) return;
+
+  // Käufe löschen
+  const { error: purchaseError } = await supabase
+    .from('purchases')
+    .delete()
+    .eq('product_id', productId);
+
+  if (purchaseError) {
+    alert("Fehler beim Löschen der Käufe: " + purchaseError.message);
+    return;
+  }
+
+  // Produkt löschen
+  const { error: productError } = await supabase
+    .from('products')
+    .delete()
+    .eq('id', productId);
+
+  if (productError) {
+    alert("Fehler beim Löschen des Produkts: " + productError.message);
+  } else {
+    alert("Produkt und zugehörige Käufe wurden gelöscht.");
+    await loadProducts();
+    await loadStats();
+    await loadPurchases();
+  }
+}
+
+
+    async function loadPurchases() {
+      const { data } = await supabase.from('purchases').select('user_name, product_name, price, quantity, created_at').order('created_at', { ascending: false }).limit(20);
+      document.getElementById('purchase-history').innerHTML = data.map(e => `<li>${e.created_at?.slice(0, 10)} – ${e.user_name} kaufte ${e.quantity || 1}x ${e.product_name} für ${e.price.toFixed(2)} €</li>`).join('');
+    }
+
+    async function loadUserPasswords() {
+      const { data } = await supabase.from('users').select('id, email, name');
+      document.getElementById('password-reset-list').innerHTML = data.map(u => `
+        <li>${u.name} (${u.email}): <input type="password" id="pw-${u.id}" class="border px-2" placeholder="neues Passwort" />
+        <button onclick="changeUserPassword('${u.id}')" class="bg-yellow-600 text-white px-2 ml-1 rounded hover:bg-yellow-700">Ändern</button></li>`).join('');
+    }
+
+    async function changeUserPassword(id) {
+      const pw = document.getElementById('pw-' + id).value;
+      if (!pw || pw.length < 6) return alert("Mind. 6 Zeichen");
+      const { error } = await adminClient.auth.admin.updateUserById(id, { password: pw });
+      alert(error ? "Fehler: " + error.message : "Passwort geändert!");
+    }
+
+    async function loadUserBalances() {
+      const { data } = await supabase.from('users').select('id, name, balance');
+      document.getElementById('balance-control-list').innerHTML = data.map(u => {
+  const balanceColor = u.balance < 0 ? 'text-red-600 font-bold' : 'text-black';
+  return `
+    <li>
+      ${u.name}: <span class="${balanceColor}">${u.balance.toFixed(2)} €</span>
+      <input type="number" id="bal-${u.id}" class="w-24 border px-2 ml-2" step="0.01" />
+      <button onclick="updateBalance('${u.id}')" class="bg-blue-600 text-white px-2 ml-1 rounded hover:bg-blue-700">Setzen</button>
+    </li>`;
+}).join('');
+    }
+
+    async function updateBalance(id) {
+      const value = parseFloat(document.getElementById('bal-' + id).value);
+      if (isNaN(value)) return alert("Ungültiger Betrag.");
+      const { error } = await supabase.from('users').update({ balance: value }).eq('id', id);
+      alert(error ? "Fehler: " + error.message : "Guthaben aktualisiert.");
+      loadUserBalances(); loadStats();
+    }
+
+    // Initialisierung
+    loadStats(); loadProducts(); loadPurchases(); loadUserPasswords(); loadUserBalances();
+  </script>
+</body>
+</html>

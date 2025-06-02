@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rischis Kiosk – Shop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa&family=Rock+Salt&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Comfortaa', cursive;
+      background: radial-gradient(circle at top left, #c7f9cc, #80ed99 40%, #57cc99 90%, #38a3a5);
+      animation: background-float 24s ease-in-out infinite;
+    }
+    h1, h2 {
+      font-family: 'Rock Salt', cursive;
+    }
+    @keyframes background-float {
+      0%, 100% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+    }
+    .kiffer-shadow {
+      box-shadow: 0 15px 35px rgba(22, 163, 74, 0.4);
+    }
+    .glass-effect {
+      backdrop-filter: blur(14px);
+      background-color: rgba(255, 255, 255, 0.88);
+    }
+  </style>
+</head>
+<body class="text-green-900 relative">
+  <div class="w-full px-3 py-2 max-w-screen-sm mx-auto mt-20 p-10 rounded-3xl kiffer-shadow border-4 border-green-300 glass-effect animate-fade-in">
+
+    <div id="loader" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center hidden z-50">
+      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-green-500"></div>
+    </div>
+
+    <h1 class="text-3xl sm:text-4xl font-bold mb-8 text-center text-green-800">Rischis Kiosk</h1>
+
+    <input type="text" id="search" placeholder="Produkt suchen..." class="mb-6 p-3 border-2 rounded-xl border-green-400 bg-green-50 placeholder-green-700 w-full text-base">
+
+    <label class="block mb-2 font-medium text-green-800">Sortieren nach:</label>
+    <select id="sort-history" class="mb-6 border-2 rounded-xl p-3 w-full border-green-400 bg-green-50 text-green-900 text-base">
+      <option value="desc">Neuste zuerst</option>
+      <option value="asc">Älteste zuerst</option>
+      <option value="price_desc">Preis absteigend</option>
+      <option value="price_asc">Preis aufsteigend</option>
+    </select>
+
+    <div class="mb-6">
+      <p><strong>Angemeldet als:</strong> <span id="user-email"></span></p>
+      <p><strong>Guthaben:</strong> <span id="user-balance" class="font-bold">0.00 €</span></p>
+    </div>
+
+    <div class="mt-8">
+      <h2 class="text-lg sm:text-xl font-bold tracking-wide text-green-800 uppercase mb-4">Verfügbare Produkte</h2>
+      <ul class="overflow-x-auto block "id="product-list" class="space-y-4"></ul>
+    </div>
+
+    <p id="message" class="mt-4 text-sm italic"></p>
+
+    <div class="mt-12">
+      <h2 class="text-lg sm:text-xl font-bold tracking-wide text-green-800 uppercase mb-4">Kaufverlauf</h2>
+      <ul class="overflow-x-auto block "id="purchase-history" class="space-y-2 text-sm"></ul>
+    </div>
+  </div>
+
+  <script>
+    const supabase = window.supabase.createClient(
+      "https://izkuiqjhzeeirmcikbef.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a3VpcWpoemVlaXJtY2lrYmVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4MDAwOTQsImV4cCI6MjA2NDM3NjA5NH0.mPu0jQYnt0uGoLgehNFDHZprEcmrzGJ667D31sLSbj0"
+    );
+
+    let currentUser = null;
+    let userBalance = 0;
+
+    function showMessage(text, type = 'info') {
+      const el = document.getElementById('message');
+      el.textContent = text;
+      el.className = type === 'error' ? 'text-red-600' : 'text-green-600';
+      setTimeout(() => { el.textContent = ''; }, 4000);
+    }
+
+    function showLoader() {
+      document.getElementById('loader').classList.remove('hidden');
+    }
+
+    function hideLoader() {
+      document.getElementById('loader').classList.add('hidden');
+    }
+
+    async function loadUserData() {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) return showMessage("Fehler beim Laden des Nutzers.", 'error');
+      currentUser = user;
+      document.getElementById('user-email').textContent = user.email;
+
+      const { data, error: balanceError } = await supabase.from('users').select('balance').eq('id', user.id).single();
+      if (balanceError) return showMessage("Fehler beim Laden des Guthabens.", 'error');
+      userBalance = data.balance;
+
+      const balanceElement = document.getElementById('user-balance');
+      balanceElement.textContent = `${userBalance.toFixed(2)} €`;
+      balanceElement.className = userBalance < 0 ? 'text-red-600 font-bold' : 'text-green-900';
+    }
+
+    async function loadProducts() {
+      showLoader();
+      const searchTerm = document.getElementById('search')?.value?.toLowerCase() || '';
+      const { data: products, error } = await supabase.from('products').select('*').eq('available', true).order('name');
+      const list = document.getElementById('product-list');
+      list.innerHTML = '';
+      hideLoader();
+      if (error || !products) return showMessage("Fehler beim Laden der Produkte.", 'error');
+
+products.filter(p => p.name.toLowerCase().includes(searchTerm)).forEach(product => {
+  const li = document.createElement('li');
+  li.className = 'border-2 border-green-300 bg-white bg-opacity-80 p-4 rounded-xl shadow text-green-900';
+
+  li.innerHTML = `
+    <div class="flex flex-col sm:flex-row flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div>
+        <p class="text-base font-semibold">${product.name}</p>
+        <p class="text-sm">${product.price.toFixed(2)} € – Bestand: ${product.stock}
+          ${product.stock <= 0 ? '<span class="text-red-600 ml-2">(ausverkauft)</span>' : ''}
+        </p>
+      </div>
+      ${product.stock > 0 ? `
+        <div class="flex flex-col sm:flex-row items-center gap-2">
+          <input type="number" min="1" max="${product.stock}" value="1" id="qty-${product.id}" class="w-16 border-2 border-green-400 rounded px-2 py-1">
+          <button class="bg-green-700 text-white px-4 py-2 rounded-full shadow hover:bg-green-800 transition-all" onclick="buyProduct('${product.id}', 'qty-${product.id}', '${product.name}', ${product.price})">Kaufen</button>
+        </div>
+      ` : ''}
+    </div>
+  `;
+
+  list.appendChild(li);
+});
+
+    }
+
+    async function buyProduct(productId, qtyInputId, productName, unitPrice) {
+      try {
+        const qty = parseInt(document.getElementById(qtyInputId)?.value || "1");
+        if (!Number.isInteger(qty) || qty <= 0) return showMessage("Ungültige Menge", "error");
+
+        const confirmText = `Möchtest du wirklich ${qty}x ${productName} für ${(unitPrice * qty).toFixed(2)} € kaufen?`;
+        if (!confirm(confirmText)) return;
+
+        const { data: userCheck } = await supabase.auth.getUser();
+        if (!userCheck?.user) return alert("Nicht eingeloggt");
+
+        const { data: dbUser } = await supabase.from('users').select('*').eq('id', userCheck.user.id).single();
+        const { data: product } = await supabase.from('products').select('*').eq('id', productId).single();
+
+        if (!product || product.stock < qty) return showMessage("Nicht genügend Bestand.", 'error');
+
+        const newBalance = dbUser.balance - (unitPrice * qty);
+
+        const { error: purchaseError } = await supabase.from('purchases').insert({
+          user_id: dbUser.id,
+          user_name: dbUser.name,
+          product_id: productId,
+          product_name: product.name,
+          price: unitPrice * qty,
+          quantity: qty
+        });
+
+        const { error: balanceError } = await supabase.from('users')
+          .update({ balance: newBalance })
+          .eq('id', dbUser.id);
+
+        const { error: stockError } = await supabase.from('products')
+          .update({ stock: product.stock - qty })
+          .eq('id', product.id);
+
+        if (purchaseError || balanceError || stockError) throw new Error("Fehler beim Kaufprozess");
+
+        userBalance = newBalance;
+        document.getElementById('user-balance').textContent = userBalance.toFixed(2);
+        showMessage("Kauf erfolgreich!", 'success');
+        await loadProducts();
+        await loadPurchaseHistory();
+      } catch (err) {
+        console.error(err);
+        showMessage("Fehler beim Kauf.", 'error');
+      }
+    }
+
+    async function loadPurchaseHistory() {
+      if (!currentUser?.id) return;
+
+      const sortOption = document.getElementById('sort-history')?.value || 'desc';
+      let query = supabase.from('purchases')
+        .select('price, quantity, created_at, product_name')
+        .eq('user_id', currentUser.id);
+
+      if (sortOption === 'asc') query = query.order('created_at', { ascending: true });
+      else if (sortOption === 'desc') query = query.order('created_at', { ascending: false });
+
+      const { data: history, error } = await query;
+      if (error || !history) return;
+
+      let sorted = history;
+      if (sortOption === 'price_asc') sorted = [...history].sort((a, b) => a.price - b.price);
+      else if (sortOption === 'price_desc') sorted = [...history].sort((a, b) => b.price - a.price);
+
+      const list = document.getElementById('purchase-history');
+      list.innerHTML = '';
+      sorted.forEach(entry => {
+        const li = document.createElement('li');
+        const date = new Date(entry.created_at).toLocaleString();
+        li.textContent = `${date}: ${entry.quantity || 1}x ${entry.product_name} – ${entry.price.toFixed(2)} €`;
+        list.appendChild(li);
+      });
+    }
+
+    loadUserData().then(() => {
+      loadProducts();
+      if (currentUser?.id) loadPurchaseHistory();
+    });
+
+    document.getElementById('search').addEventListener('input', loadProducts);
+    document.getElementById('sort-history').addEventListener('change', loadPurchaseHistory);
+  </script>
+</body>
+</html>
