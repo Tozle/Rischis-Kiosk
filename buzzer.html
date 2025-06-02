@@ -99,14 +99,17 @@
     }
 
     async function showOnlineUsers() {
+      const threshold = new Date(Date.now() - 2 * 60 * 1000).toISOString();
       const { data, error } = await supabase
         .from("user_sessions")
-        .select("username")
-        .eq("online", true);
+        .select("username, last_active")
+        .eq("online", true)
+        .gt("last_active", threshold);
 
       if (!error) {
-        const count = data.length;
-        const names = data.map(u => u.username).join(", ");
+        const active = data || [];
+        const count = active.length;
+        const names = active.map(u => u.username).join(", ");
         onlineInfo.textContent = `🟢 Online (${count}): ${names}`;
       }
     }
