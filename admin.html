@@ -8,53 +8,56 @@
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
 </head>
 <body class="bg-gray-100 text-gray-800">
-  <div class="w-full px-3 py-2 max-w-screen-sm mx-auto mt-8 p-6 bg-white rounded-xl shadow">
-    <h1 class="text-lg sm:text-xl sm:text-2xl font-bold mb-4">Adminbereich – Rischis Kiosk</h1>
+
+  <div class="w-full px-3 py-6 max-w-screen-lg mx-auto mt-8 p-6 bg-white rounded-xl shadow-lg">
+    <h1 class="text-xl sm:text-2xl font-semibold mb-6 text-center">Adminbereich – Rischis Kiosk</h1>
 
     <!-- Produkt hinzufügen -->
-    <section class="mb-6">
-      <h2 class="text-lg sm:text-xl font-semibold mb-2">Produkt hinzufügen</h2>
-      <form class="space-y-2" id="add-product">
-        <input type="text" class="p-2 border rounded w-full" id="product-name" placeholder="Produktname" required />
-        <input type="number" step="0.01" class="p-2 border rounded w-full" id="product-price" placeholder="Verkaufspreis in €" required />
-        <input type="number" step="0.01" class="p-2 border rounded w-full" id="product-purchase" placeholder="Einkaufspreis in €" required />
-        <input type="number" class="p-2 border rounded w-full" id="product-stock" placeholder="Anfangsbestand" required />
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Produkt speichern</button>
+    <section class="mb-8">
+      <h2 class="text-lg sm:text-xl font-semibold mb-4">Produkt hinzufügen</h2>
+      <form class="space-y-4" id="add-product">
+        <div class="space-y-2">
+          <input type="text" class="p-3 border rounded w-full shadow-sm" id="product-name" placeholder="Produktname" required />
+          <input type="number" step="0.01" class="p-3 border rounded w-full shadow-sm" id="product-price" placeholder="Verkaufspreis in €" required />
+          <input type="number" step="0.01" class="p-3 border rounded w-full shadow-sm" id="product-purchase" placeholder="Einkaufspreis in €" required />
+          <input type="number" class="p-3 border rounded w-full shadow-sm" id="product-stock" placeholder="Anfangsbestand" required />
+        </div>
+        <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none">Produkt speichern</button>
       </form>
-      <p class="mt-2" id="product-result"></p>
+      <p class="mt-3 text-center text-sm" id="product-result"></p>
     </section>
 
     <!-- Statistik -->
-    <section class="mb-6">
+    <section class="mb-8">
       <div class="flex flex-col sm:flex-row justify-between items-center">
-        <h2 class="text-lg sm:text-xl font-semibold mb-2">Statistik</h2>
-        <button onclick="confirmResetStats()" class="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">Statistik zurücksetzen</button>
+        <h2 class="text-lg sm:text-xl font-semibold mb-4">Statistik</h2>
+        <button onclick="confirmResetStats()" class="text-sm bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 focus:outline-none">Statistik zurücksetzen</button>
       </div>
-      <div id="stats" class="space-y-2"></div>
+      <div id="stats" class="space-y-4"></div>
     </section>
 
     <!-- Produkte -->
-    <section class="mb-6">
-      <h2 class="text-lg sm:text-xl font-semibold mb-2">Aktuelle Produkte</h2>
-      <ul class="overflow-x-auto block "id="product-list" class="space-y-2 list-disc ml-6"></ul>
+    <section class="mb-8">
+      <h2 class="text-lg sm:text-xl font-semibold mb-4">Aktuelle Produkte</h2>
+      <ul id="product-list" class="space-y-4"></ul>
     </section>
 
     <!-- Käufe -->
-    <section class="mb-6">
-      <h2 class="text-lg sm:text-xl font-semibold mb-2">Käufe</h2>
-      <ul class="overflow-x-auto block "id="purchase-history" class="space-y-1 list-disc ml-6"></ul>
+    <section class="mb-8">
+      <h2 class="text-lg sm:text-xl font-semibold mb-4">Käufe</h2>
+      <ul id="purchase-history" class="space-y-4"></ul>
     </section>
 
-    <!-- Passwörter -->
-    <section class="mb-6">
-      <h2 class="text-lg sm:text-xl font-semibold mb-2">Passwörter verwalten</h2>
-      <ul class="overflow-x-auto block "id="password-reset-list" class="space-y-2 list-disc ml-6"></ul>
+    <!-- Benutzernamen und Passwörter -->
+    <section class="mb-8">
+      <h2 class="text-lg sm:text-xl font-semibold mb-4">Benutzernamen und Passwörter verwalten</h2>
+      <ul id="user-manage-list" class="space-y-4"></ul>
     </section>
 
     <!-- Guthaben -->
-    <section class="mb-6">
-      <h2 class="text-lg sm:text-xl font-semibold mb-2">Guthaben verwalten</h2>
-      <ul class="overflow-x-auto block "id="balance-control-list" class="space-y-2 list-disc ml-6"></ul>
+    <section class="mb-8">
+      <h2 class="text-lg sm:text-xl font-semibold mb-4">Guthaben verwalten</h2>
+      <ul id="balance-control-list" class="space-y-4"></ul>
     </section>
   </div>
 
@@ -101,7 +104,7 @@
       const { data: products } = await supabase.from('products').select('id, name, price, purchase_price, stock');
       const { data: purchases } = await supabase.from('purchases').select('product_id, price, quantity');
 
-      const userList = users.map(u => `<li>${u.name}: ${u.balance.toFixed(2)} €</li>`).join('');
+      const userList = users.map(u => `<li class="text-sm">${u.name}: ${u.balance.toFixed(2)} €</li>`).join('');
       const totalBalance = users.reduce((sum, u) => sum + (u.balance || 0), 0);
       const shopValue = products.reduce((sum, p) => sum + ((p.stock || 0) * (p.price || 0)), 0);
       const totalRevenue = purchases.reduce((sum, p) => sum + (p.price || 0), 0);
@@ -115,26 +118,53 @@
       const profit = totalRevenue - totalCost;
 
       document.getElementById('stats').innerHTML = `
-        <p class="mt-4"><strong>Produkte im Shop:</strong> ${products.length}</p>
-        <p><strong>Shop-Warenwert:</strong> ${shopValue.toFixed(2)} €</p>
-        <hr class="my-2" />
-        <p><strong>Verkaufserlöse:</strong> ${totalRevenue.toFixed(2)} €</p>
-        <p><strong>Einkaufskosten:</strong> ${totalCost.toFixed(2)} €</p>
-        <p><strong>Gewinn / Verlust:</strong> <span class="${profit >= 0 ? 'text-green-600' : 'text-red-600'}">${profit.toFixed(2)} €</span></p>
-        <hr class="my-2" />
-        <p><strong>Gesamtsaldo aller Nutzer:</strong> ${totalBalance.toFixed(2)} €</p>`;
+        <p class="mt-4 text-sm"><strong>Produkte im Shop:</strong> ${products.length}</p>
+        <p class="text-sm"><strong>Shop-Warenwert:</strong> ${shopValue.toFixed(2)} €</p>
+        <hr class="my-3" />
+        <p class="text-sm"><strong>Verkaufserlöse:</strong> ${totalRevenue.toFixed(2)} €</p>
+        <p class="text-sm"><strong>Einkaufskosten:</strong> ${totalCost.toFixed(2)} €</p>
+        <p class="text-sm"><strong>Gewinn / Verlust:</strong> <span class="${profit >= 0 ? 'text-green-600' : 'text-red-600'}">${profit.toFixed(2)} €</span></p>
+        <hr class="my-3" />
+        <p class="text-sm"><strong>Gesamtsaldo aller Nutzer:</strong> ${totalBalance.toFixed(2)} €</p>`;
     }
 
     async function loadProducts() {
       const { data } = await supabase.from('products').select('id, name, price, stock, available');
       document.getElementById('product-list').innerHTML = data.map(p => `
-        <li class="flex flex-col sm:flex-row justify-between items-center">
+        <li class="flex flex-col sm:flex-row justify-between items-center text-sm">
           <span>${p.name}: ${p.price.toFixed(2)} € – Bestand: ${p.stock} ${!p.available ? '<span class="text-orange-500 ml-2">(versteckt)</span>' : ''}</span>
-          <span class="flex flex-col sm:flex-row gap-1">
-            <button onclick="toggleAvailability('${p.id}', ${p.available})" class="text-sm bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600">${p.available ? 'Verstecken' : 'Anzeigen'}</button>
-            <button onclick="deleteProduct('${p.id}')" class="text-sm bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">Löschen</button>
+          <span class="flex gap-3">
+            <button onclick="toggleAvailability('${p.id}', ${p.available})" class="bg-yellow-500 text-white px-3 py-2 rounded-md shadow-md hover:bg-yellow-600 focus:outline-none">${p.available ? 'Verstecken' : 'Anzeigen'}</button>
+            <button onclick="editProduct('${p.id}')" class="bg-blue-600 text-white px-3 py-2 rounded-md shadow-md hover:bg-blue-700 focus:outline-none">Bearbeiten</button>
+            <button onclick="deleteProduct('${p.id}')" class="bg-red-600 text-white px-3 py-2 rounded-md shadow-md hover:bg-red-700 focus:outline-none">Löschen</button>
           </span>
         </li>`).join('');
+    }
+
+    async function editProduct(productId) {
+      const { data: product } = await supabase.from('products').select('id, name, price, purchase_price, stock').eq('id', productId).single();
+      
+      const newName = prompt("Neuen Produktnamen eingeben:", product.name);
+      const newPrice = prompt("Neuen Verkaufspreis in € eingeben:", product.price);
+      const newPurchasePrice = prompt("Neuen Einkaufspreis in € eingeben:", product.purchase_price);
+      const newStock = prompt("Neuen Bestand eingeben:", product.stock);
+      
+      if (newName && newPrice && newPurchasePrice && newStock) {
+        const { error } = await supabase.from('products').update({
+          name: newName,
+          price: parseFloat(newPrice),
+          purchase_price: parseFloat(newPurchasePrice),
+          stock: parseInt(newStock)
+        }).eq('id', productId);
+
+        if (error) {
+          alert("Fehler beim Bearbeiten des Produkts: " + error.message);
+        } else {
+          alert("Produkt erfolgreich bearbeitet!");
+          loadProducts(); // Neu laden der Produkte
+          loadStats(); // Neu laden der Statistiken
+        }
+      }
     }
 
     async function toggleAvailability(id, current) {
@@ -144,36 +174,35 @@
     }
 
     async function deleteProduct(productId) {
-  const confirm1 = confirm("⚠️ Dieses Produkt wurde möglicherweise schon gekauft.\n\nWenn du es löscht, werden ALLE zugehörigen Käufe gelöscht und können NICHT wiederhergestellt werden.\n\nMöchtest du trotzdem fortfahren?");
-  if (!confirm1) return;
+      const confirm1 = confirm("⚠️ Dieses Produkt wurde möglicherweise schon gekauft.\n\nWenn du es löscht, werden ALLE zugehörigen Käufe gelöscht und können NICHT wiederhergestellt werden.\n\nMöchtest du trotzdem fortfahren?");
+      if (!confirm1) return;
 
-  // Käufe löschen
-  const { error: purchaseError } = await supabase
-    .from('purchases')
-    .delete()
-    .eq('product_id', productId);
+      // Käufe löschen
+      const { error: purchaseError } = await supabase
+        .from('purchases')
+        .delete()
+        .eq('product_id', productId);
 
-  if (purchaseError) {
-    alert("Fehler beim Löschen der Käufe: " + purchaseError.message);
-    return;
-  }
+      if (purchaseError) {
+        alert("Fehler beim Löschen der Käufe: " + purchaseError.message);
+        return;
+      }
 
-  // Produkt löschen
-  const { error: productError } = await supabase
-    .from('products')
-    .delete()
-    .eq('id', productId);
+      // Produkt löschen
+      const { error: productError } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId);
 
-  if (productError) {
-    alert("Fehler beim Löschen des Produkts: " + productError.message);
-  } else {
-    alert("Produkt und zugehörige Käufe wurden gelöscht.");
-    await loadProducts();
-    await loadStats();
-    await loadPurchases();
-  }
-}
-
+      if (productError) {
+        alert("Fehler beim Löschen des Produkts: " + productError.message);
+      } else {
+        alert("Produkt und zugehörige Käufe wurden gelöscht.");
+        await loadProducts();
+        await loadStats();
+        await loadPurchases();
+      }
+    }
 
     async function loadPurchases() {
       const { data } = await supabase.from('purchases').select('user_name, product_name, price, quantity, created_at').order('created_at', { ascending: false }).limit(20);
@@ -182,9 +211,22 @@
 
     async function loadUserPasswords() {
       const { data } = await supabase.from('users').select('id, email, name');
-      document.getElementById('password-reset-list').innerHTML = data.map(u => `
-        <li>${u.name} (${u.email}): <input type="password" id="pw-${u.id}" class="border px-2" placeholder="neues Passwort" />
-        <button onclick="changeUserPassword('${u.id}')" class="bg-yellow-600 text-white px-2 ml-1 rounded hover:bg-yellow-700">Ändern</button></li>`).join('');
+      document.getElementById('user-manage-list').innerHTML = data.map(u => ` 
+        <li>
+          <div class="flex items-center">
+            <input type="text" id="name-${u.id}" class="border px-2 mr-2" value="${u.name}" placeholder="Neuer Name" />
+            <button onclick="changeUserName('${u.id}')" class="bg-blue-600 text-white px-2 ml-1 rounded hover:bg-blue-700">Name ändern</button>
+            <input type="password" id="pw-${u.id}" class="border px-2 ml-3" placeholder="Neues Passwort" />
+            <button onclick="changeUserPassword('${u.id}')" class="bg-yellow-600 text-white px-2 ml-1 rounded hover:bg-yellow-700">Passwort ändern</button>
+          </div>
+        </li>`).join('');
+    }
+
+    async function changeUserName(id) {
+      const newName = document.getElementById('name-' + id).value.trim();
+      if (!newName) return alert("Name darf nicht leer sein.");
+      const { error } = await supabase.from('users').update({ name: newName }).eq('id', id);
+      alert(error ? "Fehler: " + error.message : "Name geändert!");
     }
 
     async function changeUserPassword(id) {
@@ -197,14 +239,14 @@
     async function loadUserBalances() {
       const { data } = await supabase.from('users').select('id, name, balance');
       document.getElementById('balance-control-list').innerHTML = data.map(u => {
-  const balanceColor = u.balance < 0 ? 'text-red-600 font-bold' : 'text-black';
-  return `
-    <li>
-      ${u.name}: <span class="${balanceColor}">${u.balance.toFixed(2)} €</span>
-      <input type="number" id="bal-${u.id}" class="w-24 border px-2 ml-2" step="0.01" />
-      <button onclick="updateBalance('${u.id}')" class="bg-blue-600 text-white px-2 ml-1 rounded hover:bg-blue-700">Setzen</button>
-    </li>`;
-}).join('');
+        const balanceColor = u.balance < 0 ? 'text-red-600 font-bold' : 'text-black';
+        return `
+          <li>
+            ${u.name}: <span class="${balanceColor}">${u.balance.toFixed(2)} €</span>
+            <input type="number" id="bal-${u.id}" class="w-24 border px-2 ml-2" step="0.01" />
+            <button onclick="updateBalance('${u.id}')" class="bg-blue-600 text-white px-2 ml-1 rounded hover:bg-blue-700">Setzen</button>
+          </li>`;
+      }).join('');
     }
 
     async function updateBalance(id) {
