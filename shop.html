@@ -37,8 +37,12 @@
     </div>
 
     <h1 class="text-3xl sm:text-4xl font-bold mb-8 text-center text-green-800">Rischis Kiosk</h1>
+<label class="block mb-2 font-medium text-green-800">Kategorie auswählen:</label>
+<select id="category-filter" class="mb-6 border-2 rounded-xl p-3 w-full border-green-400 bg-green-50 text-green-900 text-base">
+  <option value="">Alle Kategorien</option>
+</select>
 
-    <input type="text" id="search" placeholder="Produkt suchen..." class="mb-6 p-3 border-2 rounded-xl border-green-400 bg-green-50 placeholder-green-700 w-full text-base">
+<input type="text" id="search" placeholder="Produkt suchen..." class="mb-6 p-3 border-2 rounded-xl border-green-400 bg-green-50 placeholder-green-700 w-full text-base">
 
     <label class="block mb-2 font-medium text-green-800">Sortieren nach:</label>
     <select id="sort-history" class="mb-6 border-2 rounded-xl p-3 w-full border-green-400 bg-green-50 text-green-900 text-base">
@@ -82,6 +86,25 @@
       setTimeout(() => { el.textContent = ''; }, 4000);
     }
 
+async function loadCategories() {
+  const { data: products, error } = await supabase
+    .from('products')
+    .select('category')
+    .neq('category', null);
+
+  if (error) return showMessage("Fehler beim Laden der Kategorien.", 'error');
+
+  const uniqueCategories = [...new Set(products.map(p => p.category))];
+  const select = document.getElementById('category-filter');
+  uniqueCategories.forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    select.appendChild(opt);
+  });
+}
+
+
     function showLoader() {
       document.getElementById('loader').classList.remove('hidden');
     }
@@ -106,39 +129,50 @@
     }
 
     async function loadProducts() {
-      showLoader();
-      const searchTerm = document.getElementById('search')?.value?.toLowerCase() || '';
-      const { data: products, error } = await supabase.from('products').select('*').eq('available', true).order('name');
-      const list = document.getElementById('product-list');
-      list.innerHTML = '';
-      hideLoader();
-      if (error || !products) return showMessage("Fehler beim Laden der Produkte.", 'error');
+  showLoader();
+  const searchTerm = document.getElementById('search')?.value?.toLowerCase() || '';
+  const selectedCategory = document.getElementById('category-filter')?.value || '';
 
-products.filter(p => p.name.toLowerCase().includes(searchTerm)).forEach(product => {
-  const li = document.createElement('li');
-  li.className = 'border-2 border-green-300 bg-white bg-opacity-80 p-4 rounded-xl shadow text-green-900';
+  let query = supabase.from('products').select('*').eq('available', true);
+  if (selectedCategory) {
+    query = query.eq('category', selectedCategory);
+  }
 
-  li.innerHTML = `
-    <div class="flex flex-col sm:flex-row flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-      <div>
-        <p class="text-base font-semibold">${product.name}</p>
-        <p class="text-sm">${product.price.toFixed(2)} € – Bestand: ${product.stock}
-          ${product.stock <= 0 ? '<span class="text-red-600 ml-2">(ausverkauft)</span>' : ''}
-        </p>
-      </div>
-      ${product.stock > 0 ? `
-        <div class="flex flex-col sm:flex-row items-center gap-2">
-          <input type="number" min="1" max="${product.stock}" value="1" id="qty-${product.id}" class="w-16 border-2 border-green-400 rounded px-2 py-1">
-          <button class="bg-green-700 text-white px-4 py-2 rounded-full shadow hover:bg-green-800 transition-all" onclick="buyProduct('${product.id}', 'qty-${product.id}', '${product.name}', ${product.price})">Kaufen</button>
+  const { data: products, error } = await query.order('name');
+  const list = document.getElementById('product-list');
+  list.innerHTML = '';
+  hideLoader();
+
+  if (error || !products) {
+    return showMessage("Fehler beim Laden der Produkte.", 'error');
+  }
+
+  products
+    .filter(p => p.name.toLowerCase().includes(searchTerm))
+    .forEach(product => {
+      const li = document.createElement('li');
+      li.className = 'border-2 border-green-300 bg-white bg-opacity-80 p-4 rounded-xl shadow text-green-900';
+
+      li.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <p class="text-base font-semibold">${product.name}</p>
+            <p class="text-sm">${product.price.toFixed(2)} € – Bestand: ${product.stock}
+              ${product.stock <= 0 ? '<span class="text-red-600 ml-2">(ausverkauft)</span>' : ''}
+            </p>
+          </div>
+          ${product.stock > 0 ? 
+            `<div class="flex flex-col sm:flex-row items-center gap-2">
+              <input type="number" min="1" max="${product.stock}" value="1" id="qty-${product.id}" class="w-16 border-2 border-green-400 rounded px-2 py-1">
+              <button class="bg-green-700 text-white px-4 py-2 rounded-full shadow hover:bg-green-800 transition-all" onclick="buyProduct('${product.id}', 'qty-${product.id}', '${product.name}', ${product.price})">Kaufen</button>
+            </div>` : ''
+          }
         </div>
-      ` : ''}
-    </div>
-  `;
+      `;
+      list.appendChild(li);
+    });
+}
 
-  list.appendChild(li);
-});
-
-    }
 
     async function buyProduct(productId, qtyInputId, productName, unitPrice) {
       try {
@@ -217,11 +251,15 @@ products.filter(p => p.name.toLowerCase().includes(searchTerm)).forEach(product 
     }
 
     loadUserData().then(() => {
-      loadProducts();
-      if (currentUser?.id) loadPurchaseHistory();
-    });
+  loadCategories().then(() => {
+    loadProducts();
+    if (currentUser?.id) loadPurchaseHistory();
+  });
+});
+
 
     document.getElementById('search').addEventListener('input', loadProducts);
+    document.getElementById('category-filter').addEventListener('change', loadProducts);
     document.getElementById('sort-history').addEventListener('change', loadPurchaseHistory);
   </script>
 </body>
