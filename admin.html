@@ -131,13 +131,25 @@
     async function loadProducts() {
       const { data } = await supabase.from('products').select('id, name, price, stock, available');
       document.getElementById('product-list').innerHTML = data.map(p => `
-        <li class="flex flex-col sm:flex-row justify-between items-center text-sm">
-          <span>${p.name}: ${p.price.toFixed(2)} € – Bestand: ${p.stock} ${!p.available ? '<span class="text-orange-500 ml-2">(versteckt)</span>' : ''}</span>
-          <span class="flex gap-3">
-            <button onclick="toggleAvailability('${p.id}', ${p.available})" class="bg-yellow-500 text-white px-3 py-2 rounded-md shadow-md hover:bg-yellow-600 focus:outline-none">${p.available ? 'Verstecken' : 'Anzeigen'}</button>
-            <button onclick="editProduct('${p.id}')" class="bg-blue-600 text-white px-3 py-2 rounded-md shadow-md hover:bg-blue-700 focus:outline-none">Bearbeiten</button>
-            <button onclick="deleteProduct('${p.id}')" class="bg-red-600 text-white px-3 py-2 rounded-md shadow-md hover:bg-red-700 focus:outline-none">Löschen</button>
-          </span>
+        <li class="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center w-full">
+            <h3 class="text-lg sm:text-xl font-semibold text-gray-800 mb-2 sm:mb-0 w-full sm:w-2/3">${p.name}</h3>
+            <div class="flex flex-col sm:flex-row items-center sm:ml-auto w-full sm:w-1/3">
+              <p class="text-sm text-gray-600 sm:ml-4 sm:text-center">Preis: <strong>${p.price.toFixed(2)} €</strong></p>
+              <p class="text-sm text-gray-600 sm:ml-4 sm:text-center">Bestand: <strong>${p.stock}</strong></p>
+            </div>
+          </div>
+          <div class="flex gap-3 mt-2 sm:mt-0 sm:items-center w-full sm:w-auto">
+            <button onclick="toggleAvailability('${p.id}', ${p.available})" class="bg-yellow-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-yellow-600 focus:outline-none">
+              ${p.available ? 'Verstecken' : 'Anzeigen'}
+            </button>
+            <button onclick="editProduct('${p.id}')" class="bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700 focus:outline-none">
+              Bearbeiten
+            </button>
+            <button onclick="deleteProduct('${p.id}')" class="bg-red-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-700 focus:outline-none">
+              Löschen
+            </button>
+          </div>
         </li>`).join('');
     }
 
@@ -146,14 +158,12 @@
       
       const newName = prompt("Neuen Produktnamen eingeben:", product.name);
       const newPrice = prompt("Neuen Verkaufspreis in € eingeben:", product.price);
-      const newPurchasePrice = prompt("Neuen Einkaufspreis in € eingeben:", product.purchase_price);
       const newStock = prompt("Neuen Bestand eingeben:", product.stock);
       
-      if (newName && newPrice && newPurchasePrice && newStock) {
+      if (newName && newPrice && newStock) {
         const { error } = await supabase.from('products').update({
           name: newName,
           price: parseFloat(newPrice),
-          purchase_price: parseFloat(newPurchasePrice),
           stock: parseInt(newStock)
         }).eq('id', productId);
 
