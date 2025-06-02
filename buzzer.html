@@ -201,10 +201,8 @@
       }
     });
 
+    let lastScoresJson = "";
     async function loadScores() {
-      const tbody = document.getElementById("scoreboard-body");
-      tbody.innerHTML = "";
-
       const { data, error } = await supabase
         .from("scores")
         .select("username, points")
@@ -215,14 +213,21 @@
         return;
       }
 
+      const newJson = JSON.stringify(data);
+      if (newJson === lastScoresJson) return;
+      lastScoresJson = newJson;
+
+      const tbody = document.getElementById("scoreboard-body");
+      const fragment = document.createDocumentFragment();
       for (const row of data) {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td class="px-2 py-1 border-b">${row.username}</td>
           <td class="px-2 py-1 border-b text-right font-semibold">${row.points}</td>
         `;
-        tbody.appendChild(tr);
+        fragment.appendChild(tr);
       }
+      tbody.replaceChildren(fragment);
     }
 
     supabase.channel('buzzer-updates')
