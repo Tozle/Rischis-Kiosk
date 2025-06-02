@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Rischis Kiosk">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="theme-color" content="#38a3a5">
   <title>Rischis Kiosk – Shop</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
@@ -35,10 +40,29 @@
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
   }
+
+  .shop-container {
+    box-sizing: border-box;
+  }
+
+  @media (max-width: 480px) {
+    .shop-container {
+      padding: 1rem !important;
+      margin-top: 4rem !important;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+    }
+  }
   </style>
 </head>
 <body class="text-green-900 relative">
-  <div class="w-full px-3 py-2 max-w-screen-sm mx-auto mt-12 sm:mt-20 p-6 sm:p-10 rounded-3xl kiffer-shadow border-4 border-green-300 glass-effect animate-fade-in">
+  <div class="shop-container w-full px-3 py-2 max-w-screen-sm mx-auto mt-12 sm:mt-20 p-6 sm:p-10 rounded-3xl kiffer-shadow border-4 border-green-300 glass-effect animate-fade-in">
 
     <div id="loader" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center hidden z-50">
       <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-green-500"></div>
@@ -67,14 +91,14 @@
 
     <div class="mt-8">
       <h2 class="text-lg sm:text-xl font-bold tracking-wide text-green-800 uppercase mb-4">Verfügbare Produkte</h2>
-      <ul class="overflow-x-auto block "id="product-list" class="space-y-4"></ul>
+      <ul id="product-list" class="overflow-x-auto block space-y-4"></ul>
     </div>
 
     <p id="message" class="mt-4 text-sm italic"></p>
 
     <div class="mt-12">
       <h2 class="text-lg sm:text-xl font-bold tracking-wide text-green-800 uppercase mb-4">Kaufverlauf</h2>
-      <ul class="overflow-x-auto block "id="purchase-history" class="space-y-2 text-sm"></ul>
+      <ul id="purchase-history" class="overflow-x-auto block space-y-2 text-sm"></ul>
     </div>
   </div>
 
