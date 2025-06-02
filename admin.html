@@ -397,6 +397,18 @@ const { error } = await supabase.from('products').insert({
       loadUserBalances(); loadStats();
     }
 
+function formatDateTime(isoString) {
+  const date = new Date(isoString);
+  const day = date.toLocaleDateString('de-DE');
+  const time = date.toLocaleTimeString('de-DE', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+  return `${day} ${time}`;
+}
+
+
     // Initialisierung
     loadStats(); loadProducts(); document.getElementById('category-filter')?.addEventListener('change', loadProducts);
  loadPurchases(); loadUserPasswords(); loadUserBalances();
@@ -433,7 +445,7 @@ async function loadPurchases(initial = false) {
 
   const list = document.getElementById('purchase-history');
   const items = data.map(e =>
-    `<li>${e.created_at?.slice(0, 10)} – <strong>${e.user_name}</strong> kaufte <strong>${e.quantity || 1}x ${e.product_name}</strong> für ${e.price.toFixed(2)} €</li>`
+    `<li>${formatDateTime(e.created_at)} – <strong>${e.user_name}</strong> kaufte <strong>${e.quantity || 1}x ${e.product_name}</strong> für ${e.price.toFixed(2)} €</li>`
   ).join('');
 
   if (initial) list.innerHTML = items;
