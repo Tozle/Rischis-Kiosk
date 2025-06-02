@@ -8,7 +8,7 @@
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen bg-green-100 text-green-900 font-sans space-y-6 px-4">
-  <h1 class="text-3xl font-bold mt-8">🔔 Buzzer</h1>
+  <h1 class="text-3xl font-bold mt-6 sm:mt-8">🔔 Buzzer</h1>
   <audio id="buzz-sound" src="buzz.wav" preload="auto"></audio>
 
   <p id="status" class="text-xl font-semibold"></p>
@@ -26,7 +26,7 @@
   </div>
 
   <!-- Punktestand-Tabelle -->
-  <div id="scoreboard" class="w-full max-w-xs sm:max-w-md mt-8 bg-white shadow rounded p-4 text-sm sm:text-base">
+  <div id="scoreboard" class="w-full max-w-xs sm:max-w-md mt-8 bg-white shadow rounded p-4 text-sm sm:text-base overflow-x-auto">
     <h2 class="text-lg sm:text-xl font-bold mb-4 text-center">🏆 Punktestand</h2>
     <table class="w-full table-auto text-left">
       <thead>
