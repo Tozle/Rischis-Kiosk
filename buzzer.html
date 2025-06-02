@@ -6,11 +6,45 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
 </head>
-<body class="flex flex-col items-center justify-center h-screen bg-green-100 text-green-900 font-sans space-y-6">
-  <h1 class="text-3xl font-bold">🔔 Buzzer</h1>
+<body class="flex flex-col items-center justify-center min-h-screen bg-green-100 text-green-900 font-sans space-y-6">
+  <h1 class="text-3xl font-bold mt-8">🔔 Buzzer</h1>
   <audio id="buzz-sound" src="buzz.wav" preload="auto"></audio>
+
   <p id="status" class="text-xl font-semibold"></p>
-  <button id="buzzer-btn" class="text-4xl px-12 py-10 bg-green-600 text-white rounded-full shadow-xl hover:bg-green-700 disabled:opacity-50 transition-all duration-300">🚨 BUZZERN</button>  <button id="reset-btn" class="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 hidden">Reset (Admin)</button>
+  <p id="online-info" class="text-md font-medium"></p>
+
+  <button id="buzzer-btn" class="text-4xl px-12 py-10 bg-green-600 text-white rounded-full shadow-xl hover:bg-green-700 disabled:opacity-50 transition-all duration-300">
+    🚨 BUZZERN
+  </button>
+
+  <!-- Admin Actions -->
+  <div id="admin-actions" class="hidden space-x-4 mt-6">
+    <button id="plus-btn" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700">+1 Punkt</button>
+    <button id="minus-btn" class="bg-yellow-600 text-white px-4 py-2 rounded shadow hover:bg-yellow-700">-1 Punkt</button>
+    <button id="pass-btn" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700">Pass</button>
+  </div>
+
+  <!-- Punktestand-Tabelle -->
+  <div id="scoreboard" class="w-full max-w-md mt-8 bg-white shadow rounded p-4">
+    <h2 class="text-xl font-bold mb-4 text-center">🏆 Punktestand</h2>
+    <table class="w-full table-auto text-left">
+      <thead>
+        <tr>
+          <th class="px-2 py-1 border-b">Name</th>
+          <th class="px-2 py-1 border-b text-right">Punkte</th>
+        </tr>
+      </thead>
+      <tbody id="scoreboard-body">
+        <!-- Dynamisch befüllt -->
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-center mt-8 mb-8">
+    <a href="dashboard.html" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full shadow">
+      ⬅️ Zurück zum Dashboard
+    </a>
+  </div>
 
   <script>
     window.supabase = supabase.createClient(
@@ -19,35 +53,62 @@
     );
 
     const buzzerBtn = document.getElementById("buzzer-btn");
-    const resetBtn = document.getElementById("reset-btn");
     const status = document.getElementById("status");
+    const onlineInfo = document.getElementById("online-info");
+    const adminActions = document.getElementById("admin-actions");
+    const plusBtn = document.getElementById("plus-btn");
+    const minusBtn = document.getElementById("minus-btn");
+    const passBtn = document.getElementById("pass-btn");
 
     let currentUser = null;
+    let currentBuzz = null;
 
     async function checkUser() {
       const { data: auth, error } = await supabase.auth.getUser();
       if (error || !auth?.user) {
-        console.error("Auth Fehler:", error);
         return location.href = "index.html";
       }
       currentUser = auth.user;
 
-      const { data: profile, error: errProfile } = await supabase
+      const { data: profile } = await supabase
         .from("users")
         .select("role, name")
         .eq("id", currentUser.id)
         .single();
 
-      if (errProfile) {
-        console.error("Profil-Fehler:", errProfile);
-        return;
-      }
-
-      if (profile?.role === 'admin') {
-        resetBtn.classList.remove("hidden");
-      }
+      if (!profile) return;
 
       currentUser.name = profile.name;
+      currentUser.role = profile.role;
+    }
+
+    async function markOnline() {
+      const now = new Date().toISOString();
+      await supabase.from("user_sessions").upsert({
+        user_id: currentUser.id,
+        username: currentUser.name,
+        last_active: now,
+        online: true
+      }, { onConflict: ["user_id"] });
+    }
+
+    async function markOffline() {
+      await supabase.from("user_sessions")
+        .update({ online: false })
+        .eq("user_id", currentUser.id);
+    }
+
+    async function showOnlineUsers() {
+      const { data, error } = await supabase
+        .from("user_sessions")
+        .select("username")
+        .eq("online", true);
+
+      if (!error) {
+        const count = data.length;
+        const names = data.map(u => u.username).join(", ");
+        onlineInfo.textContent = `🟢 Online (${count}): ${names}`;
+      }
     }
 
     async function getActiveBuzz() {
@@ -59,94 +120,139 @@
         .limit(1)
         .single();
 
-      if (error) {
-        console.warn("getActiveBuzz Error:", error.message);
-        return null;
-      }
-
-      return data;
+      return error ? null : data;
     }
 
     async function refreshStatus() {
-      const buzz = await getActiveBuzz();
-      if (buzz) {
-        status.textContent = `${buzz.username} hat gebuzzert!`;
+      currentBuzz = await getActiveBuzz();
+
+      if (currentBuzz) {
+        status.textContent = `${currentBuzz.username} hat gebuzzert!`;
         buzzerBtn.disabled = true;
+        if (currentUser.role === 'admin') {
+          adminActions.classList.remove("hidden");
+        }
       } else {
         status.textContent = "Niemand hat bisher gebuzzert.";
         buzzerBtn.disabled = false;
+        adminActions.classList.add("hidden");
       }
+
+      loadScores(); // Punktetabelle immer aktualisieren
     }
 
     buzzerBtn.addEventListener("click", async () => {
-  const existing = await getActiveBuzz();
-  if (existing) {
-    console.log("Schon jemand gebuzzert:", existing.username);
-    return;
-  }
+      const existing = await getActiveBuzz();
+      if (existing) return;
 
-  if (!currentUser || !currentUser.name) {
-    alert("Nutzer nicht geladen.");
-    return;
-  }
+      const insertObj = {
+        user_id: currentUser.id,
+        username: currentUser.name,
+        timestamp: new Date().toISOString(),
+        active: true
+      };
 
-  const insertObj = {
-    user_id: currentUser.id,
-    username: currentUser.name,
-    timestamp: new Date().toISOString(),
-    active: true
-  };
-
-  const { error } = await supabase.from("buzzer_state").insert(insertObj);
-  if (error) {
-    console.error("Insert Error:", error.message);
-    alert("Fehler beim Buzzern.");
-  }
-
-  // 🔊 Buzzer-Sound abspielen
-  document.getElementById("buzz-sound").play();
-
-  refreshStatus();
-});
-
-
-    resetBtn.addEventListener("click", async () => {
-      if (!currentUser?.id) return alert("Kein Nutzer geladen!");
-
-      const { data: profile, error: profileError } = await supabase
-        .from("users")
-        .select("role")
-        .eq("id", currentUser.id)
-        .single();
-
-      if (profileError || profile?.role !== 'admin') {
-        return alert("Keine Admin-Berechtigung!");
-      }
-
-const { error: deleteError } = await supabase
-  .from("buzzer_state")
-  .delete()
-  .gt("timestamp", "1900-01-01");
-
-
-      if (deleteError) {
-        console.error("Fehler beim Zurücksetzen:", deleteError.message);
-        alert("Zurücksetzen fehlgeschlagen!");
-      } else {
-        alert("Buzzer zurückgesetzt!");
+      const { error } = await supabase.from("buzzer_state").insert(insertObj);
+      if (!error) {
+        document.getElementById("buzz-sound").play();
         refreshStatus();
       }
     });
 
-    supabase
-      .channel('buzzer-updates')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'buzzer_state' }, () => {
-        console.log("Realtime-Update erhalten");
-        refreshStatus();
-      })
+    async function updateScore(userId, username, delta) {
+      const { data: existing } = await supabase
+        .from("scores")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+
+      if (existing) {
+        await supabase.from("scores")
+          .update({ points: existing.points + delta })
+          .eq("user_id", userId);
+      } else {
+        await supabase.from("scores")
+          .insert({ user_id: userId, username: username, points: delta });
+      }
+    }
+
+    async function resetBuzzer() {
+      await supabase.from("buzzer_state").delete().gt("timestamp", "1900-01-01");
+      refreshStatus();
+    }
+
+    plusBtn.addEventListener("click", async () => {
+      if (currentBuzz) {
+        await updateScore(currentBuzz.user_id, currentBuzz.username, 1);
+        await resetBuzzer();
+      }
+    });
+
+    minusBtn.addEventListener("click", async () => {
+      if (currentBuzz) {
+        await updateScore(currentBuzz.user_id, currentBuzz.username, -1);
+        await resetBuzzer();
+      }
+    });
+
+    passBtn.addEventListener("click", async () => {
+      if (currentBuzz) {
+        await resetBuzzer();
+      }
+    });
+
+    async function loadScores() {
+      const tbody = document.getElementById("scoreboard-body");
+      tbody.innerHTML = "";
+
+      const { data, error } = await supabase
+        .from("scores")
+        .select("username, points")
+        .order("username", { ascending: true });
+
+      if (error) {
+        console.error("Fehler beim Laden der Punkte:", error.message);
+        return;
+      }
+
+      for (const row of data) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="px-2 py-1 border-b">${row.username}</td>
+          <td class="px-2 py-1 border-b text-right font-semibold">${row.points}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    supabase.channel('buzzer-updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'buzzer_state' }, () => refreshStatus())
       .subscribe();
 
-    checkUser().then(refreshStatus);
+    supabase.channel('user-session-updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_sessions' }, () => showOnlineUsers())
+      .subscribe();
+
+    supabase.channel('scoreboard-updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, () => loadScores())
+      .subscribe();
+
+    checkUser().then(() => {
+      refreshStatus();
+      markOnline();
+      showOnlineUsers();
+    });
+
+    window.addEventListener("beforeunload", () => {
+      markOffline();
+    });
+
+    setInterval(() => {
+      if (currentUser) {
+        markOnline();
+        showOnlineUsers();
+      }
+    }, 60000);
   </script>
 </body>
 </html>
