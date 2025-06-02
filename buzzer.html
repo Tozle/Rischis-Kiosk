@@ -243,6 +243,13 @@
       showOnlineUsers();
     });
 
+    // Regelmässig den aktuellen Buzzer-Status abrufen, damit alle Spieler
+    // sofort sehen, wer gebuzzert hat, auch wenn Realtime-Updates einmal
+    // nicht funktionieren.
+    setInterval(() => {
+      refreshStatus();
+    }, 1000);
+
     window.addEventListener("beforeunload", () => {
       markOffline();
     });
