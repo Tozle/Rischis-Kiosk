@@ -429,7 +429,8 @@
         .select()
         .single();
       if (error) {
-        const msg = error.message || error.details || String(error);
+        const msg = error.message || error.details || JSON.stringify(error);
+        console.error('Fehler beim Starten der Runde:', error);
         alert(`Fehler beim Starten der Runde: ${msg}`);
         return;
       }
