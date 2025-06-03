@@ -369,7 +369,7 @@
 
     function updateSignupTimer() {
       if (!activeRound) return;
-      const end = new Date(activeRound.start_time).getTime() + 60000;
+      const end = new Date(activeRound.start_time).getTime() + 120000;
       const diff = Math.max(0, Math.floor((end - Date.now()) / 1000));
       signupTimer.textContent = `Anmeldephase: ${diff}s`;
       if (diff <= 0) {
@@ -386,7 +386,7 @@
         roundControls.classList.add('hidden');
       }
 
-      if (activeRound && Date.now() - new Date(activeRound.start_time).getTime() < 60000 && !signedUp) {
+      if (activeRound && Date.now() - new Date(activeRound.start_time).getTime() < 120000 && !signedUp) {
         signupContainer.classList.remove('hidden');
         updateSignupTimer();
         registrationInterval = setInterval(updateSignupTimer, 1000);
