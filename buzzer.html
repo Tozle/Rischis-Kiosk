@@ -58,6 +58,7 @@
 
   <!-- Anmelden -->
   <div id="signup-container" class="hidden mt-4 text-center space-y-2">
+    <p id="bet-info" class="text-sm"></p>
     <button id="signup-btn" class="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700">Anmelden</button>
   </div>
 
@@ -150,6 +151,7 @@
     const roundControls = document.getElementById("round-controls");
     const startRoundBtn = document.getElementById("start-round-btn");
     const signupContainer = document.getElementById("signup-container");
+    const betInfo = document.getElementById("bet-info");
     const signupBtn = document.getElementById("signup-btn");
     const roundInfo = document.getElementById("round-info");
     const signupTimer = document.getElementById("signup-timer");
@@ -415,12 +417,14 @@
 
       if (inRegistration) {
         roundInfo.classList.remove('hidden');
+        betInfo.textContent = `Einsatz: ${activeRound.bet.toFixed(2)} €`;
         updateSignupTimer();
         if (!registrationInterval) {
           registrationInterval = setInterval(updateSignupTimer, 1000);
         }
       } else {
         roundInfo.classList.add('hidden');
+        betInfo.textContent = '';
         clearInterval(registrationInterval);
         registrationInterval = null;
       }
@@ -572,6 +576,7 @@
     // nicht funktionieren.
     setInterval(() => {
       refreshStatus();
+      loadActiveRound();
     }, 1000);
 
     window.addEventListener("beforeunload", () => {
