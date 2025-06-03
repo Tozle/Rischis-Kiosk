@@ -165,6 +165,10 @@
     const cancelRoundBtn = document.getElementById("cancel-round-btn");
     const confirmRoundBtn = document.getElementById("confirm-round-btn");
 
+    function parseTime(ts) {
+      return new Date(ts.endsWith('Z') ? ts : ts + 'Z');
+    }
+
     let activeRound = null;
     let registrationInterval = null;
     let signedUp = false;
@@ -393,7 +397,7 @@
 
     function updateSignupTimer() {
       if (!activeRound) return;
-      const end = new Date(activeRound.start_time).getTime() + 120000;
+      const end = parseTime(activeRound.start_time).getTime() + 120000;
       const diff = Math.max(0, Math.floor((end - Date.now()) / 1000));
       signupTimer.textContent = `Anmeldephase: ${diff}s`;
       loadParticipants();
@@ -413,7 +417,7 @@
       }
 
       const inRegistration = activeRound && activeRound.active &&
-        Date.now() - new Date(activeRound.start_time).getTime() < 120000;
+        Date.now() - parseTime(activeRound.start_time).getTime() < 120000;
 
       if (inRegistration) {
         roundInfo.classList.remove('hidden');
