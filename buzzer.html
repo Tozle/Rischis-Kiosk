@@ -40,7 +40,7 @@
   <p id="status" class="text-xl font-semibold"></p>
   <p id="online-info" class="text-md font-medium"></p>
 
-  <button id="buzzer-btn" class="w-full sm:w-auto text-3xl sm:text-4xl px-8 sm:px-12 py-8 sm:py-10 bg-green-600 text-white rounded-full shadow-xl hover:bg-green-700 disabled:opacity-50 transition-all duration-300">
+  <button id="buzzer-btn" class="hidden w-full sm:w-auto text-3xl sm:text-4xl px-8 sm:px-12 py-8 sm:py-10 bg-green-600 text-white rounded-full shadow-xl hover:bg-green-700 disabled:opacity-50 transition-all duration-300">
     🚨 BUZZERN
   </button>
 
@@ -116,6 +116,12 @@
   <!-- Aktionen für Punktetabelle -->
   <div id="score-actions" class="hidden mt-4 text-center">
     <button id="reset-scores-btn" class="bg-red-600 text-white px-4 py-2 rounded shadow hover:bg-red-700">Punkte zurücksetzen</button>
+  </div>
+
+  <!-- Spielverlauf -->
+  <div id="history" class="w-full max-w-xs sm:max-w-md mt-8 bg-white shadow rounded p-4 text-sm sm:text-base overflow-x-auto dark:bg-gray-800">
+    <h2 class="text-lg sm:text-xl font-bold mb-4 text-center">📜 Spielverlauf</h2>
+    <div id="history-body" class="space-y-4"></div>
   </div>
 
   <div class="text-center mt-8 mb-8">
@@ -356,26 +362,49 @@
 
     let lastScoresJson = "";
     async function loadScores() {
-      const { data, error } = await supabase
-        .from("scores")
-        .select("username, points")
-        .order("username", { ascending: true });
-
-      if (error) {
-        console.error("Fehler beim Laden der Punkte:", error.message);
+      if (!activeRound) {
+        document.getElementById("scoreboard-body").innerHTML = "";
         return;
       }
 
-      const newJson = JSON.stringify(data);
+      const { data: participants, error: pErr } = await supabase
+        .from('buzzer_participants')
+        .select('user_id, username')
+        .eq('round_id', activeRound.id);
+
+      if (pErr) {
+        console.error('Fehler beim Laden der Teilnehmer:', pErr.message);
+        return;
+      }
+
+      const ids = participants.map(p => p.user_id);
+      const { data: scores, error } = await supabase
+        .from('scores')
+        .select('user_id, points')
+        .in('user_id', ids);
+
+      if (error) {
+        console.error('Fehler beim Laden der Punkte:', error.message);
+        return;
+      }
+
+      const scoreMap = {};
+      for (const s of scores || []) scoreMap[s.user_id] = s.points;
+
+      const rows = participants
+        .sort((a,b) => a.username.localeCompare(b.username))
+        .map(p => ({ name: p.username, points: scoreMap[p.user_id] || 0 }));
+
+      const newJson = JSON.stringify(rows);
       if (newJson === lastScoresJson) return;
       lastScoresJson = newJson;
 
       const tbody = document.getElementById("scoreboard-body");
       const fragment = document.createDocumentFragment();
-      for (const row of data) {
+      for (const row of rows) {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td class="px-2 py-1 border-b">${row.username}</td>
+          <td class="px-2 py-1 border-b">${row.name}</td>
           <td class="px-2 py-1 border-b text-right font-semibold">${row.points}</td>
         `;
         fragment.appendChild(tr);
@@ -396,6 +425,46 @@
       }
       const names = (data || []).map(p => p.username).join(', ');
       participantList.textContent = names ? `Angemeldet: ${names}` : 'Noch keine Anmeldungen';
+    }
+
+    async function loadHistory() {
+      const { data: rounds, error } = await supabase
+        .from('buzzer_rounds')
+        .select('id, bet, winner_id, start_time')
+        .order('start_time', { ascending: false })
+        .limit(10);
+      if (error) {
+        console.error('Fehler beim Laden des Verlaufs:', error.message);
+        return;
+      }
+
+      const container = document.getElementById('history-body');
+      const fragment = document.createDocumentFragment();
+
+      for (const r of rounds || []) {
+        const { data: parts } = await supabase
+          .from('buzzer_participants')
+          .select('user_id, username')
+          .eq('round_id', r.id);
+
+        const pot = (parts?.length || 0) * r.bet;
+        const entry = document.createElement('div');
+        entry.className = 'border-b pb-2 mb-2';
+
+        const winner = parts?.find(p => p.user_id === r.winner_id);
+        let html = `<div class="font-semibold">${new Date(r.start_time).toLocaleString()} – Gewinner: ${winner ? winner.username : '-'} (${pot.toFixed(2)} €)</div>`;
+        html += '<ul class="ml-4 list-disc">';
+        for (const p of parts || []) {
+          const delta = p.user_id === r.winner_id ? pot - r.bet : -r.bet;
+          const sign = delta > 0 ? '+' : '';
+          html += `<li>${p.username}: ${sign}${delta.toFixed(2)} €</li>`;
+        }
+        html += '</ul>';
+        entry.innerHTML = html;
+        fragment.appendChild(entry);
+      }
+
+      container.replaceChildren(fragment);
     }
 
     function updateSignupTimer() {
@@ -446,6 +515,12 @@
         signupContainer.classList.remove('hidden');
       } else {
         signupContainer.classList.add('hidden');
+      }
+
+      if (activeRound && activeRound.active) {
+        buzzerBtn.classList.remove('hidden');
+      } else {
+        buzzerBtn.classList.add('hidden');
       }
     }
 
@@ -595,7 +670,7 @@
       .subscribe();
 
     supabase.channel('round-updates')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'buzzer_rounds' }, () => loadActiveRound())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'buzzer_rounds' }, () => { loadActiveRound(); loadHistory(); })
       .subscribe();
 
     supabase.channel('participant-updates')
@@ -607,6 +682,7 @@
       markOnline();
       showOnlineUsers();
       loadActiveRound();
+      loadHistory();
     });
 
     // Regelmässig den aktuellen Buzzer-Status abrufen, damit alle Spieler
