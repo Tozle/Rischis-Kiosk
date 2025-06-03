@@ -424,21 +424,30 @@
       registrationInterval = null;
       signupTimer.textContent = '';
 
-      const { data, error } = await adminClient.from('buzzer_rounds')
-        .insert({ bet, point_limit: limit, start_time: new Date().toISOString(), active: true })
-        .select()
-        .single();
-      if (error) {
-        const msg = error.message || error.details || JSON.stringify(error);
-        console.error('Fehler beim Starten der Runde:', error);
+      try {
+        const { data, error } = await adminClient
+          .from('buzzer_rounds')
+          .insert({ bet, point_limit: limit, start_time: new Date().toISOString(), active: true })
+          .select()
+          .single();
+
+        if (error) {
+          const msg = error.message || error.details || error.hint || error.code || 'Unbekannter Fehler';
+          console.error('Fehler beim Starten der Runde:', error);
+          alert(`Fehler beim Starten der Runde: ${msg}`);
+          return;
+        }
+
+        await adminClient.from('scores').update({ points: 0 }).not('user_id', 'is', null);
+        activeRound = data;
+        signedUp = false;
+        startRoundModal.classList.add('hidden');
+        updateRoundUI();
+      } catch (err) {
+        const msg = err.message || 'Unbekannter Fehler';
+        console.error('Fehler beim Starten der Runde:', err);
         alert(`Fehler beim Starten der Runde: ${msg}`);
-        return;
       }
-      await adminClient.from('scores').update({ points: 0 }).not('user_id', 'is', null);
-      activeRound = data;
-      signedUp = false;
-      startRoundModal.classList.add('hidden');
-      updateRoundUI();
     }
 
     async function signupForRound() {
