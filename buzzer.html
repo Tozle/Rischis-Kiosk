@@ -429,7 +429,7 @@
         .select()
         .single();
       if (error) {
-        alert('Fehler beim Starten der Runde');
+        alert(`Fehler beim Starten der Runde: ${error.message}`);
         return;
       }
       await adminClient.from('scores').update({ points: 0 }).not('user_id', 'is', null);
@@ -479,10 +479,12 @@
     cancelRoundBtn?.addEventListener('click', () => {
       startRoundModal.classList.add('hidden');
     });
-    confirmRoundBtn?.addEventListener('click', () => {
+    confirmRoundBtn?.addEventListener('click', async () => {
+      confirmRoundBtn.disabled = true;
       const bet = parseFloat(roundBet.value);
       const limit = parseInt(roundLimit.value, 10) || 1;
-      startRound(bet, limit);
+      await startRound(bet, limit);
+      confirmRoundBtn.disabled = false;
     });
     signupBtn?.addEventListener('click', signupForRound);
 
