@@ -51,6 +51,45 @@
     <button id="pass-btn" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700">Pass</button>
   </div>
 
+  <!-- Rundensteuerung -->
+  <div id="round-controls" class="hidden mt-4 text-center">
+    <button id="start-round-btn" class="bg-purple-600 text-white px-4 py-2 rounded shadow hover:bg-purple-700">Runde starten</button>
+  </div>
+
+  <!-- Anmelden -->
+  <div id="signup-container" class="hidden mt-4 text-center space-y-2">
+    <button id="signup-btn" class="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700">Anmelden</button>
+    <p id="signup-timer" class="text-sm"></p>
+  </div>
+
+  <!-- Ergebnis -->
+  <div id="result-display" class="hidden mt-6 bg-white dark:bg-gray-800 p-4 rounded shadow text-center space-y-2">
+    <h3 class="text-lg font-bold">Runde beendet</h3>
+    <p id="winner-name"></p>
+    <div id="balance-list" class="text-sm space-y-1"></div>
+  </div>
+
+  <!-- Dialog Runde starten -->
+  <div id="start-round-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-700 p-6 rounded shadow-lg space-y-4">
+      <h3 class="text-lg font-bold">Neue Runde</h3>
+      <label class="block">Einsatz:
+        <select id="round-bet" class="border p-2 rounded w-full mt-1">
+          <option value="0.5">0,50 €</option>
+          <option value="1">1,00 €</option>
+          <option value="2">2,00 €</option>
+        </select>
+      </label>
+      <label class="block">Punktelimit:
+        <input id="round-limit" type="number" min="1" value="5" class="border p-2 rounded w-full mt-1">
+      </label>
+      <div class="text-right space-x-2">
+        <button id="cancel-round-btn" class="bg-gray-500 text-white px-3 py-1 rounded">Abbrechen</button>
+        <button id="confirm-round-btn" class="bg-green-600 text-white px-3 py-1 rounded">Starten</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Punktestand-Tabelle -->
   <div id="scoreboard" class="w-full max-w-xs sm:max-w-md mt-8 bg-white shadow rounded p-4 text-sm sm:text-base overflow-x-auto dark:bg-gray-800">
     <h2 class="text-lg sm:text-xl font-bold mb-4 text-center">🏆 Punktestand</h2>
@@ -103,6 +142,23 @@
     const passBtn = document.getElementById("pass-btn");
     const resetScoresBtn = document.getElementById("reset-scores-btn");
     const scoreActions = document.getElementById("score-actions");
+    const roundControls = document.getElementById("round-controls");
+    const startRoundBtn = document.getElementById("start-round-btn");
+    const signupContainer = document.getElementById("signup-container");
+    const signupBtn = document.getElementById("signup-btn");
+    const signupTimer = document.getElementById("signup-timer");
+    const resultDisplay = document.getElementById("result-display");
+    const winnerNameEl = document.getElementById("winner-name");
+    const balanceList = document.getElementById("balance-list");
+    const startRoundModal = document.getElementById("start-round-modal");
+    const roundBet = document.getElementById("round-bet");
+    const roundLimit = document.getElementById("round-limit");
+    const cancelRoundBtn = document.getElementById("cancel-round-btn");
+    const confirmRoundBtn = document.getElementById("confirm-round-btn");
+
+    let activeRound = null;
+    let registrationInterval = null;
+    let signedUp = false;
 
     let currentUser = null;
     let currentBuzz = null;
@@ -242,6 +298,14 @@
     plusBtn.addEventListener("click", async () => {
       if (currentBuzz) {
         await updateScore(currentBuzz.user_id, currentBuzz.username, 1);
+        const { data: score } = await supabase
+          .from('scores')
+          .select('points')
+          .eq('user_id', currentBuzz.user_id)
+          .single();
+        if (activeRound && score && score.points >= activeRound.point_limit) {
+          await endRound(currentBuzz.user_id, currentBuzz.username);
+        }
         await resetBuzzer();
       }
     });
@@ -303,6 +367,118 @@
       tbody.replaceChildren(fragment);
     }
 
+    function updateSignupTimer() {
+      if (!activeRound) return;
+      const end = new Date(activeRound.start_time).getTime() + 60000;
+      const diff = Math.max(0, Math.floor((end - Date.now()) / 1000));
+      signupTimer.textContent = `Anmeldephase: ${diff}s`;
+      if (diff <= 0) {
+        signupContainer.classList.add('hidden');
+        clearInterval(registrationInterval);
+      }
+    }
+
+    function updateRoundUI() {
+      resultDisplay.classList.add('hidden');
+      if (currentUser?.role === 'admin' && !activeRound) {
+        roundControls.classList.remove('hidden');
+      } else {
+        roundControls.classList.add('hidden');
+      }
+
+      if (activeRound && Date.now() - new Date(activeRound.start_time).getTime() < 60000 && !signedUp) {
+        signupContainer.classList.remove('hidden');
+        updateSignupTimer();
+        registrationInterval = setInterval(updateSignupTimer, 1000);
+      } else {
+        signupContainer.classList.add('hidden');
+      }
+    }
+
+    async function loadActiveRound() {
+      const { data } = await supabase
+        .from('buzzer_rounds')
+        .select('*')
+        .eq('active', true)
+        .order('start_time', { ascending: false })
+        .limit(1)
+        .single();
+      activeRound = data || null;
+      if (activeRound) {
+        const { data: existing } = await supabase
+          .from('buzzer_participants')
+          .select('id')
+          .eq('round_id', activeRound.id)
+          .eq('user_id', currentUser.id)
+          .maybeSingle();
+        signedUp = !!existing;
+      } else {
+        signedUp = false;
+      }
+      updateRoundUI();
+    }
+
+    async function startRound(bet, limit) {
+      const { data, error } = await adminClient.from('buzzer_rounds')
+        .insert({ bet, point_limit: limit, start_time: new Date().toISOString(), active: true })
+        .select()
+        .single();
+      if (error) {
+        alert('Fehler beim Starten der Runde');
+        return;
+      }
+      await adminClient.from('scores').update({ points: 0 }).not('user_id', 'is', null);
+      activeRound = data;
+      signedUp = false;
+      startRoundModal.classList.add('hidden');
+      updateRoundUI();
+    }
+
+    async function signupForRound() {
+      if (!activeRound || signedUp) return;
+      signupBtn.disabled = true;
+      const bet = activeRound.bet;
+      const { data: user } = await supabase.from('users').select('balance').eq('id', currentUser.id).single();
+      await supabase.from('users').update({ balance: user.balance - bet }).eq('id', currentUser.id);
+      await supabase.from('buzzer_participants').insert({ round_id: activeRound.id, user_id: currentUser.id, username: currentUser.name });
+      await updateScore(currentUser.id, currentUser.name, 0);
+      signedUp = true;
+      signupContainer.classList.add('hidden');
+    }
+
+    async function endRound(winnerId, winnerName) {
+      if (!activeRound) return;
+      const { data: participants } = await supabase
+        .from('buzzer_participants')
+        .select('user_id')
+        .eq('round_id', activeRound.id);
+      const total = (participants?.length || 0) * activeRound.bet;
+      const { data: winner } = await supabase.from('users').select('balance').eq('id', winnerId).single();
+      await supabase.from('users').update({ balance: winner.balance + total }).eq('id', winnerId);
+      await adminClient.from('buzzer_rounds').update({ active: false, winner_id: winnerId }).eq('id', activeRound.id);
+      activeRound.active = false;
+      resultDisplay.classList.remove('hidden');
+      winnerNameEl.textContent = `Gewinner: ${winnerName}`;
+      const { data: balances } = await supabase.from('users')
+        .select('name, balance')
+        .in('id', participants.map(p => p.user_id));
+      balanceList.innerHTML = (balances || []).map(b => `<div>${b.name}: ${b.balance.toFixed(2)} €</div>`).join('');
+      updateRoundUI();
+    }
+
+    startRoundBtn?.addEventListener('click', () => {
+      startRoundModal.classList.remove('hidden');
+    });
+    cancelRoundBtn?.addEventListener('click', () => {
+      startRoundModal.classList.add('hidden');
+    });
+    confirmRoundBtn?.addEventListener('click', () => {
+      const bet = parseFloat(roundBet.value);
+      const limit = parseInt(roundLimit.value, 10) || 1;
+      startRound(bet, limit);
+    });
+    signupBtn?.addEventListener('click', signupForRound);
+
     supabase.channel('buzzer-updates')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'buzzer_state' }, () => refreshStatus())
       .subscribe();
@@ -315,10 +491,15 @@
       .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, () => loadScores())
       .subscribe();
 
+    supabase.channel('round-updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'buzzer_rounds' }, () => loadActiveRound())
+      .subscribe();
+
     checkUser().then(() => {
       refreshStatus();
       markOnline();
       showOnlineUsers();
+      loadActiveRound();
     });
 
     // Regelmässig den aktuellen Buzzer-Status abrufen, damit alle Spieler
