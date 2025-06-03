@@ -72,6 +72,7 @@
   <div id="result-display" class="hidden mt-6 bg-white dark:bg-gray-800 p-4 rounded shadow text-center space-y-2">
     <h3 class="text-lg font-bold">Runde beendet</h3>
     <p id="winner-name"></p>
+    <p id="prize-info"></p>
     <div id="balance-list" class="text-sm space-y-1"></div>
   </div>
 
@@ -158,6 +159,7 @@
     const participantList = document.getElementById("participant-list");
     const resultDisplay = document.getElementById("result-display");
     const winnerNameEl = document.getElementById("winner-name");
+    const prizeInfoEl = document.getElementById("prize-info");
     const balanceList = document.getElementById("balance-list");
     const startRoundModal = document.getElementById("start-round-modal");
     const roundBet = document.getElementById("round-bet");
@@ -172,6 +174,7 @@
     let activeRound = null;
     let registrationInterval = null;
     let signedUp = false;
+    let lastResult = null;
 
     let currentUser = null;
     let currentBuzz = null;
@@ -409,7 +412,13 @@
     }
 
     function updateRoundUI() {
-      resultDisplay.classList.add('hidden');
+      if (!activeRound && lastResult) {
+        resultDisplay.classList.remove('hidden');
+        winnerNameEl.textContent = `Gewinner: ${lastResult.winnerName}`;
+        prizeInfoEl.textContent = `Gewinn: ${lastResult.prize.toFixed(2)} €`;
+      } else {
+        resultDisplay.classList.add('hidden');
+      }
       if (currentUser?.role === 'admin' && (!activeRound || !activeRound.active)) {
         roundControls.classList.remove('hidden');
       } else {
@@ -441,14 +450,14 @@
     }
 
     async function loadActiveRound() {
-      const { data } = await supabase
+      const { data: active } = await supabase
         .from('buzzer_rounds')
         .select('*')
         .eq('active', true)
         .order('start_time', { ascending: false })
         .limit(1)
         .single();
-      activeRound = data || null;
+      activeRound = active || null;
       if (activeRound) {
         const { data: existing } = await supabase
           .from('buzzer_participants')
@@ -458,9 +467,31 @@
           .maybeSingle();
         signedUp = !!existing;
         await loadParticipants();
+        lastResult = null;
       } else {
         signedUp = false;
         participantList.textContent = '';
+        const { data: lastRound } = await supabase
+          .from('buzzer_rounds')
+          .select('id, bet, winner_id, active')
+          .order('start_time', { ascending: false })
+          .limit(1)
+          .single();
+        if (lastRound && !lastRound.active && lastRound.winner_id) {
+          const { data: winner } = await supabase
+            .from('users')
+            .select('name')
+            .eq('id', lastRound.winner_id)
+            .single();
+          const { data: parts } = await supabase
+            .from('buzzer_participants')
+            .select('id')
+            .eq('round_id', lastRound.id);
+          const prize = (parts?.length || 0) * lastRound.bet;
+          lastResult = { roundId: lastRound.id, winnerName: winner?.name || '', prize };
+        } else {
+          lastResult = null;
+        }
       }
       updateRoundUI();
     }
@@ -523,8 +554,11 @@
       await supabase.from('users').update({ balance: winner.balance + total }).eq('id', winnerId);
       await adminClient.from('buzzer_rounds').update({ active: false, winner_id: winnerId }).eq('id', activeRound.id);
       activeRound.active = false;
+      const prize = total;
+      lastResult = { roundId: activeRound.id, winnerName, prize };
       resultDisplay.classList.remove('hidden');
       winnerNameEl.textContent = `Gewinner: ${winnerName}`;
+      prizeInfoEl.textContent = `Gewinn: ${prize.toFixed(2)} €`;
       const { data: balances } = await supabase.from('users')
         .select('name, balance')
         .in('id', participants.map(p => p.user_id));
