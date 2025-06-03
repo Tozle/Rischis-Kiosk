@@ -227,10 +227,17 @@
 
     resetScoresBtn.addEventListener("click", async () => {
       if (!confirm('Alle Punkte wirklich auf 0 setzen?')) return;
-      const { error } = await adminClient.from('scores').update({ points: 0 }).neq('user_id', '');
-      if (!error) {
-        loadScores();
+      const { error } = await adminClient
+        .from('scores')
+        .update({ points: 0 })
+        .not('user_id', 'is', null); // Filter erforderlich, aktualisiert alle Einträge
+
+      if (error) {
+        console.error('Fehler beim Zurücksetzen der Punkte:', error.message);
+        return;
       }
+
+      loadScores();
     });
 
     let lastScoresJson = "";
