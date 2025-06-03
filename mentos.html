@@ -36,6 +36,10 @@
       <button id="btn-trocken" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full shadow">🥣 Trockenfutter gegeben</button>
     </div>
 
+    <div id="admin-buttons" class="hidden flex flex-col sm:flex-row justify-center gap-4 mb-6">
+        <button id="reset-timer-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full shadow">⏱️ Timer zurücksetzen</button>
+        <button id="clear-history-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full shadow">🗑️ Anzeige löschen</button>
+    </div>
     <div class="overflow-x-auto">
       <table class="table-auto w-full text-center text-sm">
         <thead>
@@ -71,6 +75,22 @@
     );
 
     let countdownInterval;
+
+    const adminButtons = document.getElementById('admin-buttons');
+    const resetTimerBtn = document.getElementById('reset-timer-btn');
+    const clearHistoryBtn = document.getElementById('clear-history-btn');
+
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data?.user) return;
+      const { data: profile } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+      if (profile?.role === 'admin') {
+        adminButtons.classList.remove('hidden');
+      }
+    });
 
     async function loadFeedings() {
       const { data, error } = await supabase
@@ -114,6 +134,18 @@
 
     document.getElementById('btn-nass').addEventListener('click', () => addFeeding('Nassfutter'));
     document.getElementById('btn-trocken').addEventListener('click', () => addFeeding('Trockenfutter'));
+
+    function resetTimerDisplay() {
+      clearInterval(countdownInterval);
+      document.getElementById('last-feed').textContent = '-';
+    }
+
+    function clearFeedingDisplay() {
+      document.getElementById('feedings-body').innerHTML = '';
+    }
+
+    resetTimerBtn.addEventListener('click', resetTimerDisplay);
+    clearHistoryBtn.addEventListener('click', clearFeedingDisplay);
 
     loadFeedings();
   </script>
