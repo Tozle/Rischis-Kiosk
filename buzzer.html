@@ -380,18 +380,19 @@
 
     function updateRoundUI() {
       resultDisplay.classList.add('hidden');
-      if (currentUser?.role === 'admin' && !activeRound) {
+      if (currentUser?.role === 'admin' && (!activeRound || !activeRound.active)) {
         roundControls.classList.remove('hidden');
       } else {
         roundControls.classList.add('hidden');
       }
 
-      if (activeRound && Date.now() - new Date(activeRound.start_time).getTime() < 120000 && !signedUp) {
+      if (activeRound && activeRound.active && Date.now() - new Date(activeRound.start_time).getTime() < 120000 && !signedUp) {
         signupContainer.classList.remove('hidden');
         updateSignupTimer();
         registrationInterval = setInterval(updateSignupTimer, 1000);
       } else {
         signupContainer.classList.add('hidden');
+        clearInterval(registrationInterval);
       }
     }
 
@@ -419,6 +420,10 @@
     }
 
     async function startRound(bet, limit) {
+      clearInterval(registrationInterval);
+      registrationInterval = null;
+      signupTimer.textContent = '';
+
       const { data, error } = await adminClient.from('buzzer_rounds')
         .insert({ bet, point_limit: limit, start_time: new Date().toISOString(), active: true })
         .select()
@@ -446,8 +451,10 @@
       signupContainer.classList.add('hidden');
     }
 
-    async function endRound(winnerId, winnerName) {
-      if (!activeRound) return;
+   async function endRound(winnerId, winnerName) {
+     if (!activeRound) return;
+      clearInterval(registrationInterval);
+      registrationInterval = null;
       const { data: participants } = await supabase
         .from('buzzer_participants')
         .select('user_id')
