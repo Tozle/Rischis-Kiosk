@@ -9,6 +9,24 @@
     tailwind.config = { darkMode: 'class' };
   </script>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <style>
+    input, select, textarea {
+      background-color: white;
+      color: black;
+    }
+    ::placeholder {
+      color: #6b7280;
+    }
+    .dark input,
+    .dark select,
+    .dark textarea {
+      background-color: #374151;
+      color: white;
+    }
+    .dark ::placeholder {
+      color: #9ca3af;
+    }
+  </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen bg-green-100 text-green-900 font-sans space-y-6 px-4 dark:bg-gray-900 dark:text-white">
   <div class="fixed top-4 right-4 z-50">
@@ -34,7 +52,7 @@
   </div>
 
   <!-- Punktestand-Tabelle -->
-  <div id="scoreboard" class="w-full max-w-xs sm:max-w-md mt-8 bg-white shadow rounded p-4 text-sm sm:text-base overflow-x-auto">
+  <div id="scoreboard" class="w-full max-w-xs sm:max-w-md mt-8 bg-white shadow rounded p-4 text-sm sm:text-base overflow-x-auto dark:bg-gray-800">
     <h2 class="text-lg sm:text-xl font-bold mb-4 text-center">🏆 Punktestand</h2>
     <table class="w-full table-auto text-left">
       <thead>
