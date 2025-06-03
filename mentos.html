@@ -140,12 +140,17 @@
       document.getElementById('last-feed').textContent = '-';
     }
 
-    function clearFeedingDisplay() {
-      document.getElementById('feedings-body').innerHTML = '';
+    async function clearFeedingHistory() {
+      await supabase
+        .from('mentos_feedings')
+        .delete()
+        .gt('zeitstempel', '1900-01-01');
+      resetTimerDisplay();
+      loadFeedings();
     }
 
     resetTimerBtn.addEventListener('click', resetTimerDisplay);
-    clearHistoryBtn.addEventListener('click', clearFeedingDisplay);
+    clearHistoryBtn.addEventListener('click', clearFeedingHistory);
 
     loadFeedings();
   </script>
