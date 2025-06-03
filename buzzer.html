@@ -41,6 +41,11 @@
     </table>
   </div>
 
+  <!-- Aktionen für Punktetabelle -->
+  <div id="score-actions" class="hidden mt-4 text-center">
+    <button id="reset-scores-btn" class="bg-red-600 text-white px-4 py-2 rounded shadow hover:bg-red-700">Punkte zurücksetzen</button>
+  </div>
+
   <div class="text-center mt-8 mb-8">
     <a href="dashboard.html" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full shadow">
       ⬅️ Zurück zum Dashboard
@@ -60,9 +65,12 @@
     const plusBtn = document.getElementById("plus-btn");
     const minusBtn = document.getElementById("minus-btn");
     const passBtn = document.getElementById("pass-btn");
+    const resetScoresBtn = document.getElementById("reset-scores-btn");
+    const scoreActions = document.getElementById("score-actions");
 
     let currentUser = null;
     let currentBuzz = null;
+    let lastBuzzTimestamp = null;
 
     async function checkUser() {
       const { data: auth, error } = await supabase.auth.getUser();
@@ -81,6 +89,10 @@
 
       currentUser.name = profile.name;
       currentUser.role = profile.role;
+
+      if (currentUser.role === 'admin') {
+        scoreActions.classList.remove("hidden");
+      }
     }
 
     async function markOnline() {
@@ -128,15 +140,21 @@
     }
 
     async function refreshStatus() {
+      const previousTimestamp = lastBuzzTimestamp;
       currentBuzz = await getActiveBuzz();
 
       if (currentBuzz) {
+        if (currentBuzz.timestamp !== previousTimestamp && currentBuzz.user_id !== currentUser.id) {
+          document.getElementById("buzz-sound").play();
+        }
+        lastBuzzTimestamp = currentBuzz.timestamp;
         status.textContent = `${currentBuzz.username} hat gebuzzert!`;
         buzzerBtn.disabled = true;
         if (currentUser.role === 'admin') {
           adminActions.classList.remove("hidden");
         }
       } else {
+        lastBuzzTimestamp = null;
         status.textContent = "Niemand hat bisher gebuzzert.";
         buzzerBtn.disabled = false;
         adminActions.classList.add("hidden");
@@ -202,6 +220,14 @@
     passBtn.addEventListener("click", async () => {
       if (currentBuzz) {
         await resetBuzzer();
+      }
+    });
+
+    resetScoresBtn.addEventListener("click", async () => {
+      if (!confirm('Alle Punkte wirklich auf 0 setzen?')) return;
+      const { error } = await supabase.from('scores').update({ points: 0 }).neq('user_id', '');
+      if (!error) {
+        loadScores();
       }
     });
 
