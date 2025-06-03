@@ -62,6 +62,25 @@
       font-size: 1.25rem;
     }
   }
+  .dark .glass-effect {
+    background-color: rgba(31, 41, 55, 0.88);
+  }
+  input, select, textarea {
+    background-color: white;
+    color: black;
+  }
+  ::placeholder {
+    color: #6b7280;
+  }
+  .dark input,
+  .dark select,
+  .dark textarea {
+    background-color: #374151;
+    color: white;
+  }
+  .dark ::placeholder {
+    color: #9ca3af;
+  }
   </style>
 </head>
 <body class="text-green-900 relative dark:bg-gray-900 dark:text-white">
@@ -72,7 +91,7 @@
   </div>
   <div class="shop-container w-full px-3 py-2 max-w-screen-sm mx-auto mt-12 sm:mt-20 p-6 sm:p-10 rounded-3xl kiffer-shadow border-4 border-green-300 glass-effect animate-fade-in">
 
-    <div id="loader" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center hidden z-50">
+    <div id="loader" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center hidden z-50 dark:bg-gray-900 dark:bg-opacity-70">
       <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-green-500"></div>
     </div>
 
@@ -199,7 +218,7 @@ async function loadCategories() {
     .filter(p => p.name.toLowerCase().includes(searchTerm))
     .forEach(product => {
       const li = document.createElement('li');
-      li.className = 'border-2 border-green-300 bg-white bg-opacity-80 p-4 rounded-xl shadow text-green-900';
+      li.className = 'border-2 border-green-300 bg-white bg-opacity-80 p-4 rounded-xl shadow text-green-900 dark:bg-gray-700 dark:text-white dark:border-gray-600';
 
       li.innerHTML = `
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -211,7 +230,7 @@ async function loadCategories() {
           </div>
           ${product.stock > 0 ? 
             `<div class="flex flex-col sm:flex-row items-center gap-2">
-              <input type="number" min="1" max="${product.stock}" value="1" id="qty-${product.id}" class="w-16 border-2 border-green-400 rounded px-2 py-1">
+              <input type="number" min="1" max="${product.stock}" value="1" id="qty-${product.id}" class="w-16 border-2 border-green-400 rounded px-2 py-1 dark:bg-gray-700 dark:text-white dark:border-gray-600">
               <button class="bg-green-700 text-white px-4 py-2 rounded-full shadow hover:bg-green-800 transition-all" onclick="buyProduct('${product.id}', 'qty-${product.id}', '${product.name}', ${product.price})">Kaufen</button>
             </div>` : ''
           }
