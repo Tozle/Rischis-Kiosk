@@ -429,7 +429,8 @@
         .select()
         .single();
       if (error) {
-        alert(`Fehler beim Starten der Runde: ${error.message}`);
+        const msg = error.message || error.details || String(error);
+        alert(`Fehler beim Starten der Runde: ${msg}`);
         return;
       }
       await adminClient.from('scores').update({ points: 0 }).not('user_id', 'is', null);
