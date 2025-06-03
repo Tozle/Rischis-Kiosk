@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rischis Kiosk – Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa&family=Rock+Salt&display=swap" rel="stylesheet">
   <style>
@@ -32,7 +35,12 @@
     }
   </style>
 </head>
-<body class="text-green-900 relative">
+<body class="text-green-900 relative dark:bg-gray-900 dark:text-white">
+  <div class="fixed top-4 right-4 z-50">
+    <button onclick="toggleDarkMode()" class="bg-gray-300 dark:bg-gray-700 text-black dark:text-white px-4 py-2 rounded shadow">
+      🌙 / ☀️
+    </button>
+  </div>
   <div class="w-full px-3 py-2 max-w-screen-sm mx-auto mt-12 sm:mt-20 p-6 sm:p-10 rounded-3xl kiffer-shadow border-4 border-green-300 glass-effect animate-fade-in">
     <h1 class="text-3xl sm:text-4xl font-bold mb-4 text-center text-green-800">
       Rischis Kiosk<br><span class="text-lg sm:text-xl sm:text-2xl">Let’s blaze & buy</span>
@@ -61,6 +69,14 @@
   </div>
 
   <script>
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+    }
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.documentElement.classList.add('dark');
+    }
+
     const supabase = window.supabase.createClient(
       "https://izkuiqjhzeeirmcikbef.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a3VpcWpoemVlaXJtY2lrYmVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4MDAwOTQsImV4cCI6MjA2NDM3NjA5NH0.mPu0jQYnt0uGoLgehNFDHZprEcmrzGJ667D31sLSbj0"
