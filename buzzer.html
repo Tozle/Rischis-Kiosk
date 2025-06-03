@@ -53,10 +53,12 @@
   </div>
 
   <script>
-    window.supabase = supabase.createClient(
-      'https://izkuiqjhzeeirmcikbef.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a3VpcWpoemVlaXJtY2lrYmVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4MDAwOTQsImV4cCI6MjA2NDM3NjA5NH0.mPu0jQYnt0uGoLgehNFDHZprEcmrzGJ667D31sLSbj0'
-    );
+    const SUPABASE_URL = 'https://izkuiqjhzeeirmcikbef.supabase.co';
+    const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a3VpcWpoemVlaXJtY2lrYmVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4MDAwOTQsImV4cCI6MjA2NDM3NjA5NH0.mPu0jQYnt0uGoLgehNFDHZprEcmrzGJ667D31sLSbj0';
+    const SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a3VpcWpoemVlaXJtY2lrYmVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODgwMDA5NCwiZXhwIjoyMDY0Mzc2MDk0fQ.yF2-AKGKcHFNpkIt-bg-YMhWjjLK74cLw6t3VfjDl8w';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, ANON_KEY);
+    const adminClient = window.supabase.createClient(SUPABASE_URL, SERVICE_KEY);
 
     const buzzerBtn = document.getElementById("buzzer-btn");
     const status = document.getElementById("status");
@@ -225,7 +227,7 @@
 
     resetScoresBtn.addEventListener("click", async () => {
       if (!confirm('Alle Punkte wirklich auf 0 setzen?')) return;
-      const { error } = await supabase.from('scores').update({ points: 0 }).neq('user_id', '');
+      const { error } = await adminClient.from('scores').update({ points: 0 }).neq('user_id', '');
       if (!error) {
         loadScores();
       }
