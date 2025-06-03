@@ -59,7 +59,12 @@
   <!-- Anmelden -->
   <div id="signup-container" class="hidden mt-4 text-center space-y-2">
     <button id="signup-btn" class="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700">Anmelden</button>
-    <p id="signup-timer" class="text-sm"></p>
+  </div>
+
+  <!-- Rundeninfo -->
+  <div id="round-info" class="hidden mt-2 text-center space-y-1 text-sm">
+    <p id="signup-timer"></p>
+    <div id="participant-list" class="text-xs"></div>
   </div>
 
   <!-- Ergebnis -->
@@ -146,7 +151,9 @@
     const startRoundBtn = document.getElementById("start-round-btn");
     const signupContainer = document.getElementById("signup-container");
     const signupBtn = document.getElementById("signup-btn");
+    const roundInfo = document.getElementById("round-info");
     const signupTimer = document.getElementById("signup-timer");
+    const participantList = document.getElementById("participant-list");
     const resultDisplay = document.getElementById("result-display");
     const winnerNameEl = document.getElementById("winner-name");
     const balanceList = document.getElementById("balance-list");
@@ -367,13 +374,30 @@
       tbody.replaceChildren(fragment);
     }
 
+    async function loadParticipants() {
+      if (!activeRound) return;
+      const { data, error } = await supabase
+        .from('buzzer_participants')
+        .select('username')
+        .eq('round_id', activeRound.id)
+        .order('username', { ascending: true });
+      if (error) {
+        console.error('Fehler beim Laden der Teilnehmer:', error.message);
+        return;
+      }
+      const names = (data || []).map(p => p.username).join(', ');
+      participantList.textContent = names ? `Angemeldet: ${names}` : 'Noch keine Anmeldungen';
+    }
+
     function updateSignupTimer() {
       if (!activeRound) return;
       const end = new Date(activeRound.start_time).getTime() + 120000;
       const diff = Math.max(0, Math.floor((end - Date.now()) / 1000));
       signupTimer.textContent = `Anmeldephase: ${diff}s`;
+      loadParticipants();
       if (diff <= 0) {
         signupContainer.classList.add('hidden');
+        roundInfo.classList.add('hidden');
         clearInterval(registrationInterval);
       }
     }
@@ -386,13 +410,25 @@
         roundControls.classList.add('hidden');
       }
 
-      if (activeRound && activeRound.active && Date.now() - new Date(activeRound.start_time).getTime() < 120000 && !signedUp) {
-        signupContainer.classList.remove('hidden');
+      const inRegistration = activeRound && activeRound.active &&
+        Date.now() - new Date(activeRound.start_time).getTime() < 120000;
+
+      if (inRegistration) {
+        roundInfo.classList.remove('hidden');
         updateSignupTimer();
-        registrationInterval = setInterval(updateSignupTimer, 1000);
+        if (!registrationInterval) {
+          registrationInterval = setInterval(updateSignupTimer, 1000);
+        }
+      } else {
+        roundInfo.classList.add('hidden');
+        clearInterval(registrationInterval);
+        registrationInterval = null;
+      }
+
+      if (inRegistration && !signedUp) {
+        signupContainer.classList.remove('hidden');
       } else {
         signupContainer.classList.add('hidden');
-        clearInterval(registrationInterval);
       }
     }
 
@@ -413,8 +449,10 @@
           .eq('user_id', currentUser.id)
           .maybeSingle();
         signedUp = !!existing;
+        await loadParticipants();
       } else {
         signedUp = false;
+        participantList.textContent = '';
       }
       updateRoundUI();
     }
@@ -442,6 +480,7 @@
         activeRound = data;
         signedUp = false;
         startRoundModal.classList.add('hidden');
+        await loadParticipants();
         updateRoundUI();
       } catch (err) {
         const msg = err.message || 'Unbekannter Fehler';
@@ -460,6 +499,7 @@
       await updateScore(currentUser.id, currentUser.name, 0);
       signedUp = true;
       signupContainer.classList.add('hidden');
+      await loadParticipants();
     }
 
    async function endRound(winnerId, winnerName) {
@@ -481,6 +521,7 @@
         .select('name, balance')
         .in('id', participants.map(p => p.user_id));
       balanceList.innerHTML = (balances || []).map(b => `<div>${b.name}: ${b.balance.toFixed(2)} €</div>`).join('');
+      participantList.textContent = '';
       updateRoundUI();
     }
 
@@ -513,6 +554,10 @@
 
     supabase.channel('round-updates')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'buzzer_rounds' }, () => loadActiveRound())
+      .subscribe();
+
+    supabase.channel('participant-updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'buzzer_participants' }, () => loadParticipants())
       .subscribe();
 
     checkUser().then(() => {
