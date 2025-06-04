@@ -120,6 +120,10 @@
     <div class="mb-6">
       <p><strong>Angemeldet als:</strong> <span id="user-email"></span></p>
       <p><strong>Guthaben:</strong> <span id="user-balance" class="font-bold">0.00 €</span></p>
+      <div id="admin-purchase" class="hidden mt-4">
+        <label class="block mb-2 font-medium text-green-800">Kauf für:</label>
+        <select id="purchase-user-select" class="border-2 rounded-xl p-3 w-full border-green-400 bg-green-50 text-green-900 text-base"></select>
+      </div>
     </div>
 
     <div class="mt-8">
@@ -159,6 +163,9 @@
 
     let currentUser = null;
     let userBalance = 0;
+    let isAdmin = false;
+    let selectedUserId = null;
+    let selectedUserBalance = 0;
 
     function showMessage(text, type = 'info') {
       const el = document.getElementById('message');
@@ -200,13 +207,51 @@ async function loadCategories() {
       currentUser = user;
       document.getElementById('user-email').textContent = user.email;
 
-      const { data, error: balanceError } = await supabase.from('users').select('balance').eq('id', user.id).single();
+      const { data, error: balanceError } = await supabase.from('users').select('balance, role').eq('id', user.id).single();
       if (balanceError) return showMessage("Fehler beim Laden des Guthabens.", 'error');
       userBalance = data.balance;
+      isAdmin = data.role === 'admin';
 
       const balanceElement = document.getElementById('user-balance');
       balanceElement.textContent = `${userBalance.toFixed(2)} €`;
       balanceElement.className = userBalance < 0 ? 'text-red-600 font-bold' : 'text-green-900';
+
+      if (isAdmin) {
+        selectedUserId = currentUser.id;
+        selectedUserBalance = userBalance;
+        await loadPurchaseUsers();
+      }
+    }
+
+    async function loadPurchaseUsers() {
+      const { data: users } = await supabase.from('users').select('id, name, balance').order('name');
+      const select = document.getElementById('purchase-user-select');
+      select.innerHTML = '';
+      const selfOpt = document.createElement('option');
+      selfOpt.value = currentUser.id;
+      selfOpt.textContent = 'Eigener Account';
+      selfOpt.dataset.balance = userBalance;
+      select.appendChild(selfOpt);
+      users?.forEach(u => {
+        if (u.id === currentUser.id) return;
+        const opt = document.createElement('option');
+        opt.value = u.id;
+        opt.textContent = u.name;
+        opt.dataset.balance = u.balance;
+        select.appendChild(opt);
+      });
+      document.getElementById('admin-purchase').classList.remove('hidden');
+      select.addEventListener('change', async (e) => {
+        selectedUserId = e.target.value;
+        const bal = e.target.options[e.target.selectedIndex].dataset.balance;
+        if (bal !== undefined) {
+          selectedUserBalance = parseFloat(bal);
+        } else {
+          const { data: user } = await supabase.from('users').select('balance').eq('id', selectedUserId).single();
+          selectedUserBalance = user?.balance || 0;
+        }
+        document.getElementById('user-balance').textContent = `${selectedUserBalance.toFixed(2)} €`;
+      });
     }
 
     async function loadProducts() {
@@ -277,7 +322,9 @@ async function loadCategories() {
         const { data: userCheck } = await supabase.auth.getUser();
         if (!userCheck?.user) return alert("Nicht eingeloggt");
 
-        const { data: dbUser } = await supabase.from('users').select('*').eq('id', userCheck.user.id).single();
+        const targetId = isAdmin && selectedUserId ? selectedUserId : userCheck.user.id;
+
+        const { data: dbUser } = await supabase.from('users').select('*').eq('id', targetId).single();
         const { data: product } = await supabase.from('products').select('*').eq('id', productId).single();
 
         if (!product || product.stock < qty) return showMessage("Nicht genügend Bestand.", 'error');
@@ -303,8 +350,13 @@ async function loadCategories() {
 
         if (purchaseError || balanceError || stockError) throw new Error("Fehler beim Kaufprozess");
 
-        userBalance = newBalance;
-        document.getElementById('user-balance').textContent = userBalance.toFixed(2);
+        if (targetId === currentUser.id) {
+          userBalance = newBalance;
+        }
+        if (isAdmin) {
+          selectedUserBalance = newBalance;
+        }
+        document.getElementById('user-balance').textContent = `${(isAdmin ? selectedUserBalance : userBalance).toFixed(2)} €`;
         showMessage("Kauf erfolgreich!", 'success');
         await loadProducts();
         await loadPurchaseHistory();
