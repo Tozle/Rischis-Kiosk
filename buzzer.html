@@ -516,7 +516,15 @@
         .order('start_time', { ascending: false })
         .limit(1)
         .single();
-      activeRound = latest || null;
+
+      let finishedRound = null;
+      if (latest && (latest.active || latest.winner_id === null)) {
+        activeRound = latest;
+      } else {
+        activeRound = null;
+        finishedRound = latest;
+      }
+
       if (activeRound) {
         let existing = null;
         if (currentUser) {
@@ -535,12 +543,7 @@
       } else {
         signedUp = false;
         participantList.textContent = '';
-        const { data: lastRound } = await supabase
-          .from('buzzer_rounds')
-          .select('id, bet, winner_id, active')
-          .order('start_time', { ascending: false })
-          .limit(1)
-          .single();
+        const lastRound = finishedRound;
         if (lastRound && !lastRound.active && lastRound.winner_id) {
           const { data: winner } = await supabase
             .from('users')
