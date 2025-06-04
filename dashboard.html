@@ -67,7 +67,8 @@
       const isDark = document.documentElement.classList.toggle('dark');
       localStorage.setItem('darkMode', isDark ? 'true' : 'false');
     }
-    if (localStorage.getItem('darkMode') === 'true') {
+    // Darkmode standardmäßig aktiv, sofern nicht deaktiviert
+    if (localStorage.getItem('darkMode') !== 'false') {
       document.documentElement.classList.add('dark');
     }
 

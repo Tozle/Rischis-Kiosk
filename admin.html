@@ -199,7 +199,8 @@ function toggleSection(id) {
   if (el) el.classList.toggle('hidden');
 }
 
-if (localStorage.getItem('darkMode') === 'true') {
+// Darkmode standardmäßig aktiv lassen, sofern nicht abgeschaltet
+if (localStorage.getItem('darkMode') !== 'false') {
   document.documentElement.classList.add('dark');
 }
 
