@@ -303,15 +303,20 @@ async function loadCategories() {
         .select('price, quantity, created_at, product_name')
         .eq('user_id', currentUser.id);
 
-      if (sortOption === 'asc') query = query.order('created_at', { ascending: true });
-      else if (sortOption === 'desc') query = query.order('created_at', { ascending: false });
+      if (sortOption === 'asc') {
+        query = query.order('created_at', { ascending: true });
+      } else if (sortOption === 'desc') {
+        query = query.order('created_at', { ascending: false });
+      } else if (sortOption === 'price_asc') {
+        query = query.order('price', { ascending: true });
+      } else if (sortOption === 'price_desc') {
+        query = query.order('price', { ascending: false });
+      }
 
       const { data: history, error } = await query;
       if (error || !history) return;
 
-      let sorted = history;
-      if (sortOption === 'price_asc') sorted = [...history].sort((a, b) => a.price - b.price);
-      else if (sortOption === 'price_desc') sorted = [...history].sort((a, b) => b.price - a.price);
+      const sorted = history;
 
       const list = document.getElementById('purchase-history');
       list.innerHTML = '';
