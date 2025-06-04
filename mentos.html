@@ -132,12 +132,12 @@
       clearInterval(countdownInterval);
       function update() {
         const diff = Date.now() - time.getTime();
-        const minutes = Math.floor(diff / 60000);
-        const seconds = Math.floor((diff % 60000) / 1000);
-        document.getElementById('last-feed').textContent = `${minutes}m ${seconds}s`;
+        const hours = Math.floor(diff / 3600000);
+        const minutes = Math.floor((diff % 3600000) / 60000);
+        document.getElementById('last-feed').textContent = `${hours}h ${minutes}m`;
       }
       update();
-      countdownInterval = setInterval(update, 1000);
+      countdownInterval = setInterval(update, 60000);
     }
 
     async function addFeeding(type) {
