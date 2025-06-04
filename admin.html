@@ -240,7 +240,7 @@ const { error } = await supabase.from('products').insert({
   available: true,
   created_by: user.id,
   stock,
-  category // 👈 NEU
+  category
 });
 
 
