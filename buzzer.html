@@ -222,14 +222,14 @@
 
       const { data: profile } = await supabase
         .from("users")
-        .select("rule, username")
+        .select("role, username")
         .eq("id", currentUser.id)
         .single();
 
       if (!profile) return;
 
       currentUser.name = profile.username;
-      currentUser.role = profile.rule;
+      currentUser.role = profile.role;
 
       if (currentUser.role === 'admin') {
         roundControls.classList.remove('hidden');
