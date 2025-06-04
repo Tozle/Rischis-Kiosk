@@ -358,29 +358,29 @@ const { error } = await supabase.from('products').insert({
 
     async function loadUserPasswords() {
       const { data } = await supabase.from('users').select('id, email, name');
-        document.getElementById('user-manage-list').innerHTML = data.map(u => `
-        <li>
-          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-            <input type="text" id="name-${u.id}" class="border px-2 w-full sm:w-auto" value="${u.name}" placeholder="Neuer Name" />
-            <button onclick="changeUserName('${u.id}')" class="bg-blue-600 text-white px-2 rounded hover:bg-blue-700 w-full sm:w-auto">Name ändern</button>
-            <input type="password" id="pw-${u.id}" class="border px-2 w-full sm:w-auto" placeholder="Neues Passwort" />
-            <button onclick="changeUserPassword('${u.id}')" class="bg-yellow-600 text-white px-2 rounded hover:bg-yellow-700 w-full sm:w-auto">Passwort ändern</button>
-          </div>
+      document.getElementById('user-manage-list').innerHTML = data.map(u => `
+        <li class="flex justify-between items-center gap-2">
+          <span>${u.name} (${u.email})</span>
+          <button onclick="editUser('${u.id}', '${u.name.replace(/'/g, "\\'")}')" class="bg-blue-600 text-white px-2 rounded hover:bg-blue-700">Bearbeiten</button>
         </li>`).join('');
     }
 
-    async function changeUserName(id) {
-      const newName = document.getElementById('name-' + id).value.trim();
-      if (!newName) return alert("Name darf nicht leer sein.");
-      const { error } = await supabase.from('users').update({ name: newName }).eq('id', id);
-      alert(error ? "Fehler: " + error.message : "Name geändert!");
-    }
+    async function editUser(id, currentName) {
+      const newName = prompt("Neuer Name:", currentName);
+      if (newName && newName.trim() !== "") {
+        const { error } = await supabase.from('users').update({ name: newName.trim() }).eq('id', id);
+        if (error) return alert("Fehler beim Ändern des Namens: " + error.message);
+      }
 
-    async function changeUserPassword(id) {
-      const pw = document.getElementById('pw-' + id).value;
-      if (!pw || pw.length < 6) return alert("Mind. 6 Zeichen");
-      const { error } = await adminClient.auth.admin.updateUserById(id, { password: pw });
-      alert(error ? "Fehler: " + error.message : "Passwort geändert!");
+      const newPw = prompt("Neues Passwort (mind. 6 Zeichen, leer lassen zum Überspringen):");
+      if (newPw) {
+        if (newPw.length < 6) return alert("Passwort zu kurz.");
+        const { error } = await adminClient.auth.admin.updateUserById(id, { password: newPw });
+        if (error) return alert("Fehler beim Ändern des Passworts: " + error.message);
+      }
+
+      alert("Benutzerdaten gespeichert!");
+      loadUserPasswords();
     }
 
     async function loadUserBalances() {
