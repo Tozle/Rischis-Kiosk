@@ -169,7 +169,7 @@
     <!-- Guthaben -->
     <section id="section-balance" class="mb-8">
       <h2 class="text-lg sm:text-xl font-semibold mb-4">Guthaben verwalten</h2>
-      <ul id="balance-control-list" class="space-y-4"></ul>
+      <ul id="balance-control-list" class="space-y-2 text-sm"></ul>
     </section>
   </div>
 
@@ -385,14 +385,14 @@ const { error } = await supabase.from('products').insert({
 
     async function loadUserBalances() {
       const { data } = await supabase.from('users').select('id, name, balance');
-        document.getElementById('balance-control-list').innerHTML = data.map(u => {
+      document.getElementById('balance-control-list').innerHTML = data.map(u => {
         const balanceColor = u.balance < 0 ? 'text-red-600 dark:text-white font-bold' : 'text-black dark:text-white';
         return `
-          <li class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-            <div>${u.name}: <span class="${balanceColor}">${u.balance.toFixed(2)} €</span></div>
-            <input type="number" id="bal-${u.id}" class="w-full sm:w-24 border px-2" step="0.01" />
-            <button onclick="updateBalance('${u.id}', 'add')" class="bg-green-600 text-white px-2 rounded hover:bg-green-700 w-full sm:w-auto">Hinzufügen</button>
-            <button onclick="updateBalance('${u.id}', 'subtract')" class="bg-red-600 text-white px-2 rounded hover:bg-red-700 w-full sm:w-auto">Abziehen</button>
+          <li class="flex flex-wrap items-center gap-2">
+            <span class="flex-1">${u.name}: <span class="${balanceColor}">${u.balance.toFixed(2)} €</span></span>
+            <input type="number" id="bal-${u.id}" class="w-20 border px-2 py-1" step="0.01" />
+            <button onclick="updateBalance('${u.id}', 'add')" class="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700">+</button>
+            <button onclick="updateBalance('${u.id}', 'subtract')" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">-</button>
           </li>`;
       }).join('');
     }
