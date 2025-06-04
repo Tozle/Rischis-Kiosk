@@ -65,7 +65,10 @@
 
     <!-- Produkt hinzufügen -->
     <section id="section-add" class="mb-8">
-      <h2 class="text-lg sm:text-xl font-semibold mb-4">Produkt hinzufügen</h2>
+      <button onclick="toggleSection('add')" class="w-full text-left bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition">
+        Produkt hinzufügen anzeigen / ausblenden
+      </button>
+      <div id="add-container" class="mt-4 hidden">
 <form class="space-y-4" id="add-product">
   <div class="space-y-2">
     <input type="text"
@@ -121,19 +124,29 @@
 </form>
 
       <p class="mt-3 text-center text-sm" id="product-result"></p>
+      </div>
     </section>
 
     <!-- Statistik -->
     <section id="section-stats" class="mb-8">
-      <div class="flex flex-col sm:flex-row justify-between items-center">
-        <h2 class="text-lg sm:text-xl font-semibold mb-4">Statistik</h2>
-        <button onclick="confirmResetStats()" class="text-sm bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 focus:outline-none">Statistik zurücksetzen</button>
+      <button onclick="toggleSection('stats')" class="w-full text-left bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition">
+        Statistik anzeigen / ausblenden
+      </button>
+      <div id="stats-container" class="mt-4 hidden">
+        <div class="flex flex-col sm:flex-row justify-between items-center">
+          <h2 class="text-lg sm:text-xl font-semibold mb-4">Statistik</h2>
+          <button onclick="confirmResetStats()" class="text-sm bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 focus:outline-none">Statistik zurücksetzen</button>
+        </div>
+        <div id="stats" class="space-y-4"></div>
       </div>
-      <div id="stats" class="space-y-4"></div>
     </section>
 
     <!-- Produkte -->
     <section id="section-products" class="mb-8">
+      <button onclick="toggleSection('products')" class="w-full text-left bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition">
+        Produkte anzeigen / ausblenden
+      </button>
+      <div id="products-container" class="mt-4 hidden">
 <div class="flex flex-col sm:flex-row justify-between items-center mb-4">
   <h2 class="text-lg sm:text-xl font-semibold mb-2 sm:mb-0">Aktuelle Produkte</h2>
   <select id="category-filter" class="p-3 border rounded w-full sm:w-64 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
@@ -147,6 +160,7 @@
 <ul id="product-list" class="space-y-4"></ul>
 
 
+      </div>
     </section>
 
     <!-- Käufe -->
@@ -162,14 +176,24 @@
 
     <!-- Benutzernamen und Passwörter -->
     <section id="section-users" class="mb-8">
-      <h2 class="text-lg sm:text-xl font-semibold mb-4">Benutzernamen und Passwörter verwalten</h2>
-      <ul id="user-manage-list" class="space-y-4"></ul>
+      <button onclick="toggleSection('users')" class="w-full text-left bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition">
+        Benutzer anzeigen / ausblenden
+      </button>
+      <div id="users-container" class="mt-4 hidden">
+        <h2 class="text-lg sm:text-xl font-semibold mb-4">Benutzernamen und Passwörter verwalten</h2>
+        <ul id="user-manage-list" class="space-y-4"></ul>
+      </div>
     </section>
 
     <!-- Guthaben -->
     <section id="section-balance" class="mb-8">
-      <h2 class="text-lg sm:text-xl font-semibold mb-4">Guthaben verwalten</h2>
-      <ul id="balance-control-list" class="space-y-2 text-sm"></ul>
+      <button onclick="toggleSection('balance')" class="w-full text-left bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition">
+        Guthaben anzeigen / ausblenden
+      </button>
+      <div id="balance-container" class="mt-4 hidden">
+        <h2 class="text-lg sm:text-xl font-semibold mb-4">Guthaben verwalten</h2>
+        <ul id="balance-control-list" class="space-y-2 text-sm"></ul>
+      </div>
     </section>
   </div>
 
@@ -177,6 +201,11 @@
 function toggleDarkMode() {
   const isDark = document.documentElement.classList.toggle('dark');
   localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+}
+
+function toggleSection(id) {
+  const el = document.getElementById(id + '-container');
+  if (el) el.classList.toggle('hidden');
 }
 
 if (localStorage.getItem('darkMode') === 'true') {
