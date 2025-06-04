@@ -123,7 +123,7 @@
       const body = document.getElementById('feedings-body');
       body.innerHTML = entries.map(e => `
         <tr class="odd:bg-green-50 dark:odd:bg-gray-700">
-          <td class="px-2 py-1 border-b">${new Date(e.zeitstempel).toLocaleString()}</td>
+          <td class="px-2 py-1 border-b">${new Date(e.zeitstempel).toLocaleString('de-DE', { timeZone: 'Europe/Berlin' })}</td>
           <td class="px-2 py-1 border-b">${e.futterart}</td>
           <td class="px-2 py-1 border-b">${e.gefuettert_von || ''}</td>
         </tr>`).join('');

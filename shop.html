@@ -316,7 +316,9 @@ async function loadCategories() {
       list.innerHTML = '';
       sorted.forEach(entry => {
         const li = document.createElement('li');
-        const date = new Date(entry.created_at).toLocaleString();
+        const date = new Date(entry.created_at).toLocaleString('de-DE', {
+          timeZone: 'Europe/Berlin'
+        });
         li.textContent = `${date}: ${entry.quantity || 1}x ${entry.product_name} – ${entry.price.toFixed(2)} €`;
         list.appendChild(li);
       });
