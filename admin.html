@@ -268,7 +268,7 @@ const { error } = await supabase.from('products').insert({
     : data.filter(p => p.category === selectedCategory);
 
     document.getElementById('product-list').innerHTML = filtered.map(p => `
-    <li class="flex items-center justify-between flex-wrap bg-white dark:bg-gray-700 p-3 rounded-lg shadow-md hover:shadow-lg transition-all">
+    <li class="flex items-center justify-between flex-wrap sm:flex-nowrap bg-white dark:bg-gray-700 p-3 rounded-lg shadow-md hover:shadow-lg transition-all min-h-24">
       <div class="flex flex-col sm:flex-row items-start sm:items-center flex-1">
         <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white mb-1 sm:mb-0">${p.name}</h3>
         <div class="flex flex-col sm:flex-row sm:ml-4">
@@ -277,7 +277,7 @@ const { error } = await supabase.from('products').insert({
           <p class="text-sm text-gray-600 dark:text-white">Kategorie: <strong>${p.category || '-'}</strong></p>
         </div>
       </div>
-      <div class="flex flex-row gap-1 items-center mt-2 sm:mt-0 ml-auto">
+      <div class="flex flex-row gap-1 items-center mt-2 sm:mt-0 ml-auto self-center">
         <button onclick="toggleAvailability('${p.id}', ${p.available})" class="bg-yellow-500 text-white text-xs px-2 py-1 rounded shadow hover:bg-yellow-600 focus:outline-none">
           ${p.available ? 'Verstecken' : 'Anzeigen'}
         </button>
