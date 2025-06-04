@@ -116,13 +116,6 @@
       <option value="price_desc">Preis absteigend</option>
     </select>
 
-    <label class="block mb-2 font-medium text-green-800">Kaufverlauf sortieren:</label>
-    <select id="sort-history" class="mb-6 border-2 rounded-xl p-3 w-full border-green-400 bg-green-50 text-green-900 text-base">
-      <option value="desc">Neuste zuerst</option>
-      <option value="asc">Älteste zuerst</option>
-      <option value="price_desc">Preis absteigend</option>
-      <option value="price_asc">Preis aufsteigend</option>
-    </select>
 
     <div class="mb-6">
       <p><strong>Angemeldet als:</strong> <span id="user-email"></span></p>
@@ -138,6 +131,13 @@
 
     <div class="mt-12">
       <h2 class="text-lg sm:text-xl font-bold tracking-wide text-green-800 uppercase mb-4">Kaufverlauf</h2>
+      <label class="block mb-2 font-medium text-green-800">Kaufverlauf sortieren:</label>
+      <select id="sort-history" class="mb-6 border-2 rounded-xl p-3 w-full border-green-400 bg-green-50 text-green-900 text-base">
+        <option value="desc">Neuste zuerst</option>
+        <option value="asc">Älteste zuerst</option>
+        <option value="price_desc">Preis absteigend</option>
+        <option value="price_asc">Preis aufsteigend</option>
+      </select>
       <ul id="purchase-history" class="overflow-x-auto block space-y-2 text-sm"></ul>
     </div>
   </div>
