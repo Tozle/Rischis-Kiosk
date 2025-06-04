@@ -458,7 +458,7 @@
         entry.className = 'border-b pb-2 mb-2';
 
         const winner = parts?.find(p => p.user_id === r.winner_id);
-        let html = `<div class="font-semibold">${new Date(r.start_time).toLocaleString()} – Gewinner: ${winner ? winner.username : '-'} (${pot.toFixed(2)} €)</div>`;
+        let html = `<div class="font-semibold">${new Date(r.start_time).toLocaleString('de-DE', { timeZone: 'Europe/Berlin' })} – Gewinner: ${winner ? winner.username : '-'} (${pot.toFixed(2)} €)</div>`;
         html += '<ul class="ml-4 list-disc">';
         for (const p of parts || []) {
           const delta = p.user_id === r.winner_id ? pot - r.bet : -r.bet;

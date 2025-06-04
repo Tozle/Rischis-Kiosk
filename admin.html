@@ -437,8 +437,9 @@ const { error } = await supabase.from('products').insert({
 
 function formatDateTime(isoString) {
   const date = new Date(isoString);
-  const day = date.toLocaleDateString('de-DE');
+  const day = date.toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin' });
   const time = date.toLocaleTimeString('de-DE', {
+    timeZone: 'Europe/Berlin',
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit'
