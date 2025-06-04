@@ -346,7 +346,8 @@
           .select('points')
           .eq('user_id', currentBuzz.user_id)
           .single();
-        if (activeRound && score && score.points >= activeRound.points_limit) {
+        const roundLimit = activeRound?.points_limit ?? activeRound?.point_limit;
+        if (activeRound && score && typeof roundLimit === 'number' && score.points >= roundLimit) {
           await endRound(currentBuzz.user_id, currentBuzz.username);
         }
         await resetBuzzer();
