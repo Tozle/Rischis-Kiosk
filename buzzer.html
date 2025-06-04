@@ -61,6 +61,10 @@
   <div id="round-controls" class="hidden mt-4 text-center">
     <button id="start-round-btn" class="bg-purple-600 text-white px-4 py-2 rounded shadow hover:bg-purple-700">Neue Runde starten</button>
   </div>
+  <!-- Runde zurücksetzen -->
+  <div id="reset-round-controls" class="hidden mt-2 text-center">
+    <button id="reset-round-btn" class="bg-red-600 text-white px-4 py-2 rounded shadow hover:bg-red-700">Runde zurücksetzen</button>
+  </div>
 
   <!-- Anmelden -->
   <div id="signup-container" class="hidden mt-4 text-center space-y-2">
@@ -193,6 +197,8 @@
     const roundLimit = document.getElementById("round-limit");
     const cancelRoundBtn = document.getElementById("cancel-round-btn");
     const confirmRoundBtn = document.getElementById("confirm-round-btn");
+    const resetRoundControls = document.getElementById("reset-round-controls");
+    const resetRoundBtn = document.getElementById("reset-round-btn");
 
     function parseTime(ts) {
       return new Date(ts.endsWith('Z') ? ts : ts + 'Z');
@@ -227,6 +233,7 @@
 
       if (currentUser.role === 'admin') {
         roundControls.classList.remove('hidden');
+        resetRoundControls.classList.remove('hidden');
       }
     }
 
@@ -491,6 +498,12 @@
         roundControls.classList.add('hidden');
       }
 
+      if (currentUser?.role === 'admin') {
+        resetRoundControls.classList.remove('hidden');
+      } else {
+        resetRoundControls.classList.add('hidden');
+      }
+
       if (activeRound && activeRound.active) {
         buzzerBtn.classList.remove('hidden');
       } else {
@@ -651,8 +664,8 @@
       startGameBtn.disabled = false;
     }
 
-   async function endRound(winnerId, winnerName) {
-     if (!activeRound) return;
+  async function endRound(winnerId, winnerName) {
+    if (!activeRound) return;
       clearInterval(registrationInterval);
       registrationInterval = null;
       const { data: participants } = await supabase
@@ -677,6 +690,20 @@
       updateRoundUI();
     }
 
+    async function resetRound() {
+      if (!confirm('Alle Buzzer-Runden wirklich löschen?')) return;
+      await adminClient.from('buzzer_state').delete().gt('timestamp', '1900-01-01');
+      await adminClient.from('buzzer_participants').delete().gt('id', 0);
+      await adminClient.from('buzzer_user_round_meta').delete().gt('round_id', 0);
+      await adminClient.from('buzzer_rounds').delete().gt('id', 0);
+      await adminClient.from('scores').update({ points: 0 }).not('user_id', 'is', null);
+      activeRound = null;
+      lastResult = null;
+      participantList.textContent = '';
+      updateRoundUI();
+      loadHistory();
+    }
+
     startRoundBtn?.addEventListener('click', () => {
       startRoundModal.classList.remove('hidden');
     });
@@ -692,6 +719,7 @@
     });
     ackRoundBtn?.addEventListener('click', acknowledgeRound);
     startGameBtn?.addEventListener('click', startGame);
+    resetRoundBtn?.addEventListener('click', resetRound);
 
     supabase.channel('buzzer-updates')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'buzzer_state' }, () => refreshStatus())
