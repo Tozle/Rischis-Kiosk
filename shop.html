@@ -108,7 +108,15 @@
 
 <input type="text" id="search" placeholder="Produkt suchen..." class="mb-6 p-3 border-2 rounded-xl border-green-400 bg-green-50 placeholder-green-700 w-full text-base">
 
-    <label class="block mb-2 font-medium text-green-800">Sortieren nach:</label>
+    <label class="block mb-2 font-medium text-green-800">Produkte sortieren:</label>
+    <select id="sort-products" class="mb-6 border-2 rounded-xl p-3 w-full border-green-400 bg-green-50 text-green-900 text-base">
+      <option value="name_asc">Name A-Z</option>
+      <option value="name_desc">Name Z-A</option>
+      <option value="price_asc">Preis aufsteigend</option>
+      <option value="price_desc">Preis absteigend</option>
+    </select>
+
+    <label class="block mb-2 font-medium text-green-800">Kaufverlauf sortieren:</label>
     <select id="sort-history" class="mb-6 border-2 rounded-xl p-3 w-full border-green-400 bg-green-50 text-green-900 text-base">
       <option value="desc">Neuste zuerst</option>
       <option value="asc">Älteste zuerst</option>
@@ -205,13 +213,24 @@ async function loadCategories() {
   showLoader();
   const searchTerm = document.getElementById('search')?.value?.toLowerCase() || '';
   const selectedCategory = document.getElementById('category-filter')?.value || '';
+  const sortOption = document.getElementById('sort-products')?.value || 'name_asc';
 
   let query = supabase.from('products').select('*').eq('available', true);
   if (selectedCategory) {
     query = query.eq('category', selectedCategory);
   }
 
-  const { data: products, error } = await query.order('name');
+  if (sortOption === 'price_asc') {
+    query = query.order('price', { ascending: true });
+  } else if (sortOption === 'price_desc') {
+    query = query.order('price', { ascending: false });
+  } else if (sortOption === 'name_desc') {
+    query = query.order('name', { ascending: false });
+  } else {
+    query = query.order('name', { ascending: true });
+  }
+
+  const { data: products, error } = await query;
   const list = document.getElementById('product-list');
   list.innerHTML = '';
   hideLoader();
@@ -340,6 +359,7 @@ async function loadCategories() {
 
     document.getElementById('search').addEventListener('input', loadProducts);
     document.getElementById('category-filter').addEventListener('change', loadProducts);
+    document.getElementById('sort-products').addEventListener('change', loadProducts);
     document.getElementById('sort-history').addEventListener('change', loadPurchaseHistory);
   </script>
   </body>
