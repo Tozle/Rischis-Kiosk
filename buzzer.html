@@ -45,6 +45,7 @@
 
   <p id="status" class="text-xl font-semibold"></p>
   <p id="online-info" class="text-md font-medium"></p>
+  <div id="error-output" class="text-red-600 text-sm"></div>
 
   <button id="buzzer-btn" class="hidden w-full sm:w-auto text-3xl sm:text-4xl px-8 sm:px-12 py-8 sm:py-10 bg-green-600 text-white rounded-full shadow-xl hover:bg-green-700 disabled:opacity-50 transition-all duration-300">
     🚨 BUZZERN
@@ -204,6 +205,14 @@
       return new Date(ts.endsWith('Z') ? ts : ts + 'Z');
     }
 
+    function showError(msg) {
+      const el = document.getElementById('error-output');
+      if (el) {
+        el.textContent = msg || '';
+        if (msg) console.error('DB-Fehler:', msg);
+      }
+    }
+
     let activeRound = null;
     let registrationInterval = null;
     let signedUp = false;
@@ -217,20 +226,29 @@
       const { data: auth, error } = await supabase.auth.getUser();
       if (error || !auth?.user) {
         currentUser = null;
+        showError('Fehler beim Abrufen des Benutzers');
+        console.error('Auth error:', error);
         return false;
       }
       currentUser = auth.user;
 
-      const { data: profile } = await supabase
+      const { data: profile, error: profileErr } = await supabase
         .from("users")
         .select("role, username")
         .eq("id", currentUser.id)
         .single();
 
+      if (profileErr) {
+        showError('Fehler beim Laden des Benutzerprofils');
+        console.error('Profil-Fehler:', profileErr);
+        return false;
+      }
       if (!profile) return false;
 
       currentUser.name = profile.username;
       currentUser.role = profile.role;
+
+      console.log('currentUser', currentUser);
 
       if (currentUser && currentUser.role === 'admin') {
         roundControls.classList.remove('hidden');
@@ -261,13 +279,16 @@
         .select("username, last_active")
         .eq("online", true)
         .gt("last_active", threshold);
-
-      if (!error) {
-        const active = data || [];
-        const count = active.length;
-        const names = active.map(u => u.username).join(", ");
-        onlineInfo.textContent = `🟢 Online (${count}): ${names}`;
+      if (error) {
+        console.error('Fehler beim Laden der Online-User:', error.message);
+        showError('Fehler beim Laden der Online-User');
+        return;
       }
+
+      const active = data || [];
+      const count = active.length;
+      const names = active.map(u => u.username).join(", ");
+      onlineInfo.textContent = `🟢 Online (${count}): ${names}`;
     }
 
     async function getActiveBuzz() {
@@ -278,8 +299,13 @@
         .order("timestamp", { ascending: true })
         .limit(1)
         .single();
+      if (error) {
+        console.error('Fehler beim Laden des Buzzers:', error.message);
+        showError('Fehler beim Laden des Buzzers');
+        return null;
+      }
 
-      return error ? null : data;
+      return data;
     }
 
     async function refreshStatus() {
@@ -391,6 +417,7 @@
 
       if (pErr) {
         console.error('Fehler beim Laden der Teilnehmer:', pErr.message);
+        showError('Fehler beim Laden der Teilnehmer');
         return;
       }
 
@@ -402,8 +429,11 @@
 
       if (error) {
         console.error('Fehler beim Laden der Punkte:', error.message);
+        showError('Fehler beim Laden der Punkte');
         return;
       }
+
+      showError('');
 
       const scoreMap = {};
       for (const s of scores || []) scoreMap[s.user_id] = s.points;
@@ -438,8 +468,10 @@
         .order('username', { ascending: true });
       if (error) {
         console.error('Fehler beim Laden der Teilnehmer:', error.message);
+        showError('Fehler beim Laden der Teilnehmer');
         return;
       }
+      showError('');
       const names = (data || []).map(p => p.username).join(', ');
       participantList.textContent = names ? `Angemeldet: ${names}` : 'Noch keine Anmeldungen';
     }
@@ -452,8 +484,10 @@
         .limit(10);
       if (error) {
         console.error('Fehler beim Laden des Verlaufs:', error.message);
+        showError('Fehler beim Laden des Verlaufs');
         return;
       }
+      showError('');
 
       const container = document.getElementById('history-body');
       const fragment = document.createDocumentFragment();
@@ -510,12 +544,18 @@
     }
 
     async function loadActiveRound() {
-      const { data: latest } = await supabase
+      const { data: latest, error: roundErr } = await supabase
         .from('buzzer_rounds')
         .select('*')
         .order('start_time', { ascending: false })
         .limit(1)
         .single();
+
+      if (roundErr) {
+        console.error('Fehler beim Laden der aktuellen Runde:', roundErr.message);
+        showError('Fehler beim Laden der aktuellen Runde');
+        return;
+      }
 
       let finishedRound = null;
       if (latest && (latest.active || latest.winner_id === null)) {
@@ -561,6 +601,8 @@
         }
       }
       updateRoundUI();
+      showError('');
+      console.log('activeRound', activeRound);
     }
 
     async function startRound(bet, limit) {
@@ -620,17 +662,27 @@
 
     async function loadConfirmations() {
       if (!activeRound || !currentUser) return;
-      const { data: confs } = await supabase
+      const { data: confs, error: confErr } = await supabase
         .from('buzzer_user_round_meta')
         .select('user_id')
         .eq('round_id', activeRound.id)
         .eq('confirmed_popup', true);
+      if (confErr) {
+        console.error('Fehler beim Laden der Bestätigungen:', confErr.message);
+        showError('Fehler beim Laden der Bestätigungen');
+        return;
+      }
       const confirmed = (confs || []).map(c => c.user_id);
       const localKey = `buzzer_confirmed_${activeRound.id}_${currentUser.id}`;
-      const { data: online } = await supabase
+      const { data: online, error: onlineErr } = await supabase
         .from('user_sessions')
         .select('user_id')
         .eq('online', true);
+      if (onlineErr) {
+        console.error('Fehler beim Prüfen der Online-User:', onlineErr.message);
+        showError('Fehler beim Prüfen der Online-User');
+        return;
+      }
       const onlineIds = (online || []).map(o => o.user_id);
       const allReady = onlineIds.every(id => confirmed.includes(id));
       const confirmedForUser = confirmed.includes(currentUser.id) || localStorage.getItem(localKey) === 'true';
@@ -644,6 +696,7 @@
       } else {
         startGameContainer.classList.add('hidden');
       }
+      showError('');
     }
 
     async function acknowledgeRound() {
