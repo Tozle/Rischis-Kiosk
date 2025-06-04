@@ -298,7 +298,7 @@
         .eq("active", true)
         .order("timestamp", { ascending: true })
         .limit(1)
-        .single();
+        .maybeSingle();
       if (error) {
         console.error('Fehler beim Laden des Buzzers:', error.message);
         showError('Fehler beim Laden des Buzzers');
@@ -549,7 +549,7 @@
         .select('*')
         .order('start_time', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (roundErr) {
         console.error('Fehler beim Laden der aktuellen Runde:', roundErr.message);
