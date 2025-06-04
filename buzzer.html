@@ -216,14 +216,14 @@
 
       const { data: profile } = await supabase
         .from("users")
-        .select("role, name")
+        .select("rule, username")
         .eq("id", currentUser.id)
         .single();
 
       if (!profile) return;
 
-      currentUser.name = profile.name;
-      currentUser.role = profile.role;
+      currentUser.name = profile.username;
+      currentUser.role = profile.rule;
 
       if (currentUser.role === 'admin') {
         roundControls.classList.remove('hidden');
@@ -346,7 +346,7 @@
           .select('points')
           .eq('user_id', currentBuzz.user_id)
           .single();
-        if (activeRound && score && score.points >= activeRound.point_limit) {
+        if (activeRound && score && score.points >= activeRound.points_limit) {
           await endRound(currentBuzz.user_id, currentBuzz.username);
         }
         await resetBuzzer();
@@ -528,7 +528,7 @@
         if (lastRound && !lastRound.active && lastRound.winner_id) {
           const { data: winner } = await supabase
             .from('users')
-            .select('name')
+            .select('username')
             .eq('id', lastRound.winner_id)
             .single();
           const { data: parts } = await supabase
@@ -536,7 +536,7 @@
             .select('id')
             .eq('round_id', lastRound.id);
           const prize = (parts?.length || 0) * lastRound.bet;
-          lastResult = { roundId: lastRound.id, winnerName: winner?.name || '', prize };
+          lastResult = { roundId: lastRound.id, winnerName: winner?.username || '', prize };
         } else {
           lastResult = null;
         }
@@ -549,11 +549,11 @@
         await adminClient.from('scores').update({ points: 0 }).not('user_id', 'is', null);
         await adminClient.from('buzzer_state').delete().gt('timestamp', '1900-01-01');
         await adminClient.from('buzzer_participants').delete().gt('id', 0);
-        await adminClient.from('round_confirmations').delete().neq('round_id', null);
+        await adminClient.from('buzzer_user_round_meta').delete().neq('round_id', null);
 
         const { data, error } = await adminClient
           .from('buzzer_rounds')
-          .insert({ bet, point_limit: limit, start_time: new Date().toISOString(), active: false })
+          .insert({ bet, points_limit: limit, start_time: new Date().toISOString(), active: false })
           .select()
           .single();
 
@@ -585,8 +585,14 @@
       signupBtn.disabled = true;
       const bet = activeRound.bet;
       const { data: user } = await supabase.from('users').select('balance').eq('id', currentUser.id).single();
+      if (!user) { signupBtn.disabled = false; return; }
+      if (user.balance - bet < -10) {
+        alert('Zu wenig Guthaben für die Teilnahme.');
+        signupBtn.disabled = false;
+        return;
+      }
       await supabase.from('users').update({ balance: user.balance - bet }).eq('id', currentUser.id);
-      await supabase.from('buzzer_participants').insert({ round_id: activeRound.id, user_id: currentUser.id, username: currentUser.name });
+      await supabase.from('buzzer_participants').insert({ round_id: activeRound.id, user_id: currentUser.id, username: currentUser.name, has_buzzed: false, confirmed_popup: false, buzz_time: null });
       await updateScore(currentUser.id, currentUser.name, 0);
       signedUp = true;
       signupContainer.classList.add('hidden');
@@ -596,17 +602,20 @@
     async function loadConfirmations() {
       if (!activeRound) return;
       const { data: confs } = await supabase
-        .from('round_confirmations')
+        .from('buzzer_user_round_meta')
         .select('user_id')
-        .eq('round_id', activeRound.id);
+        .eq('round_id', activeRound.id)
+        .eq('confirmed_popup', true);
       const confirmed = (confs || []).map(c => c.user_id);
+      const localKey = `buzzer_confirmed_${activeRound.id}_${currentUser.id}`;
       const { data: online } = await supabase
         .from('user_sessions')
         .select('user_id')
         .eq('online', true);
       const onlineIds = (online || []).map(o => o.user_id);
       const allReady = onlineIds.every(id => confirmed.includes(id));
-      if (!confirmed.includes(currentUser.id)) {
+      const confirmedForUser = confirmed.includes(currentUser.id) || localStorage.getItem(localKey) === 'true';
+      if (!confirmedForUser) {
         confirmRoundModal.classList.remove('hidden');
       } else {
         confirmRoundModal.classList.add('hidden');
@@ -621,8 +630,10 @@
     async function acknowledgeRound() {
       if (!activeRound) return;
       ackRoundBtn.disabled = true;
-      await supabase.from('round_confirmations')
-        .upsert({ round_id: activeRound.id, user_id: currentUser.id });
+      const localKey = `buzzer_confirmed_${activeRound.id}_${currentUser.id}`;
+      await supabase.from('buzzer_user_round_meta')
+        .upsert({ round_id: activeRound.id, user_id: currentUser.id, confirmed_popup: true });
+      localStorage.setItem(localKey, 'true');
       ackRoundBtn.disabled = false;
       confirmRoundModal.classList.add('hidden');
     }
@@ -658,9 +669,9 @@
       winnerNameEl.textContent = `Gewinner: ${winnerName}`;
       prizeInfoEl.textContent = `Gewinn: ${prize.toFixed(2)} €`;
       const { data: balances } = await supabase.from('users')
-        .select('name, balance')
+        .select('username, balance')
         .in('id', participants.map(p => p.user_id));
-      balanceList.innerHTML = (balances || []).map(b => `<div>${b.name}: ${b.balance.toFixed(2)} €</div>`).join('');
+      balanceList.innerHTML = (balances || []).map(b => `<div>${b.username}: ${b.balance.toFixed(2)} €</div>`).join('');
       participantList.textContent = '';
       updateRoundUI();
     }
@@ -702,7 +713,7 @@
       .subscribe();
 
     supabase.channel('confirmation-updates')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'round_confirmations' }, () => loadConfirmations())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'buzzer_user_round_meta' }, () => loadConfirmations())
       .subscribe();
 
     checkUser().then(() => {
