@@ -46,7 +46,7 @@
     }
   </style>
 </head>
-<body class="text-green-900 relative dark:bg-gray-900 dark:text-white">
+<body class="text-gray-900 relative dark:bg-gray-900 dark:text-white">
   <div class="fixed bottom-4 right-4 z-50">
     <button onclick="toggleDarkMode()" class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition">
       🌙
@@ -63,15 +63,15 @@
       <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-green-500"></div>
     </div>
 
-    <h1 class="text-3xl sm:text-4xl font-bold mb-8 text-center text-green-800">Rischis Kiosk</h1>
-<label class="block mb-2 font-medium text-green-800">Kategorie auswählen:</label>
+    <h1 class="text-3xl sm:text-4xl font-bold mb-8 text-center text-gray-800">Rischis Kiosk</h1>
+<label class="block mb-2 font-medium text-gray-800">Kategorie auswählen:</label>
 <select id="category-filter" class="mb-6 border rounded-md p-2 w-full bg-white dark:bg-gray-700 dark:border-gray-600">
   <option value="">Alle Kategorien</option>
 </select>
 
 <input type="text" id="search" placeholder="Produkt suchen..." class="mb-6 p-2 border rounded-md border-gray-300 bg-white placeholder-gray-500 w-full dark:bg-gray-700 dark:border-gray-600">
 
-    <label class="block mb-2 font-medium text-green-800">Produkte sortieren:</label>
+    <label class="block mb-2 font-medium text-gray-800">Produkte sortieren:</label>
 <select id="sort-products" class="mb-6 border rounded-md p-2 w-full bg-white dark:bg-gray-700 dark:border-gray-600">
       <option value="name_asc">Name A-Z</option>
       <option value="name_desc">Name Z-A</option>
@@ -86,15 +86,15 @@
     </div>
 
     <div class="mt-8">
-      <h2 class="text-lg sm:text-xl font-bold tracking-wide text-green-800 uppercase mb-4">Verfügbare Produkte</h2>
+      <h2 class="text-lg sm:text-xl font-bold tracking-wide text-gray-800 uppercase mb-4">Verfügbare Produkte</h2>
       <ul id="product-list" class="overflow-x-auto block space-y-4"></ul>
     </div>
 
     <p id="message" class="mt-4 text-sm text-center"></p>
 
     <div class="mt-12">
-      <h2 class="text-lg sm:text-xl font-bold tracking-wide text-green-800 uppercase mb-4">Kaufverlauf</h2>
-      <label class="block mb-2 font-medium text-green-800">Kaufverlauf sortieren:</label>
+      <h2 class="text-lg sm:text-xl font-bold tracking-wide text-gray-800 uppercase mb-4">Kaufverlauf</h2>
+      <label class="block mb-2 font-medium text-gray-800">Kaufverlauf sortieren:</label>
       <select id="sort-history" class="mb-6 border rounded-md p-2 w-full bg-white dark:bg-gray-700 dark:border-gray-600">
         <option value="desc">Neuste zuerst</option>
         <option value="asc">Älteste zuerst</option>
@@ -179,7 +179,7 @@ async function loadCategories() {
 
       const balanceElement = document.getElementById('user-balance');
       balanceElement.textContent = `${userBalance.toFixed(2)} €`;
-      balanceElement.className = userBalance < 0 ? 'text-red-600 font-bold' : 'text-green-900';
+      balanceElement.className = userBalance < 0 ? 'text-red-600 font-bold' : 'text-gray-900';
     }
 
     async function loadProducts() {
