@@ -216,7 +216,8 @@
     async function checkUser() {
       const { data: auth, error } = await supabase.auth.getUser();
       if (error || !auth?.user) {
-        return location.href = "index.html";
+        currentUser = null;
+        return false;
       }
       currentUser = auth.user;
 
@@ -226,15 +227,15 @@
         .eq("id", currentUser.id)
         .single();
 
-      if (!profile) return;
+      if (!profile) return false;
 
       currentUser.name = profile.username;
       currentUser.role = profile.role;
 
-      if (currentUser.role === 'admin') {
+      if (currentUser && currentUser.role === 'admin') {
         roundControls.classList.remove('hidden');
-        resetRoundControls.classList.remove('hidden');
       }
+      return true;
     }
 
     async function markOnline() {
@@ -286,13 +287,13 @@
       currentBuzz = await getActiveBuzz();
 
       if (currentBuzz) {
-        if (currentBuzz.timestamp !== previousTimestamp && currentBuzz.user_id !== currentUser.id) {
+        if (currentBuzz.timestamp !== previousTimestamp && currentBuzz.user_id !== currentUser?.id) {
           document.getElementById("buzz-sound").play();
         }
         lastBuzzTimestamp = currentBuzz.timestamp;
         status.textContent = `${currentBuzz.username} hat gebuzzert!`;
         buzzerBtn.disabled = true;
-        if (currentUser.role === 'admin') {
+        if (currentUser?.role === 'admin') {
           adminActions.classList.remove("hidden");
         }
       } else {
@@ -306,6 +307,7 @@
     }
 
     buzzerBtn.addEventListener("click", async () => {
+      if (!currentUser) return;
       const existing = await getActiveBuzz();
       if (existing) return;
 
@@ -498,13 +500,9 @@
         roundControls.classList.add('hidden');
       }
 
-      if (currentUser?.role === 'admin') {
-        resetRoundControls.classList.remove('hidden');
-      } else {
-        resetRoundControls.classList.add('hidden');
-      }
+      resetRoundControls.classList.remove('hidden');
 
-      if (activeRound && activeRound.active) {
+      if (currentUser && activeRound && activeRound.active) {
         buzzerBtn.classList.remove('hidden');
       } else {
         buzzerBtn.classList.add('hidden');
@@ -520,12 +518,16 @@
         .single();
       activeRound = latest || null;
       if (activeRound) {
-        const { data: existing } = await supabase
-          .from('buzzer_participants')
-          .select('id')
-          .eq('round_id', activeRound.id)
-          .eq('user_id', currentUser.id)
-          .maybeSingle();
+        let existing = null;
+        if (currentUser) {
+          const { data } = await supabase
+            .from('buzzer_participants')
+            .select('id')
+            .eq('round_id', activeRound.id)
+            .eq('user_id', currentUser.id)
+            .maybeSingle();
+          existing = data;
+        }
         signedUp = !!existing;
         await loadParticipants();
         await loadConfirmations();
@@ -595,7 +597,7 @@
     }
 
     async function signupForRound() {
-      if (!activeRound || signedUp) return;
+      if (!activeRound || signedUp || !currentUser) return;
       signupBtn.disabled = true;
       const bet = activeRound.bet;
       const { data: user } = await supabase.from('users').select('balance').eq('id', currentUser.id).single();
@@ -614,7 +616,7 @@
     }
 
     async function loadConfirmations() {
-      if (!activeRound) return;
+      if (!activeRound || !currentUser) return;
       const { data: confs } = await supabase
         .from('buzzer_user_round_meta')
         .select('user_id')
@@ -634,7 +636,7 @@
       } else {
         confirmRoundModal.classList.add('hidden');
       }
-      if (allReady && currentUser.role === 'admin') {
+      if (allReady && currentUser?.role === 'admin') {
         startGameContainer.classList.remove('hidden');
       } else {
         startGameContainer.classList.add('hidden');
@@ -642,7 +644,7 @@
     }
 
     async function acknowledgeRound() {
-      if (!activeRound) return;
+      if (!activeRound || !currentUser) return;
       ackRoundBtn.disabled = true;
       const localKey = `buzzer_confirmed_${activeRound.id}_${currentUser.id}`;
       await supabase.from('buzzer_user_round_meta')
@@ -745,9 +747,11 @@
       .on('postgres_changes', { event: '*', schema: 'public', table: 'buzzer_user_round_meta' }, () => loadConfirmations())
       .subscribe();
 
-    checkUser().then(() => {
+    checkUser().then((loggedIn) => {
       refreshStatus();
-      markOnline();
+      if (loggedIn) {
+        markOnline();
+      }
       showOnlineUsers();
       loadActiveRound();
       loadHistory();
@@ -762,7 +766,9 @@
     }, 1000);
 
     window.addEventListener("beforeunload", () => {
-      markOffline();
+      if (currentUser) {
+        markOffline();
+      }
     });
 
     setInterval(() => {
