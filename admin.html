@@ -296,7 +296,10 @@ const { error } = await supabase.from('products').insert({
       const { data: products } = await supabase.from('products').select('id, name, price, purchase_price, stock');
       const { data: purchases } = await supabase.from('purchases').select('product_id, price, quantity');
 
-      const userList = users.map(u => `<li class="text-sm">${u.name}: ${u.balance.toFixed(2)} €</li>`).join('');
+      const userList = users.map(u => {
+        const cls = u.balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+        return `<li class="text-sm">${u.name}: <span class="${cls}">${u.balance.toFixed(2)} €</span></li>`;
+      }).join('');
       const totalBalance = users.reduce((sum, u) => sum + (u.balance || 0), 0);
       const shopValue = products.reduce((sum, p) => sum + ((p.stock || 0) * (p.price || 0)), 0);
       const totalRevenue = purchases.reduce((sum, p) => sum + (p.price || 0), 0);
@@ -315,9 +318,9 @@ const { error } = await supabase.from('products').insert({
         <hr class="my-3" />
         <p class="text-sm"><strong>Verkaufserlöse:</strong> ${totalRevenue.toFixed(2)} €</p>
         <p class="text-sm"><strong>Einkaufskosten:</strong> ${totalCost.toFixed(2)} €</p>
-        <p class="text-sm"><strong>Gewinn / Verlust:</strong> <span class="${profit >= 0 ? 'text-green-600 dark:text-white' : 'text-red-600 dark:text-white'}">${profit.toFixed(2)} €</span></p>
+        <p class="text-sm"><strong>Gewinn / Verlust:</strong> <span class="${profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${profit.toFixed(2)} €</span></p>
         <hr class="my-3" />
-        <p class="text-sm"><strong>Gesamtsaldo aller Nutzer:</strong> ${totalBalance.toFixed(2)} €</p>`;
+        <p class="text-sm"><strong>Gesamtsaldo aller Nutzer:</strong> <span class="${totalBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${totalBalance.toFixed(2)} €</span></p>`;
     }
 
     async function loadProducts() {
@@ -448,7 +451,9 @@ const { error } = await supabase.from('products').insert({
     async function loadUserBalances() {
       const { data } = await supabase.from('users').select('id, name, balance');
       document.getElementById('balance-control-list').innerHTML = data.map(u => {
-        const balanceColor = u.balance < 0 ? 'text-red-600 dark:text-white font-bold' : 'text-black dark:text-white';
+        const balanceColor = u.balance < 0
+          ? 'text-red-600 dark:text-red-400 font-bold'
+          : 'text-green-600 dark:text-green-400';
         return `
           <li class="flex flex-wrap items-center gap-2">
             <span class="flex-1">${u.name}: <span class="${balanceColor}">${u.balance.toFixed(2)} €</span></span>
