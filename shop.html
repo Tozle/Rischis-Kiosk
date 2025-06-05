@@ -181,7 +181,7 @@ async function loadCategories() {
       balanceElement.textContent = `${userBalance.toFixed(2)} €`;
       balanceElement.className = userBalance < 0
         ? 'text-red-600 dark:text-red-400 font-bold'
-        : 'text-gray-900 dark:text-gray-100';
+        : 'text-green-600 dark:text-green-400 font-bold';
     }
 
     async function loadProducts() {
@@ -283,7 +283,11 @@ async function loadCategories() {
         if (purchaseError || balanceError || stockError) throw new Error("Fehler beim Kaufprozess");
 
         userBalance = newBalance;
-        document.getElementById('user-balance').textContent = userBalance.toFixed(2);
+        const balanceElement = document.getElementById('user-balance');
+        balanceElement.textContent = `${userBalance.toFixed(2)} €`;
+        balanceElement.className = userBalance < 0
+          ? 'text-red-600 dark:text-red-400 font-bold'
+          : 'text-green-600 dark:text-green-400 font-bold';
         showMessage("Kauf erfolgreich!", 'success');
         await loadProducts();
         await loadPurchaseHistory();
