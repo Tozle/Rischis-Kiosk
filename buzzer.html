@@ -9,6 +9,7 @@
     tailwind.config = { darkMode: 'class' };
   </script>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script src="session.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa&display=swap" rel="stylesheet">
   <style>
     body {
@@ -83,6 +84,7 @@
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return window.location.href = 'index.html';
     currentUser = user;
+    setupActivityTracking(user.id);
     const { data: profile } = await supabase.from('users').select('role,balance').eq('id', user.id).single();
     currentRole = profile?.role;
     checkAdmin();

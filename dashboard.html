@@ -9,6 +9,7 @@
     tailwind.config = { darkMode: 'class' };
   </script>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script src="session.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa&family=Rock+Salt&display=swap" rel="stylesheet">
   <style>
     body {
@@ -80,6 +81,7 @@
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data?.user) return window.location.href = "index.html";
 
+      setupActivityTracking(data.user.id);
       const { data: profile } = await supabase.from('users').select('role').eq('id', data.user.id).single();
       if (profile?.role === 'admin') {
         document.getElementById('admin-btn').classList.remove('hidden');
