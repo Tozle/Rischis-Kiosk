@@ -10,6 +10,7 @@
   </script>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <script src="session.js"></script>
+  <script src="config.js"></script>
 <script>
   tailwind.config = { darkMode: 'class' };
 </script>
@@ -213,12 +214,12 @@ if (localStorage.getItem('darkMode') !== 'false') {
 
   
     const supabase = window.supabase.createClient(
-      "https://izkuiqjhzeeirmcikbef.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a3VpcWpoemVlaXJtY2lrYmVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4MDAwOTQsImV4cCI6MjA2NDM3NjA5NH0.mPu0jQYnt0uGoLgehNFDHZprEcmrzGJ667D31sLSbj0"
+      window.SUPABASE_URL,
+      window.SUPABASE_KEY
     );
     const adminClient = window.supabase.createClient(
-      "https://izkuiqjhzeeirmcikbef.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a3VpcWpoemVlaXJtY2lrYmVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODgwMDA5NCwiZXhwIjoyMDY0Mzc2MDk0fQ.yF2-AKGKcHFNpkIt-bg-YMhWjjLK74cLw6t3VfjDl8w"
+      window.SUPABASE_URL,
+      window.SUPABASE_KEY
     );
 
     supabase.auth.getUser().then(({ data }) => {
