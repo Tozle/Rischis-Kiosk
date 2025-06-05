@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rischis Kiosk – Auswahl</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script src="session.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa&family=Rock+Salt&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Comfortaa', cursive;
+      background: radial-gradient(circle at top left, #c7f9cc, #80ed99 40%, #57cc99 90%, #38a3a5);
+    }
+    h1 {
+      font-family: 'Rock Salt', cursive;
+    }
+    .panel-shadow {
+      box-shadow: 0 15px 35px rgba(22, 163, 74, 0.4);
+    }
+    .glass-effect {
+      backdrop-filter: blur(14px);
+      background-color: rgba(255, 255, 255, 0.88);
+    }
+    .dark .glass-effect {
+      background-color: rgba(31, 41, 55, 0.88);
+    }
+    input, select, textarea {
+      background-color: white;
+      color: black;
+    }
+    ::placeholder {
+      color: #6b7280;
+    }
+    .dark input,
+    .dark select,
+    .dark textarea {
+      background-color: #374151;
+      color: white;
+    }
+    .dark ::placeholder {
+      color: #9ca3af;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen text-green-900 dark:bg-gray-900 dark:text-white">
+  <div class="fixed bottom-4 right-4 z-50">
+    <button onclick="toggleDarkMode()" class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition">
+      🌙
+    </button>
+  </div>
+  <div class="text-center p-6 sm:p-10 rounded-3xl panel-shadow border-4 border-green-300 glass-effect space-y-6">
+    <h1 class="text-3xl sm:text-4xl font-bold">🚀 Was willst du tun?</h1>
+    <div class="flex flex-col sm:flex-row gap-6 justify-center items-center mt-6">
+      <a href="shop.html" class="bg-green-600 hover:bg-green-700 text-white text-lg font-bold py-3 px-6 rounded-full shadow-lg">🛒 Zum Kiosk</a>
+      <a href="buzzer.html" class="bg-yellow-500 hover:bg-yellow-600 text-white text-lg font-bold py-3 px-6 rounded-full shadow-lg">🔔 Buzzern</a>
+      <a href="mentos.html" class="bg-purple-600 hover:bg-purple-700 text-white text-lg font-bold py-3 px-6 rounded-full shadow-lg">🐱 Mentos</a>
+      <a id="admin-btn" href="admin.html" class="hidden bg-red-600 hover:bg-red-700 text-white text-lg font-bold py-3 px-6 rounded-full shadow-lg">🛠️ Adminbereich</a>
+    </div>
+  </div>
+
+  <script>
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+    }
+    // Darkmode standardmäßig aktiv, sofern nicht deaktiviert
+    if (localStorage.getItem('darkMode') !== 'false') {
+      document.documentElement.classList.add('dark');
+    }
+
+    const supabase = window.supabase.createClient(
+      "https://izkuiqjhzeeirmcikbef.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a3VpcWpoemVlaXJtY2lrYmVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4MDAwOTQsImV4cCI6MjA2NDM3NjA5NH0.mPu0jQYnt0uGoLgehNFDHZprEcmrzGJ667D31sLSbj0"
+    );
+
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data?.user) return window.location.href = "index.html";
+
+      setupActivityTracking(data.user.id);
+      const { data: profile } = await supabase.from('users').select('role').eq('id', data.user.id).single();
+      if (profile?.role === 'admin') {
+        document.getElementById('admin-btn').classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
