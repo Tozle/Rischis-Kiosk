@@ -14,6 +14,7 @@
     tailwind.config = { darkMode: 'class' };
   </script>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script src="session.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
@@ -170,6 +171,7 @@ async function loadCategories() {
       const { data: { user }, error } = await supabase.auth.getUser();
       if (error || !user) return showMessage("Fehler beim Laden des Nutzers.", 'error');
       currentUser = user;
+      setupActivityTracking(user.id);
       document.getElementById('user-email').textContent = user.email;
 
       const { data, error: balanceError } = await supabase.from('users').select('balance').eq('id', user.id).single();

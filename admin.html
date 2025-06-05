@@ -9,6 +9,7 @@
     tailwind.config = { darkMode: 'class' };
   </script>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script src="session.js"></script>
 <script>
   tailwind.config = { darkMode: 'class' };
 </script>
@@ -219,6 +220,10 @@ if (localStorage.getItem('darkMode') !== 'false') {
       "https://izkuiqjhzeeirmcikbef.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a3VpcWpoemVlaXJtY2lrYmVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODgwMDA5NCwiZXhwIjoyMDY0Mzc2MDk0fQ.yF2-AKGKcHFNpkIt-bg-YMhWjjLK74cLw6t3VfjDl8w"
     );
+
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) setupActivityTracking(data.user.id);
+    });
 
     // Produkt hinzufügen
     document.getElementById('add-product').addEventListener('submit', async (e) => {

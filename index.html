@@ -9,6 +9,7 @@
     tailwind.config = { darkMode: 'class' };
   </script>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script src="session.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa&family=Rock+Salt&display=swap" rel="stylesheet">
   <style>
     body {
@@ -145,6 +146,7 @@
       if (error) return showMessage("Login fehlgeschlagen: " + error.message);
 
       await createUserIfNotExists(data.user);
+      setupActivityTracking(data.user.id);
       showMessage("Login erfolgreich! Weiterleitung...", true);
 
       setTimeout(() => {
