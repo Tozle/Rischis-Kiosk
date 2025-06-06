@@ -24,7 +24,6 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
   </style>
-  <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
@@ -66,7 +65,13 @@
       const since = new Date(Date.now() - 15000).toISOString();
       const { data, error } = await supabase
         .from('user_sessions')
-        .select('name')
+        .select(`
+          name,
+          user_id,
+          users (
+            role
+          )
+        `)
         .eq('online', true)
         .gte('last_active', since);
 
@@ -74,8 +79,14 @@
         console.error('loadOnlineUsers failed', error);
         return;
       }
-      const names = (data || []).map(u => u.name).join(', ') || '-';
-      document.getElementById('online-users').textContent = 'Online: ' + names;
+
+      const names = (data || []).map(u => {
+        const role = u.users?.role || 'unknown';
+        const color = role === 'admin' ? 'green' : 'black';
+        return `<span style="color: ${color}">${u.name}</span>`;
+      });
+
+      document.getElementById('online-users').innerHTML = 'Online: ' + (names.join(', ') || '-');
     }
 
     async function init() {
