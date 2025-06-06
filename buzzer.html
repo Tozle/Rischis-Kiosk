@@ -172,7 +172,9 @@
       await loadOnlineUsers();
       await loadBalance();
 
-      const { data: userData } = await supabase
+      const { data: userData, error: roleError } = await supabase
+      console.log('Rollenabfrage Ergebnis:', userData);
+      console.log('Rollenabfrage Fehler:', roleError);
         .from('users')
         .select('role')
         .eq('id', currentUser.id)
