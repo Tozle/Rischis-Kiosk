@@ -159,6 +159,7 @@
     }
 
     async function init() {
+  console.log('Init wurde aufgerufen');
       const { data: { user }, error } = await supabase.auth.getUser();
       if (error || !user) {
         window.location.href = 'index.html';
@@ -178,6 +179,7 @@
         .single();
 
       if (userData?.role === 'admin') {
+        console.log('Bin Admin:', userData?.role);
         await checkActiveRound();
         showAdminButtons();
       }
