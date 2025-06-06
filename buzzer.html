@@ -30,16 +30,22 @@
 <body class="text-green-900 dark:text-white">
   <div class="fixed bottom-4 right-4 z-50">
     <button onclick="toggleDarkMode()" class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition">
+<body>
+  <div>
+    <button onclick="toggleDarkMode()">
       🌙
     </button>
   </div>
 
   <div id="online-users" class="text-center py-2 bg-green-200 dark:bg-green-700 text-green-900 dark:text-white shadow">
+  <div id="online-users">
     Online: -
   </div>
 
   <div class="flex items-center justify-center mt-20">
     <button id="buzzer" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-6 px-12 rounded-full text-4xl shadow-lg">🔔</button>
+  <div>
+    <button id="buzzer">🔔</button>
   </div>
 
   <audio id="buzz-sound" src="buzz.wav" preload="auto"></audio>
@@ -65,14 +71,7 @@
       const { error } = await supabase
         .from('user_sessions')
         .upsert({
-          user_id: currentUser.id,
-          name: currentUser.user_metadata?.name || currentUser.email.split('@')[0],
-          online: true,
-          last_active: new Date().toISOString()
-        }, { onConflict: ['user_id'] });
-      if (error) console.error('Fehler beim Markieren als online:', error.message);
-    }
-
+@@ -76,50 +74,52 @@
     async function markOffline() {
       if (!currentUser) return;
       const { error } = await supabase
@@ -99,10 +98,13 @@
 
     async function init() {
       const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) {
         window.location.href = 'index.html';
         return;
       }
+      console.log('Eingeloggt');
       currentUser = user;
       await markOnline();
       await loadOnlineUsers();
