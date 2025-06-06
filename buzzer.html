@@ -28,6 +28,7 @@
 </head>
 <body>
   <div id="online-users">Online: -</div>
+  <div id="balance-display" style="margin-top: 10px; font-weight: bold;">Guthaben: -</div>
   <br>
   <button id="buzzer">🔔</button>
   <audio id="buzz-sound" src="buzzer.wav" preload="auto"></audio>
@@ -89,6 +90,30 @@
       document.getElementById('online-users').innerHTML = 'Online: ' + (names.join(', ') || '-');
     }
 
+    async function loadBalance() {
+      if (!currentUser) return;
+
+      const { data, error } = await supabase
+        .from('users')
+        .select('balance')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (error || !data) {
+        document.getElementById('balance-display').textContent = 'Guthaben: Fehler';
+        console.error('loadBalance failed', error);
+        return;
+      }
+
+      const euroString = parseFloat(data.balance).toLocaleString('de-DE', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+      });
+
+      document.getElementById('balance-display').textContent = `Guthaben: ${euroString}`;
+    }
+
     async function init() {
       const { data: { user }, error } = await supabase.auth.getUser();
       if (error) {
@@ -102,10 +127,7 @@
       currentUser = user;
       await markOnline();
       await loadOnlineUsers();
-      setInterval(() => {
-        markOnline();
-        loadOnlineUsers();
-      }, 10000);
+      await loadBalance(); // Guthaben wird einmalig beim Start geladen
     }
 
     window.addEventListener('beforeunload', markOffline);
