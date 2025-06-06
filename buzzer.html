@@ -12,7 +12,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' };</script>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
-  <script src="session.js"></script>
+    <!-- Funktionen wie setupActivityTracking werden in session.js bereitgestellt.
+         Die Datei kann lokal fehlen, der Code funktioniert jedoch auch ohne. -->
+    <script src="session.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@700&display=swap" rel="stylesheet">
   <style>
     html { background: linear-gradient(135deg, #d1fae5, #a7f3d0, #6ee7b7); }
@@ -52,13 +54,21 @@
 
     let currentUser = null;
 
+    function getDisplayName(user) {
+      const metaName = user?.user_metadata?.name;
+      return metaName && metaName.trim().length > 0
+        ? metaName
+        : user.email.split('@')[0];
+    }
+
     async function markOnline() {
       if (!currentUser) return;
+      const name = getDisplayName(currentUser);
       await supabase
         .from('user_sessions')
         .upsert({
           user_id: currentUser.id,
-          name: currentUser.user_metadata?.name || currentUser.email.split('@')[0],
+          name,
           online: true,
           last_active: new Date().toISOString()
         }, { onConflict: 'user_id' });
@@ -77,7 +87,10 @@
         .from('user_sessions')
         .select('name')
         .eq('online', true);
-      const names = data ? data.map(u => u.name).join(', ') : '';
+      const names = (data || [])
+        .map(u => u.name || '-')
+        .filter(n => n && n !== '-')
+        .join(', ');
       document.getElementById('online-users').textContent = 'Online: ' + (names || '-');
     }
 
