@@ -173,6 +173,7 @@
       await loadBalance();
 
       const { data: userData } = await supabase
+      console.log('Geladene Userrolle:', userData);
         .from('users')
         .select('role')
         .eq('id', currentUser.id)
