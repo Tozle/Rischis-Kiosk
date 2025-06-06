@@ -305,12 +305,13 @@ async function checkForJoinableRound() {
     .gte('last_active', since);
 
   const onlineCount = online?.length || 1;
-  const winEstimate = (onlineCount * activeBet * 0.95).toFixed(2).replace('.', ',');
+  const participantCount = Math.max(onlineCount - 1, 1); // Admin als Spielleiter nicht mitgerechnet
+        const winEstimate = (participantCount * activeBet * 0.95).toFixed(2).replace('.', ',');
 
   document.getElementById('join-round-info').innerHTML =
     `Zielpunkte: <b>${activeLimit}</b><br>
      Einsatz: <b>${activeBet.toFixed(2).replace('.', ',')} €</b><br>
-     Gewinn-Prognose: <b>${winEstimate} €</b>`;
+     Gewinn-Prognose: <b>${winEstimate} €</b> (bei ${participantCount} Teilnehmern)`;
 
   document.getElementById('join-modal').style.display = 'block';
 }
