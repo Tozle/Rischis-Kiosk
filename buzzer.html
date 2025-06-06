@@ -172,6 +172,12 @@
       await loadOnlineUsers();
       await loadBalance();
 
+jwhm2n-codex/fehlerbehebung--popup-erscheint-nicht-bei-aktiver-runde
+      // Online-Anzeige regelmäßig aktualisieren
+      setInterval(loadOnlineUsers, 5000);
+
+
+ main
       // Nach dem Laden der Nutzerdaten prüfen, ob eine Runde beigetreten werden kann
       await checkForJoinableRound();
       // Regelmäßig nach neuen Runden schauen
@@ -297,6 +303,7 @@ async function checkForJoinableRound() {
 
   if (existing || partError) return;
 
+  // Aktuelle Online-Nutzer erneut abfragen
   const since = new Date(Date.now() - 15000).toISOString();
   const { data: online } = await supabase
     .from('user_sessions')
@@ -305,8 +312,15 @@ async function checkForJoinableRound() {
     .gte('last_active', since);
 
   const onlineCount = online?.length || 1;
+jwhm2n-codex/fehlerbehebung--popup-erscheint-nicht-bei-aktiver-runde
+  const participantCount = Math.max(onlineCount - 1, 1);
+  const winEstimate = (participantCount * activeBet * 0.95)
+    .toFixed(2)
+    .replace('.', ',');
+=======
   const participantCount = Math.max(onlineCount - 1, 1); // Admin als Spielleiter nicht mitgerechnet
         const winEstimate = (participantCount * activeBet * 0.95).toFixed(2).replace('.', ',');
+main
 
   document.getElementById('join-round-info').innerHTML =
     `Zielpunkte: <b>${activeLimit}</b><br>
