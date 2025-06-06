@@ -172,6 +172,11 @@
       await loadOnlineUsers();
       await loadBalance();
 
+      // Nach dem Laden der Nutzerdaten prüfen, ob eine Runde beigetreten werden kann
+      await checkForJoinableRound();
+      // Regelmäßig nach neuen Runden schauen
+      setInterval(checkForJoinableRound, 5000);
+
       const { data: userData } = await supabase
         .from('users')
         .select('role')
@@ -268,6 +273,7 @@ let activeBet = null;
 let activeLimit = null;
 
 async function checkForJoinableRound() {
+  console.log('Prüfe auf beitretbare Runde');
   const { data: round, error: roundError } = await supabase
     .from('buzzer_rounds')
     .select('*')
