@@ -61,7 +61,7 @@
         .from('user_sessions')
         .upsert({
           user_id: currentUser.id,
-          name: currentUser.email.split('@')[0],
+          name: currentUser.user_metadata?.name || currentUser.email.split('@')[0],
           online: true,
           last_active: new Date().toISOString()
         }, { onConflict: 'user_id' });
@@ -71,15 +71,19 @@
       if (!currentUser) return;
       await supabase
         .from('user_sessions')
-        .update({ online: false, last_active: new Date().toISOString() })
+        .update({ online: false })
         .eq('user_id', currentUser.id);
     }
 
     async function loadOnlineUsers() {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('user_sessions')
         .select('name')
         .eq('online', true);
+      if (error) {
+        console.error("Fehler beim Laden der Online-Nutzer:", error);
+        return;
+      }
       const names = data ? data.map(u => u.name).join(', ') : '-';
       document.getElementById('online-users').textContent = 'Online: ' + names;
     }
@@ -93,6 +97,12 @@
       currentUser = user;
       await markOnline();
       await loadOnlineUsers();
+
+      // alle 10 Sekunden Nutzer aktiv halten + Liste neu laden
+      setInterval(async () => {
+        await markOnline();
+        await loadOnlineUsers();
+      }, 10000);
     }
 
     window.addEventListener('beforeunload', markOffline);
