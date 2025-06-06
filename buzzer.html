@@ -4,62 +4,36 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Buzzer</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config = { darkMode: 'class' };</script>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@700&display=swap" rel="stylesheet" />
   <style>
     html {
       background: linear-gradient(135deg, #d1fae5, #a7f3d0, #6ee7b7);
     }
-    html.dark {
-      background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
-      color-scheme: dark;
-    }
     body {
       font-family: 'Inter', sans-serif;
-      max-width: 100vw;
-      overflow-x: hidden;
-      padding: env(safe-area-inset);
+      text-align: center;
+      padding-top: 50px;
     }
-    h1 {
-      font-family: 'Poppins', sans-serif;
+    #buzzer {
+      font-size: 2rem;
+      padding: 1.5rem 3rem;
+      background-color: #facc15;
+      color: white;
+      border: none;
+      border-radius: 9999px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
   </style>
 </head>
-<body class="text-green-900 dark:text-white">
-  <div class="fixed bottom-4 right-4 z-50">
-    <button onclick="toggleDarkMode()" class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition">
 <body>
-  <div>
-    <button onclick="toggleDarkMode()">
-      🌙
-    </button>
-  </div>
-
-  <div id="online-users" class="text-center py-2 bg-green-200 dark:bg-green-700 text-green-900 dark:text-white shadow">
-  <div id="online-users">
-    Online: -
-  </div>
-
-  <div class="flex items-center justify-center mt-20">
-    <button id="buzzer" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-6 px-12 rounded-full text-4xl shadow-lg">🔔</button>
-  <div>
-    <button id="buzzer">🔔</button>
-  </div>
-
+  <div id="online-users">Online: -</div>
+  <br>
+  <button id="buzzer">🔔</button>
   <audio id="buzz-sound" src="buzz.wav" preload="auto"></audio>
 
   <script>
-    function toggleDarkMode() {
-      const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-    }
-    if (localStorage.getItem('darkMode') !== 'false') {
-      document.documentElement.classList.add('dark');
-    }
-
-    const supabase = window.supabase.createClient(
+    const supabase = supabase.createClient(
       "https://izkuiqjhzeeirmcikbef.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
     );
@@ -68,43 +42,41 @@
 
     async function markOnline() {
       if (!currentUser) return;
-      const { error } = await supabase
-        .from('user_sessions')
-        .upsert({
-@@ -76,50 +74,52 @@
+      await supabase.from('user_sessions').upsert({
+        user_id: currentUser.id,
+        name: currentUser.email.split('@')[0],
+        online: true,
+        last_active: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+    }
+
     async function markOffline() {
       if (!currentUser) return;
-      const { error } = await supabase
-        .from('user_sessions')
+      await supabase.from('user_sessions')
         .update({ online: false })
         .eq('user_id', currentUser.id);
-      if (error) console.error('Fehler beim Markieren als offline:', error.message);
     }
 
     async function loadOnlineUsers() {
-      const since = new Date(Date.now() - 20000).toISOString();
+      const since = new Date(Date.now() - 15000).toISOString();
       const { data, error } = await supabase
         .from('user_sessions')
         .select('name')
         .eq('online', true)
         .gte('last_active', since);
-      if (error) {
-        console.error('Fehler beim Laden der Online-Nutzer:', error.message);
-        return;
+
+      if (!error && data) {
+        const names = data.map(u => u.name).join(', ') || '-';
+        document.getElementById('online-users').textContent = 'Online: ' + names;
       }
-      const names = data && data.length ? data.map(u => u.name).join(', ') : '-';
-      document.getElementById('online-users').textContent = 'Online: ' + names;
     }
 
     async function init() {
       const { data: { user } } = await supabase.auth.getUser();
-      const { data: { session } } = await supabase.auth.getSession();
-      const user = session?.user;
       if (!user) {
         window.location.href = 'index.html';
         return;
       }
-      console.log('Eingeloggt');
       currentUser = user;
       await markOnline();
       await loadOnlineUsers();
@@ -116,7 +88,6 @@
 
     window.addEventListener('beforeunload', markOffline);
     window.addEventListener('pagehide', markOffline);
-
     document.getElementById('buzzer').addEventListener('click', () => {
       document.getElementById('buzz-sound').play();
     });
