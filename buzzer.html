@@ -1,114 +1,119 @@
-      background: linear-gradient(135deg, #d1fae5, #a7f3d0, #6ee7b7);
-    }
-    body {
-      font-family: 'Inter', sans-serif;
-      text-align: center;
-      padding-top: 50px;
-    }
-    #buzzer {
-      font-size: 2rem;
-      padding: 1.5rem 3rem;
-      background-color: #facc15;
-      color: white;
-      border: none;
-      border-radius: 9999px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-  </style>
-</head>
-<body>
-  <div id="online-users">Online: -</div>
-  <br>
-  <button id="buzzer">🔔</button>
-  <audio id="buzz-sound" src="buzz.wav" preload="auto"></audio>
-
-  <script>
-    const supabase = supabase.createClient(
-      "https://izkuiqjhzeeirmcikbef.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-    );
-    const SUPABASE_URL = "https://izkuiqjhzeeirmcikbef.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
-
-    // Access the global `supabase` object provided by the CDN script.
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    let currentUser = null;
-
-    async function markOnline() {
-      if (!currentUser) return;
-      await supabase.from('user_sessions').upsert({
-        user_id: currentUser.id,
-        name: currentUser.email.split('@')[0],
-        online: true,
-        last_active: new Date().toISOString()
-      }, { onConflict: 'user_id' });
-      const { error } = await supabase
-        .from('user_sessions')
-        .upsert({
-          user_id: currentUser.id,
-          name: currentUser.email ? currentUser.email.split('@')[0] : '',
-          online: true,
-          last_active: new Date().toISOString(),
-        }, { onConflict: 'user_id' });
-      if (error) console.error('markOnline failed', error);
-    }
-
-    async function markOffline() {
-      if (!currentUser) return;
-      await supabase.from('user_sessions')
-      const { error } = await supabase
-        .from('user_sessions')
-        .update({ online: false })
-        .eq('user_id', currentUser.id);
-      if (error) console.error('markOffline failed', error);
-    }
-
-    async function loadOnlineUsers() {
-      const since = new Date(Date.now() - 15000).toISOString();
-      const { data, error } = await supabase
-        .from('user_sessions')
-        .select('name')
-        .eq('online', true)
-        .gte('last_active', since);
-
-      if (!error && data) {
-        const names = data.map(u => u.name).join(', ') || '-';
-        document.getElementById('online-users').textContent = 'Online: ' + names;
-      if (error) {
-        console.error('loadOnlineUsers failed', error);
-        return;
-      }
-      const names = (data || []).map(u => u.name).join(', ') || '-';
-      document.getElementById('online-users').textContent = 'Online: ' + names;
-    }
-
-    async function init() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        window.location.href = 'index.html';
-        return;
-      }
-      currentUser = user;
-      await markOnline();
-      await loadOnlineUsers();
-      setInterval(async () => {
-        await markOnline();
-        await loadOnlineUsers();
-      setInterval(() => {
-        markOnline();
-        loadOnlineUsers();
-      }, 10000);
-    }
-
-    window.addEventListener('beforeunload', markOffline);
-    window.addEventListener('pagehide', markOffline);
-    document.getElementById('buzzer').addEventListener('click', () => {
-      document.getElementById('buzz-sound').play();
-    });
-
-    init();
-    document.addEventListener('DOMContentLoaded', init);
-  </script>
-</body>
-</html>
+diff --git a/buzzer.html b/buzzer.html
+index ecaf011cd3308d2fa6c7ecac1bab3333ba97de7e..a6a2bd7a6a60010e59e63b9fc844b655491c570a 100644
+--- a/buzzer.html
++++ b/buzzer.html
+@@ -11,88 +11,96 @@
+       background: linear-gradient(135deg, #d1fae5, #a7f3d0, #6ee7b7);
+     }
+     body {
+       font-family: 'Inter', sans-serif;
+       text-align: center;
+       padding-top: 50px;
+     }
+     #buzzer {
+       font-size: 2rem;
+       padding: 1.5rem 3rem;
+       background-color: #facc15;
+       color: white;
+       border: none;
+       border-radius: 9999px;
+       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+     }
+   </style>
+ </head>
+ <body>
+   <div id="online-users">Online: -</div>
+   <br>
+   <button id="buzzer">🔔</button>
+   <audio id="buzz-sound" src="buzz.wav" preload="auto"></audio>
+ 
+   <script>
+-    const supabase = supabase.createClient(
+-      "https://izkuiqjhzeeirmcikbef.supabase.co",
+-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+-    );
++    const SUPABASE_URL = "https://izkuiqjhzeeirmcikbef.supabase.co";
++    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
++
++    // Access the global `supabase` object provided by the CDN script.
++    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+ 
+     let currentUser = null;
+ 
+     async function markOnline() {
+       if (!currentUser) return;
+-      await supabase.from('user_sessions').upsert({
+-        user_id: currentUser.id,
+-        name: currentUser.email.split('@')[0],
+-        online: true,
+-        last_active: new Date().toISOString()
+-      }, { onConflict: 'user_id' });
++      const { error } = await supabase
++        .from('user_sessions')
++        .upsert({
++          user_id: currentUser.id,
++          name: currentUser.email ? currentUser.email.split('@')[0] : '',
++          online: true,
++          last_active: new Date().toISOString(),
++        }, { onConflict: 'user_id' });
++      if (error) console.error('markOnline failed', error);
+     }
+ 
+     async function markOffline() {
+       if (!currentUser) return;
+-      await supabase.from('user_sessions')
++      const { error } = await supabase
++        .from('user_sessions')
+         .update({ online: false })
+         .eq('user_id', currentUser.id);
++      if (error) console.error('markOffline failed', error);
+     }
+ 
+     async function loadOnlineUsers() {
+       const since = new Date(Date.now() - 15000).toISOString();
+       const { data, error } = await supabase
+         .from('user_sessions')
+         .select('name')
+         .eq('online', true)
+         .gte('last_active', since);
+ 
+-      if (!error && data) {
+-        const names = data.map(u => u.name).join(', ') || '-';
+-        document.getElementById('online-users').textContent = 'Online: ' + names;
++      if (error) {
++        console.error('loadOnlineUsers failed', error);
++        return;
+       }
++      const names = (data || []).map(u => u.name).join(', ') || '-';
++      document.getElementById('online-users').textContent = 'Online: ' + names;
+     }
+ 
+     async function init() {
+       const { data: { user } } = await supabase.auth.getUser();
+       if (!user) {
+         window.location.href = 'index.html';
+         return;
+       }
+       currentUser = user;
+       await markOnline();
+       await loadOnlineUsers();
+-      setInterval(async () => {
+-        await markOnline();
+-        await loadOnlineUsers();
++      setInterval(() => {
++        markOnline();
++        loadOnlineUsers();
+       }, 10000);
+     }
+ 
+     window.addEventListener('beforeunload', markOffline);
+     window.addEventListener('pagehide', markOffline);
+     document.getElementById('buzzer').addEventListener('click', () => {
+       document.getElementById('buzz-sound').play();
+     });
+ 
+-    init();
++    document.addEventListener('DOMContentLoaded', init);
+   </script>
+ </body>
+ </html>
