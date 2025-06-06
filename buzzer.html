@@ -30,8 +30,7 @@
     const SUPABASE_URL = "https://izkuiqjhzeeirmcikbef.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
 
-    // Access the global `supabase` loaded from the CDN via `window` to
-    // avoid a reference error during initialization.
+    // Access the global `supabase` object provided by the CDN script.
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let currentUser = null;
@@ -39,20 +38,27 @@
     async function markOnline() {
       if (!currentUser) return;
       await supabase.from('user_sessions').upsert({
-      const { error } = await supabase.from('user_sessions').upsert({
         user_id: currentUser.id,
         name: currentUser.email.split('@')[0],
         online: true,
         last_active: new Date().toISOString()
-        last_active: new Date().toISOString(),
       }, { onConflict: 'user_id' });
+      const { error } = await supabase
+        .from('user_sessions')
+        .upsert({
+          user_id: currentUser.id,
+          name: currentUser.email ? currentUser.email.split('@')[0] : '',
+          online: true,
+          last_active: new Date().toISOString(),
+        }, { onConflict: 'user_id' });
       if (error) console.error('markOnline failed', error);
     }
 
     async function markOffline() {
       if (!currentUser) return;
       await supabase.from('user_sessions')
-      const { error } = await supabase.from('user_sessions')
+      const { error } = await supabase
+        .from('user_sessions')
         .update({ online: false })
         .eq('user_id', currentUser.id);
       if (error) console.error('markOffline failed', error);
@@ -89,6 +95,9 @@
       setInterval(async () => {
         await markOnline();
         await loadOnlineUsers();
+      setInterval(() => {
+        markOnline();
+        loadOnlineUsers();
       }, 10000);
     }
 
@@ -99,4 +108,7 @@
     });
 
     init();
+    document.addEventListener('DOMContentLoaded', init);
   </script>
+</body>
+</html>
