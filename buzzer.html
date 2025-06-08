@@ -51,6 +51,7 @@
   <br>
   <button id="buzzer">🔔</button>
   <audio id="buzz-sound" src="buzz.wav" preload="auto"></audio>
+  <div id="round-info" style="margin-top: 20px;"></div>
 
   <!-- MODAL -->
   <div id="round-modal">
@@ -84,6 +85,7 @@
 
     let currentUser = null;
     let roundActive = false;
+    let userDataRole = '';
 
     async function markOnline() {
       if (!currentUser) return;
@@ -146,17 +148,6 @@
       document.getElementById('balance-display').textContent = `Guthaben: ${euroString}`;
     }
 
-    async function checkActiveRound() {
-      const { data, error } = await supabase
-        .from('buzzer_rounds')
-        .select('id')
-        .eq('active', true)
-        .limit(1)
-        .single();
-
-      roundActive = !!data;
-      return roundActive;
-    }
 
     async function init() {
   console.log('Init wurde aufgerufen');
@@ -173,10 +164,10 @@
       await loadBalance();
       // Online-Anzeige regelmäßig aktualisieren
       setInterval(loadOnlineUsers, 5000);
-      // Nach dem Laden der Nutzerdaten prüfen, ob eine Runde beigetreten werden kann
-      await checkForJoinableRound();
-      // Regelmäßig nach neuen Runden schauen
-      setInterval(checkForJoinableRound, 5000);
+      // Rundendaten laden
+      await updateRoundInfo();
+      // Regelmäßig aktualisieren
+      setInterval(updateRoundInfo, 5000);
 
       const { data: userData } = await supabase
         .from('users')
@@ -184,9 +175,9 @@
         .eq('id', currentUser.id)
         .single();
 
-      if (userData?.role === 'admin') {
-        console.log('Bin Admin:', userData?.role);
-        await checkActiveRound();
+      userDataRole = userData?.role || '';
+      if (userDataRole === 'admin') {
+        console.log('Bin Admin:', userDataRole);
         showAdminButtons();
       }
     }
@@ -273,9 +264,9 @@ let activeRoundId = null;
 let activeBet = null;
 let activeLimit = null;
 
-async function checkForJoinableRound() {
-  console.log('Prüfe auf beitretbare Runde');
-  const { data: round, error: roundError } = await supabase
+async function updateRoundInfo() {
+  const container = document.getElementById('round-info');
+  const { data: round } = await supabase
     .from('buzzer_rounds')
     .select('*')
     .eq('active', true)
@@ -283,43 +274,54 @@ async function checkForJoinableRound() {
     .limit(1)
     .single();
 
-  if (roundError || !round) return;
+  if (!round) {
+    roundActive = false;
+    activeRoundId = null;
+    container.innerHTML = '<p>Keine aktive Runde</p>';
+    return;
+  }
 
+  roundActive = true;
   activeRoundId = round.id;
   activeBet = parseFloat(round.bet);
   activeLimit = round.points_limit;
 
-  const { data: existing, error: partError } = await supabase
+  const { data: participants } = await supabase
     .from('buzzer_participants')
-    .select('id')
-    .eq('user_id', currentUser.id)
-    .eq('round_id', activeRoundId)
-    .maybeSingle();
+    .select('user_id, name, points')
+    .eq('round_id', activeRoundId);
 
-  if (existing || partError) return;
-
-  // Aktuelle Online-Nutzer erneut abfragen
-  const since = new Date(Date.now() - 15000).toISOString();
-  const { data: online } = await supabase
-    .from('user_sessions')
-    .select('user_id')
-    .eq('online', true)
-    .gte('last_active', since);
-
-  const onlineCount = online?.length || 1;
-  const participantCount = Math.max(onlineCount - 1, 1); // Admin als Spielleiter nicht mitgerechnet
+  const isParticipant = participants.some(p => p.user_id === currentUser.id);
+  const participantCount = participants.length;
   const winEstimate = (participantCount * activeBet * 0.95)
     .toFixed(2)
     .replace('.', ',');
-  document.getElementById('join-round-info').innerHTML =
-    `Zielpunkte: <b>${activeLimit}</b><br>
-     Einsatz: <b>${activeBet.toFixed(2).replace('.', ',')} €</b><br>
-     Gewinn-Prognose: <b>${winEstimate} €</b> (bei ${participantCount} Teilnehmern)`;
 
-  document.getElementById('join-modal').style.display = 'block';
+  let html =
+    `Einsatz: <b>${activeBet.toFixed(2).replace('.', ',')} €</b><br>` +
+    `Zielpunkte: <b>${activeLimit}</b><br>` +
+    `Gewinn-Prognose: <b>${winEstimate} €</b><br>`;
+
+  if (!isParticipant) {
+    html += `<button onclick="joinRound()">✅ Beitreten</button>`;
+  } else {
+    html += '<table style="margin:10px auto;border-collapse:collapse;">' +
+      '<thead><tr><th style="border-bottom:1px solid #ccc;padding:4px 8px;">Name</th>' +
+      '<th style="border-bottom:1px solid #ccc;padding:4px 8px;">Punkte</th></tr></thead><tbody>';
+    participants.forEach(p => {
+      const pts = p.points || 0;
+      html += `<tr><td style="padding:4px 8px;border-bottom:1px solid #eee;">${p.name}</td>` +
+        `<td style="padding:4px 8px;border-bottom:1px solid #eee;text-align:right;">${pts}</td></tr>`;
+    });
+    html += '</tbody></table>';
+  }
+
+  container.innerHTML = html;
+  if (userDataRole === 'admin') showAdminButtons();
 }
 
-async function confirmJoinRound() {
+async function joinRound() {
+  if (!activeRoundId) return;
   const { data: user, error } = await supabase
     .from('users')
     .select('balance')
@@ -328,7 +330,6 @@ async function confirmJoinRound() {
 
   if (error || !user || parseFloat(user.balance) < activeBet) {
     alert('Nicht genügend Guthaben!');
-    closeJoinModal();
     return;
   }
 
@@ -339,18 +340,13 @@ async function confirmJoinRound() {
 
   if (updateErr) {
     alert('Fehler beim Abziehen des Einsatzes');
-    closeJoinModal();
     return;
   }
 
   const name = currentUser.email.split('@')[0];
   const { error: insertErr } = await supabase
     .from('buzzer_participants')
-    .insert({
-      round_id: activeRoundId,
-      user_id: currentUser.id,
-      name: name
-    });
+    .insert({ round_id: activeRoundId, user_id: currentUser.id, name });
 
   if (insertErr) {
     alert('Fehler beim Eintragen als Teilnehmer');
@@ -358,26 +354,12 @@ async function confirmJoinRound() {
     alert('Du bist der Runde beigetreten!');
   }
 
-  closeJoinModal();
+  await loadBalance();
+  updateRoundInfo();
 }
-
-function closeJoinModal() {
-  document.getElementById('join-modal').style.display = 'none';
-}
-
 
 document.addEventListener('DOMContentLoaded', init);
   </script>
-
-<!-- MODAL: Automatisch für aktive Runde -->
-<div id="join-modal" style="display: none; position: fixed; top: 20%; left: 50%; transform: translateX(-50%);
-  background: white; border: 1px solid #ccc; padding: 20px; z-index: 1000; border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);">
-  <h3>Runde beitreten</h3>
-  <p id="join-round-info">Lade Rundendaten...</p>
-  <button onclick="confirmJoinRound()">✅ Beitreten</button>
-  <button onclick="closeJoinModal()">❌ Nicht teilnehmen</button>
-</div>
 
 </body>
 </html>
