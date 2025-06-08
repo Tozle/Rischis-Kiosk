@@ -1,383 +1,184 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Buzzer</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <style>
-    html {
-      height: 100%;
-      background: linear-gradient(135deg, #d1fae5, #a7f3d0, #6ee7b7);
-    }
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: Arial, sans-serif;
       text-align: center;
-      padding-top: 50px;
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0, #6ee7b7);
+      margin: 0;
+      padding: 40px;
     }
-    #buzzer {
+    #buzz-btn {
       font-size: 2rem;
       padding: 1.5rem 3rem;
-      background-color: #facc15;
-      color: white;
+      background: #facc15;
+      color: #fff;
       border: none;
       border-radius: 9999px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      cursor: pointer;
     }
-    #round-modal {
-      display: none;
-      position: fixed;
-      top: 20%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: white;
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+    }
+    th, td {
       border: 1px solid #ccc;
-      padding: 20px;
-      z-index: 1000;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      padding: 6px 12px;
     }
-    #admin-controls button:disabled {
-      background-color: #ddd;
-      color: #666;
-      cursor: not-allowed;
+    #admin-form {
+      margin-top: 15px;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
-  <div id="online-users">Online: -</div>
-  <div id="balance-display" style="margin-top: 10px; font-weight: bold;">Guthaben: -</div>
-  <div id="admin-controls" style="margin-top: 20px;"></div>
-  <br>
-  <button id="buzzer">🔔</button>
+  <button id="buzz-btn">🔔</button>
   <audio id="buzz-sound" src="buzz.wav" preload="auto"></audio>
 
-  <!-- MODAL -->
-  <div id="round-modal">
-    <h3>Runde starten</h3>
-    <label for="bet">Einsatzhöhe:</label>
-    <select id="bet">
-      <option value="0.25">0,25 €</option>
-      <option value="0.5">0,50 €</option>
-      <option value="0.75">0,75 €</option>
-      <option value="1">1,00 €</option>
-      <option value="1.5">1,50 €</option>
-      <option value="2">2,00 €</option>
-    </select>
-    <br><br>
-    <label for="points_limit">Punktelimit:</label>
-    <select id="points_limit">
-      <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-      <option value="4">4</option><option value="5">5</option><option value="6">6</option>
-      <option value="7">7</option><option value="8">8</option><option value="9">9</option>
-      <option value="10">10</option>
-    </select>
-    <br><br>
-    <button onclick="createRound()">Runde starten</button>
-    <button onclick="closeModal()">Abbrechen</button>
+  <div id="round-info" style="margin-top:20px;font-weight:bold;">Keine aktive Runde</div>
+
+  <div id="join-section" style="margin-top:20px;"></div>
+
+  <div id="admin-section" style="margin-top:30px;display:none;">
+    <button id="show-form-btn">Runde starten</button>
+    <div id="admin-form" style="display:none;">
+      <input type="number" id="bet-input" placeholder="Einsatz" step="0.01">
+      <input type="number" id="limit-input" placeholder="Punktelimit">
+      <button id="start-round-btn">Starten</button>
+    </div>
   </div>
 
   <script>
-    const SUPABASE_URL = "https://izkuiqjhzeeirmcikbef.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a3VpcWpoemVlaXJtY2lrYmVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4MDAwOTQsImV4cCI6MjA2NDM3NjA5NH0.mPu0jQYnt0uGoLgehNFDHZprEcmrzGJ667D31sLSbj0";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const SUPABASE_URL = "https://izkuiqjhzeeirmcikbef.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a3VpcWpoemVlaXJtY2lrYmVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4MDAwOTQsImV4cCI6MjA2NDM3NjA5NH0.mPu0jQYnt0uGoLgehNFDHZprEcmrzGJ667D31sLSbj0";
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let currentUser = null;
-    let roundActive = false;
+  let currentUser = null;
+  let currentRound = null;
 
-    async function markOnline() {
-      if (!currentUser) return;
-      await supabase
-        .from('user_sessions')
-        .upsert({
-          user_id: currentUser.id,
-          name: currentUser.email ? currentUser.email.split('@')[0] : '',
-          online: true,
-          last_active: new Date().toISOString(),
-        }, { onConflict: 'user_id' });
+  document.getElementById('buzz-btn').addEventListener('click', () => {
+    document.getElementById('buzz-sound').play();
+  });
+
+  document.getElementById('show-form-btn').addEventListener('click', () => {
+    const form = document.getElementById('admin-form');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  });
+
+  document.getElementById('start-round-btn').addEventListener('click', startRound);
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      window.location.href = 'index.html';
+      return;
     }
+    currentUser = user;
+    await checkAdmin();
+    await loadRound();
+    setInterval(loadRound, 5000);
+  });
 
-    async function markOffline() {
-      if (!currentUser) return;
-      await supabase
-        .from('user_sessions')
-        .update({ online: false })
-        .eq('user_id', currentUser.id);
+  async function checkAdmin() {
+    const { data } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', currentUser.id)
+      .single();
+    if (data && data.role === 'admin') {
+      document.getElementById('admin-section').style.display = 'block';
     }
+  }
 
-    async function loadOnlineUsers() {
-      const since = new Date(Date.now() - 15000).toISOString();
-      const { data, error } = await supabase
-        .from('user_sessions')
-        .select(`name, user_id, users ( role )`)
-        .eq('online', true)
-        .gte('last_active', since);
-
-      if (error) return;
-
-      const names = (data || []).map(u => {
-        const role = u.users?.role || 'unknown';
-        const color = role === 'admin' ? 'green' : 'black';
-        return `<span style="color: ${color}">${u.name}</span>`;
-      });
-
-      document.getElementById('online-users').innerHTML = 'Online: ' + (names.join(', ') || '-');
+  async function loadRound() {
+    const { data: round } = await supabase
+      .from('buzzer_rounds')
+      .select('*')
+      .eq('active', true)
+      .single();
+    if (!round) {
+      currentRound = null;
+      document.getElementById('round-info').textContent = 'Keine aktive Runde';
+      document.getElementById('join-section').innerHTML = '';
+      return;
     }
+    currentRound = round;
+    document.getElementById('round-info').textContent =
+      `Einsatz: ${parseFloat(round.bet).toLocaleString('de-DE', {minimumFractionDigits:2})} € | Punktelimit: ${round.points_limit}`;
+    await renderJoinOrTable();
+  }
 
-    async function loadBalance() {
-      if (!currentUser) return;
-      const { data, error } = await supabase
-        .from('users')
-        .select('balance')
-        .eq('id', currentUser.id)
-        .single();
+  async function renderJoinOrTable() {
+    const { data: participant } = await supabase
+      .from('buzzer_participants')
+      .select('id')
+      .eq('user_id', currentUser.id)
+      .eq('round_id', currentRound.id)
+      .maybeSingle();
 
-      if (!data || error) {
-        document.getElementById('balance-display').textContent = 'Guthaben: Fehler';
-        return;
-      }
-
-      const euroString = parseFloat(data.balance).toLocaleString('de-DE', {
-        style: 'currency',
-        currency: 'EUR',
-        minimumFractionDigits: 2,
-      });
-
-      document.getElementById('balance-display').textContent = `Guthaben: ${euroString}`;
+    if (!participant) {
+      document.getElementById('join-section').innerHTML =
+        '<button id="join-btn">Runde beitreten</button>';
+      document.getElementById('join-btn').onclick = joinRound;
+    } else {
+      await renderParticipantTable();
     }
+  }
 
-    async function checkActiveRound() {
-      const { data, error } = await supabase
-        .from('buzzer_rounds')
-        .select('id')
-        .eq('active', true)
-        .limit(1)
-        .single();
+  async function renderParticipantTable() {
+    const { data: participants } = await supabase
+      .from('buzzer_participants')
+      .select('username,user_id')
+      .eq('round_id', currentRound.id);
 
-      roundActive = !!data;
-      return roundActive;
-    }
+    const { data: scores } = await supabase
+      .from('scores')
+      .select('user_id,points')
+      .eq('round_id', currentRound.id);
 
-    async function init() {
-  console.log('Init wurde aufgerufen');
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error || !user) {
-        window.location.href = 'index.html';
-        return;
-      }
-
-      currentUser = user;
-
-      await markOnline();
-      await loadOnlineUsers();
-      await loadBalance();
-      // Online-Anzeige regelmäßig aktualisieren
-      setInterval(loadOnlineUsers, 5000);
-      // Nach dem Laden der Nutzerdaten prüfen, ob eine Runde beigetreten werden kann
-      await checkForJoinableRound();
-      // Regelmäßig nach neuen Runden schauen
-      setInterval(checkForJoinableRound, 5000);
-
-      const { data: userData } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', currentUser.id)
-        .single();
-
-      if (userData?.role === 'admin') {
-        console.log('Bin Admin:', userData?.role);
-        await checkActiveRound();
-        showAdminButtons();
-      }
-    }
-
-    function showAdminButtons() {
-      const div = document.getElementById('admin-controls');
-      const disabled = roundActive ? 'disabled' : '';
-      const label = roundActive ? 'Runde läuft bereits' : '🎮 Runde starten';
-
-      div.innerHTML = `
-        <button onclick="openModal()" ${disabled}>${label}</button>
-        <button onclick="endRound()">🛑 Runde beenden</button>
-      `;
-    }
-
-    function openModal() {
-      document.getElementById('round-modal').style.display = 'block';
-    }
-
-    function closeModal() {
-      document.getElementById('round-modal').style.display = 'none';
-    }
-
-    async function createRound() {
-      const bet = parseFloat(document.getElementById('bet').value);
-      const pointsLimit = parseInt(document.getElementById('points_limit').value, 10);
-
-      const { error } = await supabase
-        .from('buzzer_rounds')
-        .insert({
-          bet,
-          points_limit: pointsLimit,
-          start_time: new Date().toISOString(),
-          active: true,
-          winner_id: null
-        });
-
-      if (error) {
-        alert('Fehler beim Erstellen der Runde');
-        return;
-      }
-
-      alert('Runde erfolgreich gestartet!');
-      closeModal();
-      location.reload(); // Seite neu laden, damit Buttons angepasst werden
-    }
-
-    async function endRound() {
-      const { data, error } = await supabase
-        .from('buzzer_rounds')
-        .select('id')
-        .eq('active', true)
-        .order('start_time', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (!data || error) {
-        alert('Keine aktive Runde gefunden.');
-        return;
-      }
-
-      const { error: updateError } = await supabase
-        .from('buzzer_rounds')
-        .update({ active: false })
-        .eq('id', data.id);
-
-      if (updateError) {
-        alert('Fehler beim Beenden der Runde');
-        return;
-      }
-
-      alert('Runde wurde beendet.');
-      location.reload(); // Seite neu laden
-    }
-
-    window.addEventListener('beforeunload', markOffline);
-    window.addEventListener('pagehide', markOffline);
-    document.getElementById('buzzer').addEventListener('click', () => {
-      document.getElementById('buzz-sound').play();
+    let html = '<table><tr><th>Name</th><th>Punkte</th></tr>';
+    (participants || []).forEach(p => {
+      const s = (scores || []).find(sc => sc.user_id === p.user_id);
+      const pts = s ? s.points : 0;
+      html += `<tr><td>${p.username}</td><td>${pts}</td></tr>`;
     });
-
-    
-let activeRoundId = null;
-let activeBet = null;
-let activeLimit = null;
-
-async function checkForJoinableRound() {
-  console.log('Prüfe auf beitretbare Runde');
-  const { data: round, error: roundError } = await supabase
-    .from('buzzer_rounds')
-    .select('*')
-    .eq('active', true)
-    .order('start_time', { ascending: false })
-    .limit(1)
-    .single();
-
-  if (roundError || !round) return;
-
-  activeRoundId = round.id;
-  activeBet = parseFloat(round.bet);
-  activeLimit = round.points_limit;
-
-  const { data: existing, error: partError } = await supabase
-    .from('buzzer_participants')
-    .select('id')
-    .eq('user_id', currentUser.id)
-    .eq('round_id', activeRoundId)
-    .maybeSingle();
-
-  if (existing || partError) return;
-
-  // Aktuelle Online-Nutzer erneut abfragen
-  const since = new Date(Date.now() - 15000).toISOString();
-  const { data: online } = await supabase
-    .from('user_sessions')
-    .select('user_id')
-    .eq('online', true)
-    .gte('last_active', since);
-
-  const onlineCount = online?.length || 1;
-  const participantCount = Math.max(onlineCount - 1, 1); // Admin als Spielleiter nicht mitgerechnet
-  const winEstimate = (participantCount * activeBet * 0.95)
-    .toFixed(2)
-    .replace('.', ',');
-  document.getElementById('join-round-info').innerHTML =
-    `Zielpunkte: <b>${activeLimit}</b><br>
-     Einsatz: <b>${activeBet.toFixed(2).replace('.', ',')} €</b><br>
-     Gewinn-Prognose: <b>${winEstimate} €</b> (bei ${participantCount} Teilnehmern)`;
-
-  document.getElementById('join-modal').style.display = 'block';
-}
-
-async function confirmJoinRound() {
-  const { data: user, error } = await supabase
-    .from('users')
-    .select('balance')
-    .eq('id', currentUser.id)
-    .single();
-
-  if (error || !user || parseFloat(user.balance) < activeBet) {
-    alert('Nicht genügend Guthaben!');
-    closeJoinModal();
-    return;
+    html += '</table>';
+    document.getElementById('join-section').innerHTML = html;
   }
 
-  const { error: updateErr } = await supabase
-    .from('users')
-    .update({ balance: (parseFloat(user.balance) - activeBet).toFixed(2) })
-    .eq('id', currentUser.id);
-
-  if (updateErr) {
-    alert('Fehler beim Abziehen des Einsatzes');
-    closeJoinModal();
-    return;
-  }
-
-  const name = currentUser.email.split('@')[0];
-  const { error: insertErr } = await supabase
-    .from('buzzer_participants')
-    .insert({
-      round_id: activeRoundId,
+  async function joinRound() {
+    if (!currentRound) return;
+    const username = currentUser.email.split('@')[0];
+    await supabase.from('buzzer_participants').insert({
       user_id: currentUser.id,
-      name: name
+      username,
+      round_id: currentRound.id
     });
-
-  if (insertErr) {
-    alert('Fehler beim Eintragen als Teilnehmer');
-  } else {
-    alert('Du bist der Runde beigetreten!');
+    await renderParticipantTable();
   }
 
-  closeJoinModal();
-}
+  async function startRound() {
+    const bet = parseFloat(document.getElementById('bet-input').value);
+    const limit = parseInt(document.getElementById('limit-input').value, 10);
+    if (isNaN(bet) || isNaN(limit)) return;
 
-function closeJoinModal() {
-  document.getElementById('join-modal').style.display = 'none';
-}
-
-
-document.addEventListener('DOMContentLoaded', init);
+    await supabase
+      .from('buzzer_rounds')
+      .update({ active: false })
+      .eq('active', true);
+    await supabase.from('buzzer_rounds').insert({
+      bet: bet,
+      points_limit: limit,
+      active: true,
+      start_time: new Date().toISOString()
+    });
+    document.getElementById('admin-form').style.display = 'none';
+    await loadRound();
+  }
   </script>
-
-<!-- MODAL: Automatisch für aktive Runde -->
-<div id="join-modal" style="display: none; position: fixed; top: 20%; left: 50%; transform: translateX(-50%);
-  background: white; border: 1px solid #ccc; padding: 20px; z-index: 1000; border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);">
-  <h3>Runde beitreten</h3>
-  <p id="join-round-info">Lade Rundendaten...</p>
-  <button onclick="confirmJoinRound()">✅ Beitreten</button>
-  <button onclick="closeJoinModal()">❌ Nicht teilnehmen</button>
-</div>
-
 </body>
 </html>
