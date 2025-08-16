@@ -24,24 +24,14 @@ export function BuzzerQueue({ round_id }: { round_id: string | null }) {
             if (!ignore && data) setQueue(data.slice(0, 5));
         }
         fetchQueue();
-
-        // Supabase v2 Realtime-API: channel
-        const channel = supabase.channel(`buzzer-queue-${round_id}`)
-            .on(
-                'postgres_changes',
-                {
-                    event: '*',
-                    schema: 'public',
-                    table: 'buzzer_presses',
-                    filter: `round_id=eq.${round_id}`,
-                },
-                fetchQueue
-            )
+        const sub = supabase
+            .from(`buzzer_presses:round_id=eq.${round_id}`)
+            .on('INSERT', fetchQueue)
+            .on('UPDATE', fetchQueue)
             .subscribe();
-
         return () => {
             ignore = true;
-            supabase.removeChannel(channel);
+            supabase.removeSubscription(sub);
         };
     }, [round_id]);
     return (

@@ -3,13 +3,10 @@ import { supabase } from '../../lib/supabaseClient';
 import { BuzzerAdminPanel } from './BuzzerAdminPanel';
 import { BuzzerPlayerPanel } from './BuzzerPlayerPanel';
 
-
-
 export function BuzzerDashboard() {
     const [role, setRole] = useState<'admin' | 'player' | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
-    const [currentRoundId, setCurrentRoundId] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchUser() {
@@ -35,11 +32,7 @@ export function BuzzerDashboard() {
     return (
         <div>
             <h1 className="text-2xl font-bold mb-4">Buzzer-Spiel</h1>
-            {role === 'admin' ? (
-                <BuzzerAdminPanel onRoundChange={setCurrentRoundId} />
-            ) : (
-                <BuzzerPlayerPanel round_id={currentRoundId} user_id={userId} />
-            )}
+            {role === 'admin' ? <BuzzerAdminPanel /> : <BuzzerPlayerPanel user_id={userId} />}
         </div>
     );
 }

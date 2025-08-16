@@ -21,22 +21,14 @@ export function BuzzerScoreboard({ round_id }: { round_id: string | null }) {
             if (!ignore && data) setScores(data);
         }
         fetchScores();
-        // Supabase v2 Realtime-API: channel
-        const channel = supabase.channel(`buzzer-scores-${round_id}`)
-            .on(
-                'postgres_changes',
-                {
-                    event: '*',
-                    schema: 'public',
-                    table: 'buzzer_scores',
-                    filter: `round_id=eq.${round_id}`,
-                },
-                fetchScores
-            )
+        const sub = supabase
+            .from(`buzzer_scores:round_id=eq.${round_id}`)
+            .on('INSERT', fetchScores)
+            .on('UPDATE', fetchScores)
             .subscribe();
         return () => {
             ignore = true;
-            supabase.removeChannel(channel);
+            supabase.removeSubscription(sub);
         };
     }, [round_id]);
 
@@ -46,7 +38,7 @@ export function BuzzerScoreboard({ round_id }: { round_id: string | null }) {
             const { data } = await supabase.from('users').select('id, name');
             if (data) {
                 const map: Record<string, string> = {};
-                data.forEach((u: { id: string; name: string }) => { map[u.id] = u.name; });
+                data.forEach((u: any) => { map[u.id] = u.name; });
                 setUserMap(map);
             }
         }
