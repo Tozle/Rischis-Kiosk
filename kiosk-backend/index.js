@@ -91,7 +91,7 @@ app.use(express.static(publicDir, { maxAge: '1d' }));
 // Statische Routen
 ['admin', 'dashboard', 'mentos', 'shop', 'buzzer'].forEach((page) => {
   app.get(`/${page}`, (req, res) => {
-    res.sendFile(join(publicDir, `${page}.html`));
+    res.sendFile(join(publicDir, 'out', `${page}.html`));
   });
 });
 app.get('/', (req, res) => {
