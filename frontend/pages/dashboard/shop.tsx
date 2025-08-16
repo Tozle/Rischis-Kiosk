@@ -56,10 +56,13 @@ export default function Shop() {
                     .limit(10);
                 // product als Objekt statt Array
                 setPurchases(
-                    (purchasesData || []).map((p: any) => ({
-                        ...p,
-                        product: Array.isArray(p.product) ? p.product[0] : p.product
-                    }))
+                    (purchasesData || []).map((p) => {
+                        const purchase = p as Purchase | (Purchase & { product: { name: string }[] });
+                        return {
+                            ...purchase,
+                            product: Array.isArray(purchase.product) ? purchase.product[0] : purchase.product
+                        };
+                    })
                 );
             }
             setBalance(userBalance);
@@ -134,10 +137,13 @@ export default function Shop() {
                                                 .order('created_at', { ascending: false })
                                                 .limit(10);
                                             setPurchases(
-                                                (purchasesData || []).map((p: any) => ({
-                                                    ...p,
-                                                    product: Array.isArray(p.product) ? p.product[0] : p.product
-                                                }))
+                                                (purchasesData || []).map((p) => {
+                                                    const purchase = p as Purchase | (Purchase & { product: { name: string }[] });
+                                                    return {
+                                                        ...purchase,
+                                                        product: Array.isArray(purchase.product) ? purchase.product[0] : purchase.product
+                                                    };
+                                                })
                                             );
                                         } else {
                                             alert('Kauf fehlgeschlagen: ' + error.message);
