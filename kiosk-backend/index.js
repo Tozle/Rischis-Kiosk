@@ -35,6 +35,9 @@ const publicDir = join(__dirname, 'public');
 const app = express();
 const PORT = env.PORT;
 
+// Proxy trust für korrekte IP-Erkennung (z.B. express-rate-limit, Render, Vercel)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(compression());
 app.use(
@@ -66,7 +69,6 @@ app.use(cookieParser());
 app.use(requestLogger);
 
 if (env.FORCE_HTTPS) {
-  app.set('trust proxy', 1);
   app.use((req, res, next) => {
     if (!req.secure && req.headers['x-forwarded-proto'] !== 'https') {
       return res.redirect(`https://${req.headers.host}${req.originalUrl}`);

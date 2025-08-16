@@ -1,42 +1,3 @@
-// Adjudication State
-const [lockUser, setLockUser] = useState<string | null>(null);
-const [answerText, setAnswerText] = useState('');
-const [adjudicating, setAdjudicating] = useState(false);
-
-// Fetch current lock for selected round
-useEffect(() => {
-    if (!currentRoundId) { setLockUser(null); return; }
-    let ignore = false;
-    async function fetchLock() {
-        const { data } = await supabase
-            .from('buzzer_locks')
-            .select('user_id')
-            .eq('round_id', currentRoundId)
-            .single();
-        if (!ignore) setLockUser(data?.user_id ?? null);
-    }
-    fetchLock();
-    const sub = supabase
-        .from(`buzzer_locks:round_id=eq.${currentRoundId}`)
-        .on('INSERT', fetchLock)
-        .on('UPDATE', fetchLock)
-        .on('DELETE', fetchLock)
-        .subscribe();
-    return () => { ignore = true; supabase.removeSubscription(sub); };
-}, [currentRoundId]);
-
-async function adjudicate(isCorrect: boolean) {
-    if (!currentRoundId || !lockUser) return;
-    setAdjudicating(true);
-    const { error } = await supabase.rpc('adjudicate_current', {
-        round_id: currentRoundId,
-        is_correct: isCorrect,
-        gm_user_id: 'GM-USER-ID',
-    });
-    setAdjudicating(false);
-    if (error) alert(error.message);
-    setAnswerText('');
-}
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { BuzzerQueue } from './BuzzerQueue';
@@ -49,12 +10,49 @@ interface Round {
     status: string;
 }
 
-export function BuzzerAdminPanel() {
+export function BuzzerAdminPanel({ onRoundChange }: { onRoundChange: (id: string | null) => void }) {
     const [rounds, setRounds] = useState<Round[]>([]);
     const [currentRoundId, setCurrentRoundId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [newTitle, setNewTitle] = useState('');
+    // Adjudication State
+    const [lockUser, setLockUser] = useState<string | null>(null);
+    const [answerText, setAnswerText] = useState('');
+    const [adjudicating, setAdjudicating] = useState(false);
 
+    // Fetch current lock for selected round
+    useEffect(() => {
+        if (!currentRoundId) { setLockUser(null); return; }
+        let ignore = false;
+        async function fetchLock() {
+            const { data } = await supabase
+                .from('buzzer_locks')
+                .select('user_id')
+                .eq('round_id', currentRoundId)
+                .single();
+            if (!ignore) setLockUser(data?.user_id ?? null);
+        }
+        fetchLock();
+        // Supabase v2 Realtime-API: channel
+        const channel = supabase.channel(`buzzer-locks-${currentRoundId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'buzzer_locks',
+                    filter: `round_id=eq.${currentRoundId}`,
+                },
+                fetchLock
+            )
+            .subscribe();
+        return () => {
+            ignore = true;
+            supabase.removeChannel(channel);
+        };
+    }, [currentRoundId]);
+
+    // Fetch rounds
     useEffect(() => {
         let ignore = false;
         async function fetchRounds() {
@@ -65,16 +63,36 @@ export function BuzzerAdminPanel() {
             if (!ignore && data) setRounds(data);
         }
         fetchRounds();
-        const sub = supabase
-            .from('buzzer_rounds')
-            .on('INSERT', fetchRounds)
-            .on('UPDATE', fetchRounds)
+        // Supabase v2 Realtime-API: channel
+        const channel = supabase.channel('buzzer-rounds')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'buzzer_rounds',
+                },
+                fetchRounds
+            )
             .subscribe();
         return () => {
             ignore = true;
-            supabase.removeSubscription(sub);
+            supabase.removeChannel(channel);
         };
     }, []);
+
+    async function adjudicate(isCorrect: boolean) {
+        if (!currentRoundId || !lockUser) return;
+        setAdjudicating(true);
+        const { error } = await supabase.rpc('adjudicate_current', {
+            round_id: currentRoundId,
+            is_correct: isCorrect,
+            gm_user_id: 'GM-USER-ID',
+        });
+        setAdjudicating(false);
+        if (error) alert(error.message);
+        setAnswerText('');
+    }
 
     async function createRound() {
         if (!newTitle) return;
@@ -103,6 +121,12 @@ export function BuzzerAdminPanel() {
         if (error) alert(error.message);
     }
 
+    // Callback an Dashboard, wenn Runde geändert wird
+    function handleRoundChange(e: React.ChangeEvent<HTMLSelectElement>) {
+        const newId = e.target.value || null;
+        setCurrentRoundId(newId);
+        onRoundChange(newId);
+    }
     return (
         <div>
             <h2 className="font-semibold mb-2">Admin-Panel (Game Master)</h2>
@@ -114,7 +138,7 @@ export function BuzzerAdminPanel() {
                 </div>
                 <div>
                     <label className="block text-sm">Runde wählen:</label>
-                    <select value={currentRoundId ?? ''} onChange={e => setCurrentRoundId(e.target.value)} className="border p-1">
+                    <select value={currentRoundId ?? ''} onChange={handleRoundChange} className="border p-1">
                         <option value="">—</option>
                         {rounds.map(r => (
                             <option key={r.id} value={r.id}>{r.title} ({r.status})</option>

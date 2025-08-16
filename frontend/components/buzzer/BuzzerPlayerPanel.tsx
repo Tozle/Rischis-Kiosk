@@ -25,11 +25,20 @@ export function BuzzerPlayerPanel({ round_id, user_id }: { round_id: string | nu
             if (!ignore) setJoined(!!data);
         }
         checkJoined();
-        const sub = supabase
-            .from(`buzzer_participants:round_id=eq.${round_id}`)
-            .on('INSERT', checkJoined)
+        // Supabase v2 Realtime-API: channel
+        const channel = supabase.channel(`buzzer-participants-${round_id}-${user_id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'buzzer_participants',
+                    filter: `round_id=eq.${round_id}`,
+                },
+                checkJoined
+            )
             .subscribe();
-        return () => { ignore = true; supabase.removeSubscription(sub); };
+        return () => { ignore = true; supabase.removeChannel(channel); };
     }, [round_id, user_id]);
 
     // Check if locked
@@ -45,13 +54,20 @@ export function BuzzerPlayerPanel({ round_id, user_id }: { round_id: string | nu
             if (!ignore) setLock(data?.user_id === user_id);
         }
         checkLock();
-        const sub = supabase
-            .from(`buzzer_locks:round_id=eq.${round_id}`)
-            .on('INSERT', checkLock)
-            .on('UPDATE', checkLock)
-            .on('DELETE', checkLock)
+        // Supabase v2 Realtime-API: channel
+        const channel = supabase.channel(`buzzer-locks-${round_id}-${user_id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'buzzer_locks',
+                    filter: `round_id=eq.${round_id}`,
+                },
+                checkLock
+            )
             .subscribe();
-        return () => { ignore = true; supabase.removeSubscription(sub); };
+        return () => { ignore = true; supabase.removeChannel(channel); };
     }, [round_id, user_id]);
 
     async function join() {

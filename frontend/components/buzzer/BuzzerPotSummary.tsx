@@ -22,11 +22,23 @@ export function BuzzerPotSummary({ round_id }: { round_id: string | null }) {
             }
         }
         fetchPot();
-        const sub = supabase
-            .from(`buzzer_round_state:round_id=eq.${round_id}`)
-            .on('UPDATE', fetchPot)
+        // Supabase v2 Realtime-API: channel
+        const channel = supabase.channel(`buzzer-pot-${round_id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'buzzer_round_state',
+                    filter: `round_id=eq.${round_id}`,
+                },
+                fetchPot
+            )
             .subscribe();
-        return () => { ignore = true; supabase.removeSubscription(sub); };
+        return () => {
+            ignore = true;
+            supabase.removeChannel(channel);
+        };
     }, [round_id]);
 
     return (
