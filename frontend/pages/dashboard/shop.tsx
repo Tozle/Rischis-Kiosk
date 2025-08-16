@@ -90,11 +90,11 @@ export default function Shop() {
     }, []);
 
     // Kategorien extrahieren
-    const categories = Array.from(new Set(products.map((p) => (p as any).category).filter(Boolean)));
+    const categories = Array.from(new Set(products.map((p: Product & { category?: string }) => p.category).filter(Boolean)));
 
     // Produkte filtern/sortieren
-    let filtered = products.filter(p =>
-        (!category || (p as any).category === category) &&
+    let filtered = products.filter((p: Product & { category?: string }) =>
+        (!category || p.category === category) &&
         (!search || p.name.toLowerCase().includes(search.toLowerCase()))
     );
     if (sort === 'price_asc') filtered = filtered.sort((a, b) => a.price - b.price);
