@@ -20,32 +20,33 @@ router.get(
 router.post(
   '/',
   asyncHandler(async (req, res) => {
-    const { name, price, purchase_price, stock, category, created_by } = req.body;
+    const { name, price, purchase_price, stock, category, created_by, image_url } = req.body;
 
-  if (
-    !name ||
-    price === undefined ||
-    purchase_price === undefined ||
-    stock === undefined ||
-    !category ||
-    !created_by
-  ) {
-    return res.status(400).json({ error: 'Fehlende Felder' });
-  }
+    if (
+      !name ||
+      price === undefined ||
+      purchase_price === undefined ||
+      stock === undefined ||
+      !category ||
+      !created_by
+    ) {
+      return res.status(400).json({ error: 'Fehlende Felder' });
+    }
 
-  const { error } = await supabase.from('products').insert({
-    name,
-    price,
-    purchase_price,
-    stock,
-    category,
-    available: true,
-    created_by,
-  });
+    const { error } = await supabase.from('products').insert({
+      name,
+      price,
+      purchase_price,
+      stock,
+      category,
+      available: true,
+      created_by,
+      image_url,
+    });
 
-  if (error) return res.status(500).json({ error: error.message });
+    if (error) return res.status(500).json({ error: error.message });
 
-  res.status(201).json({ message: 'Produkt gespeichert' });
+    res.status(201).json({ message: 'Produkt gespeichert' });
   }),
 );
 

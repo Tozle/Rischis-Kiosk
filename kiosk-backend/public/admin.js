@@ -376,7 +376,7 @@ async function editProduct(id) {
   const p = products.find(x => x.id === id);
   if (!p) return;
   let lastEditedProduct = { ...p };
-  // Dialog für Bearbeitung inkl. Bild
+  // Dialog für Bearbeitung inkl. Bild-URL
   let editDialog = document.createElement('div');
   editDialog.innerHTML = `
     <div class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
@@ -388,8 +388,8 @@ async function editProduct(id) {
           <input type="number" step="0.01" id="edit-product-price" value="${p.price}" required class="w-full p-2 rounded border" placeholder="Verkaufspreis" />
           <input type="number" id="edit-product-stock" value="${p.stock}" required class="w-full p-2 rounded border" placeholder="Bestand" />
           <div>
-            <label class="block text-sm mb-1">Produktbild (optional)</label>
-            <input type="file" id="edit-product-image" accept="image/*" class="block w-full text-sm" />
+            <label class="block text-sm mb-1">Bild-URL (optional)</label>
+            <input type="url" id="edit-product-image-url" value="${p.image_url || ''}" class="block w-full text-sm" placeholder="Bild-URL" />
             <img id="edit-product-image-preview" src="${p.image_url || ''}" alt="Vorschau" class="mt-2 max-h-32 rounded shadow${p.image_url ? '' : ' hidden'}" />
           </div>
           <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Speichern</button>
@@ -414,22 +414,15 @@ async function editProduct(id) {
   // Fokus-Falle für Barrierefreiheit
   editDialog.tabIndex = -1;
   editDialog.focus();
-  // Bildvorschau
-  let editImageDataUrl = '';
-  const editImageInput = editDialog.querySelector('#edit-product-image');
+  // Bild-URL Vorschau
+  const editImageUrlInput = editDialog.querySelector('#edit-product-image-url');
   const editImagePreview = editDialog.querySelector('#edit-product-image-preview');
-  editImageInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (ev) {
-        editImageDataUrl = ev.target.result;
-        editImagePreview.src = editImageDataUrl;
-        editImagePreview.classList.remove('hidden');
-      };
-      reader.readAsDataURL(file);
+  editImageUrlInput.addEventListener('input', () => {
+    const url = editImageUrlInput.value.trim();
+    if (url && /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(url)) {
+      editImagePreview.src = url;
+      editImagePreview.classList.remove('hidden');
     } else {
-      editImageDataUrl = '';
       editImagePreview.src = '';
       editImagePreview.classList.add('hidden');
     }
@@ -440,7 +433,7 @@ async function editProduct(id) {
     const newName = editDialog.querySelector('#edit-product-name').value;
     const newPrice = editDialog.querySelector('#edit-product-price').value;
     const newStock = editDialog.querySelector('#edit-product-stock').value;
-    const image_url = editImageDataUrl || editImagePreview.src || '';
+    const image_url = editImageUrlInput.value.trim();
     const token = await getCsrfToken();
     await fetch(`${BACKEND_URL}/api/admin/products/${id}`, {
       method: 'PUT',
