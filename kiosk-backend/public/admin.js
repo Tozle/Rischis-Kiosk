@@ -2,15 +2,62 @@
 const productImageInput = document.getElementById('product-image');
 const productImagePreview = document.getElementById('product-image-preview');
 let productImageDataUrl = '';
+const MAX_IMAGE_SIZE = 500 * 1024; // 500 KB
+const MAX_IMAGE_DIM = 500; // px
 if (productImageInput) {
   productImageInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 2 * MAX_IMAGE_SIZE) {
+        showToast('Bild zu groß (max. 1 MB, wird automatisch verkleinert)', 'error');
+        productImageInput.value = '';
+        productImagePreview.src = '';
+        productImagePreview.classList.add('hidden');
+        productImageDataUrl = '';
+        return;
+      }
       const reader = new FileReader();
       reader.onload = function (ev) {
-        productImageDataUrl = ev.target.result;
-        productImagePreview.src = productImageDataUrl;
-        productImagePreview.classList.remove('hidden');
+        // Automatisch skalieren und komprimieren
+        const img = new window.Image();
+        img.onload = function () {
+          let w = img.width;
+          let h = img.height;
+          if (w > MAX_IMAGE_DIM || h > MAX_IMAGE_DIM) {
+            if (w > h) {
+              h = Math.round(h * (MAX_IMAGE_DIM / w));
+              w = MAX_IMAGE_DIM;
+            } else {
+              w = Math.round(w * (MAX_IMAGE_DIM / h));
+              h = MAX_IMAGE_DIM;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          // Komprimiere als JPEG
+          let quality = 0.85;
+          let dataUrl = canvas.toDataURL('image/jpeg', quality);
+          // Schleife: Komprimiere weiter, falls zu groß
+          while (dataUrl.length > MAX_IMAGE_SIZE * 1.37 && quality > 0.4) {
+            quality -= 0.1;
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+          }
+          if (dataUrl.length > MAX_IMAGE_SIZE * 1.37) {
+            showToast('Bild nach Komprimierung immer noch zu groß (max. 500 KB)', 'error');
+            productImageInput.value = '';
+            productImagePreview.src = '';
+            productImagePreview.classList.add('hidden');
+            productImageDataUrl = '';
+            return;
+          }
+          productImageDataUrl = dataUrl;
+          productImagePreview.src = productImageDataUrl;
+          productImagePreview.classList.remove('hidden');
+        };
+        img.src = ev.target.result;
       };
       reader.readAsDataURL(file);
     } else {
