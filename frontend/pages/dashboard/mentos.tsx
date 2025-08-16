@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '../../lib/supabaseClient';
@@ -15,6 +14,14 @@ type User = {
     email?: string;
     user_metadata?: { name?: string };
 };
+
+// Custom-Styles für Panel-Shadow und Glass-Effect
+const customStyles = `
+.panel-shadow { box-shadow: 0 15px 35px rgba(22, 163, 74, 0.4); }
+.dark .panel-shadow { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6); }
+.glass-effect { backdrop-filter: blur(14px); background-color: rgba(255,255,255,0.88); }
+.dark .glass-effect { background-color: rgba(31,41,55,0.8); }
+`;
 
 export default function Mentos() {
     const [feedings, setFeedings] = useState<Feeding[]>([]);
@@ -113,76 +120,79 @@ export default function Mentos() {
     if (loading) return <div className="min-h-screen flex items-center justify-center">Lade...</div>;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-100 to-cyan-100 dark:from-slate-900 dark:to-slate-800 text-green-900 dark:text-white">
-            <div className="fixed bottom-4 right-4 z-50">
-                <button
-                    onClick={() => {
-                        document.documentElement.classList.toggle('dark');
-                        localStorage.setItem('darkMode', document.documentElement.classList.contains('dark') ? 'true' : 'false');
-                    }}
-                    className="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition"
-                >
-                    🌙
-                </button>
-            </div>
-            <div className="fixed top-4 left-4 z-50">
-                <Link href="/dashboard" legacyBehavior>
-                    <a className="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded-full shadow text-sm">⬅️ Zurück zum Dashboard</a>
-                </Link>
-            </div>
-            <div className="w-full px-3 py-2 max-w-screen-sm mx-auto mt-12 sm:mt-20 p-6 sm:p-10 rounded-3xl panel-shadow border-4 border-green-300 dark:border-green-500 glass-effect animate-fade-in bg-white/90 dark:bg-slate-900/90">
-                <h1 className="text-3xl sm:text-4xl font-bold mb-6 text-center text-green-800 dark:text-green-200">Mentos 🐱</h1>
-                <h2 className="text-xl text-center">Letzte Fütterung vor:</h2>
-                <div className={`text-4xl sm:text-5xl font-mono font-semibold text-center mb-4 ${lastFeedColor}`}>
-                    {lastFeedDisplay}
-                </div>
-                <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
+        <>
+            <style>{customStyles}</style>
+            <div className="min-h-screen bg-gradient-to-br from-green-100 to-cyan-100 dark:from-slate-900 dark:to-slate-800 text-green-900 dark:text-white">
+                <div className="fixed bottom-4 right-4 z-50">
                     <button
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow"
-                        onClick={() => addFeeding('Nassfutter')}
+                        onClick={() => {
+                            document.documentElement.classList.toggle('dark');
+                            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark') ? 'true' : 'false');
+                        }}
+                        className="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition"
                     >
-                        🐟 Nassfutter gegeben
-                    </button>
-                    <button
-                        className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full shadow"
-                        onClick={() => addFeeding('Trockenfutter')}
-                    >
-                        🥣 Trockenfutter gegeben
+                        🌙
                     </button>
                 </div>
-                {isAdmin && (
+                <div className="fixed top-4 left-4 z-50">
+                    <Link href="/dashboard" legacyBehavior>
+                        <a className="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded-full shadow text-sm">⬅️ Zurück zum Dashboard</a>
+                    </Link>
+                </div>
+                <div className="w-full px-3 py-2 max-w-screen-sm mx-auto mt-12 sm:mt-20 p-6 sm:p-10 rounded-3xl panel-shadow border-4 border-green-300 dark:border-green-500 glass-effect animate-fade-in bg-white/90 dark:bg-slate-900/90">
+                    <h1 className="text-3xl sm:text-4xl font-bold mb-6 text-center text-green-800 dark:text-green-200">Mentos 🐱</h1>
+                    <h2 className="text-xl text-center">Letzte Fütterung vor:</h2>
+                    <div className={`text-4xl sm:text-5xl font-mono font-semibold text-center mb-4 ${lastFeedColor}`}>
+                        {lastFeedDisplay}
+                    </div>
                     <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
                         <button
-                            className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1 px-2 rounded-full shadow"
-                            onClick={() => { if (confirm('Timer wirklich zurücksetzen?')) resetTimerDisplay(); }}
-                        >⏱️ Timer zurücksetzen</button>
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow"
+                            onClick={() => addFeeding('Nassfutter')}
+                        >
+                            🐟 Nassfutter gegeben
+                        </button>
                         <button
-                            className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1 px-2 rounded-full shadow"
-                            onClick={() => { if (confirm('Anzeige wirklich löschen?')) clearFeedings(); }}
-                        >🗑️ Anzeige löschen</button>
+                            className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full shadow"
+                            onClick={() => addFeeding('Trockenfutter')}
+                        >
+                            🥣 Trockenfutter gegeben
+                        </button>
                     </div>
-                )}
-                <div className="overflow-x-auto">
-                    <table className="table-auto w-full text-center text-base">
-                        <thead>
-                            <tr>
-                                <th className="px-2 py-1 border-b font-semibold">Zeit</th>
-                                <th className="px-2 py-1 border-b font-semibold">Futterart</th>
-                                <th className="px-2 py-1 border-b font-semibold">Gefüttert von</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {feedings.map((e) => (
-                                <tr key={e.id} className="odd:bg-green-50 dark:odd:bg-gray-700">
-                                    <td className="px-2 py-1 border-b">{new Date(e.created_at).toLocaleString('de-DE', { timeZone: 'Europe/Berlin' })}</td>
-                                    <td className="px-2 py-1 border-b">{e.type}</td>
-                                    <td className="px-2 py-1 border-b">{e.user_name}</td>
+                    {isAdmin && (
+                        <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
+                            <button
+                                className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1 px-2 rounded-full shadow"
+                                onClick={() => { if (confirm('Timer wirklich zurücksetzen?')) { if (intervalRef.current) clearInterval(intervalRef.current); setLastFeedDisplay('-'); setLastFeedColor('text-green-600'); } }}
+                            >⏱️ Timer zurücksetzen</button>
+                            <button
+                                className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1 px-2 rounded-full shadow"
+                                onClick={() => { if (confirm('Anzeige wirklich löschen?')) clearFeedings(); }}
+                            >🗑️ Anzeige löschen</button>
+                        </div>
+                    )}
+                    <div className="overflow-x-auto">
+                        <table className="table-auto w-full text-center text-base">
+                            <thead>
+                                <tr>
+                                    <th className="px-2 py-1 border-b font-semibold">Zeit</th>
+                                    <th className="px-2 py-1 border-b font-semibold">Futterart</th>
+                                    <th className="px-2 py-1 border-b font-semibold">Gefüttert von</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {feedings.map((e) => (
+                                    <tr key={e.id} className="odd:bg-green-50 dark:odd:bg-gray-700">
+                                        <td className="px-2 py-1 border-b">{new Date(e.created_at).toLocaleString('de-DE', { timeZone: 'Europe/Berlin' })}</td>
+                                        <td className="px-2 py-1 border-b">{e.type}</td>
+                                        <td className="px-2 py-1 border-b">{e.user_name}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }
