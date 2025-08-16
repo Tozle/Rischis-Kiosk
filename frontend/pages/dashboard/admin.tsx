@@ -11,6 +11,14 @@ type Product = {
     category: string;
 };
 
+type User = {
+    id: string;
+    name: string | null;
+    email: string;
+    role: 'admin' | 'player';
+    balance: number;
+};
+
 export default function Admin() {
     const [loading, setLoading] = useState(true);
     const [products, setProducts] = useState<Product[]>([]);
@@ -18,7 +26,7 @@ export default function Admin() {
     const [editId, setEditId] = useState<string | null>(null);
     const [message, setMessage] = useState('');
     // Benutzerverwaltung
-    const [users, setUsers] = useState<any[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [userMsg, setUserMsg] = useState('');
     // Statistik
     const [stats, setStats] = useState<{ total: number; count: number; topProducts: { name: string; count: number }[] }>({ total: 0, count: 0, topProducts: [] });

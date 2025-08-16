@@ -17,10 +17,16 @@ type Purchase = {
     product: { name: string };
 };
 
+type User = {
+    id: string;
+    email?: string;
+    user_metadata?: { name?: string };
+};
+
 export default function Shop() {
     // Produktdaten, Userdaten etc.
     const [products, setProducts] = useState<Product[]>([]);
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [balance, setBalance] = useState(0);
     const [loading, setLoading] = useState(true);
     const [purchases, setPurchases] = useState<Purchase[]>([]);

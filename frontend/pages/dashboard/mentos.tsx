@@ -10,10 +10,16 @@ type Feeding = {
     user_name: string;
 };
 
+type User = {
+    id: string;
+    email?: string;
+    user_metadata?: { name?: string };
+};
+
 export default function Mentos() {
     const [feedings, setFeedings] = useState<Feeding[]>([]);
     const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const [lastFeedDisplay, setLastFeedDisplay] = useState('-');
