@@ -1,3 +1,208 @@
+// Produktbild-Vorschau und Upload-Handling
+const productImageInput = document.getElementById('product-image');
+const productImagePreview = document.getElementById('product-image-preview');
+let productImageDataUrl = '';
+if (productImageInput) {
+  productImageInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (ev) {
+        productImageDataUrl = ev.target.result;
+        productImagePreview.src = productImageDataUrl;
+        productImagePreview.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    } else {
+      productImageDataUrl = '';
+      productImagePreview.src = '';
+      productImagePreview.classList.add('hidden');
+    }
+  });
+}
+// --- Käufe-Filter & Export ---
+let allPurchasesCache = [];
+
+function filterAndRenderPurchases() {
+  const search = document.getElementById('purchase-search')?.value?.toLowerCase() || '';
+  const filtered = allPurchasesCache.filter(e =>
+    e.user_name.toLowerCase().includes(search) ||
+    e.product_name.toLowerCase().includes(search)
+  );
+  renderPurchaseList(filtered);
+}
+
+function renderPurchaseList(purchases) {
+  const list = document.getElementById('purchase-history');
+  list.innerHTML = '';
+  purchases.forEach(e => {
+    const li = document.createElement('li');
+    li.className = 'border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm mb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2';
+    li.innerHTML = `
+      <span class="text-xs text-gray-500 dark:text-gray-400">${formatDateTime(e.created_at)}</span>
+      <span class="flex-1 font-semibold">${e.user_name}</span>
+      <span class="">${e.quantity || 1}x ${e.product_name}</span>
+      <span class="font-bold">${e.price.toFixed(2)} €</span>
+    `;
+    list.appendChild(li);
+  });
+}
+
+function exportPurchasesCSV() {
+  const search = document.getElementById('purchase-search')?.value?.toLowerCase() || '';
+  const filtered = allPurchasesCache.filter(e =>
+    e.user_name.toLowerCase().includes(search) ||
+    e.product_name.toLowerCase().includes(search)
+  );
+  const csv = ['Datum,Uhrzeit,Nutzer,Produkt,Menge,Preis'];
+  filtered.forEach(e => {
+    const d = new Date(e.created_at);
+    const date = d.toLocaleDateString('de-DE');
+    const time = d.toLocaleTimeString('de-DE');
+    csv.push(`"${date}","${time}","${e.user_name.replace(/"/g, '""')}","${e.product_name.replace(/"/g, '""')}",${e.quantity || 1},${e.price.toFixed(2)}`);
+  });
+  const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'kaeufe.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+// --- Benutzer-Filter & Export ---
+let allUsersCache = [];
+
+function filterAndRenderUsers() {
+  const search = document.getElementById('user-search')?.value?.toLowerCase() || '';
+  const filtered = allUsersCache.filter(u =>
+    u.name.toLowerCase().includes(search) || u.email.toLowerCase().includes(search)
+  );
+  renderUserList(filtered);
+}
+
+function renderUserList(users) {
+  const list = document.getElementById('user-manage-list');
+  list.innerHTML = '';
+  users.forEach(u => {
+    const li = document.createElement('li');
+    li.className = 'flex flex-col sm:flex-row sm:items-center justify-between gap-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm mb-2';
+    li.innerHTML = `
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
+        <span class="font-semibold text-green-900 dark:text-green-200">${u.name}</span>
+        <span class="text-xs text-gray-500 dark:text-gray-400">${u.email}</span>
+      </div>
+      <div class="flex gap-2 mt-2 sm:mt-0">
+        <button class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 flex items-center gap-1 text-xs" title="Bearbeiten" onclick="editUser('${u.id}', '${u.name}')">
+          <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M11 5h2m-1 0v14m-7-7h14' /></svg>
+          Bearbeiten
+        </button>
+        <button class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 flex items-center gap-1 text-xs" title="Löschen" onclick="deleteUser('${u.id}')">
+          <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12' /></svg>
+          Löschen
+        </button>
+      </div>
+    `;
+    list.appendChild(li);
+  });
+  // Undo-fähige Benutzerlöschung
+  let lastDeletedUser = null;
+  async function deleteUser(id) {
+    if (!(await confirmAction('Benutzer wirklich löschen? Alle Käufe bleiben erhalten.'))) return;
+    showLoader(true);
+    // Hole Userdaten vor dem Löschen
+    const res = await fetch(`${BACKEND_URL}/api/admin/users`, { credentials: 'include' });
+    const users = await res.json();
+    const user = users.find(u => u.id === id);
+    lastDeletedUser = user ? { ...user } : null;
+    const token = await getCsrfToken();
+    await fetch(`${BACKEND_URL}/api/admin/users/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: { 'x-csrf-token': token },
+    });
+    showLoader(false);
+    showToast('Benutzer gelöscht.', 'success', 5000, async () => {
+      if (!lastDeletedUser) return;
+      showLoader(true);
+      const token2 = await getCsrfToken();
+      await fetch(`${BACKEND_URL}/api/admin/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': token2,
+        },
+        credentials: 'include',
+        body: JSON.stringify(lastDeletedUser)
+      });
+      showLoader(false);
+      showToast('Löschung rückgängig gemacht!', 'success');
+      loadUserPasswords();
+      lastDeletedUser = null;
+    });
+    loadUserPasswords();
+  }
+}
+
+function exportUsersCSV() {
+  const search = document.getElementById('user-search')?.value?.toLowerCase() || '';
+  const filtered = allUsersCache.filter(u =>
+    u.name.toLowerCase().includes(search) || u.email.toLowerCase().includes(search)
+  );
+  const csv = ['Name,Email'];
+  filtered.forEach(u => {
+    csv.push(`"${u.name.replace(/"/g, '""')}","${u.email.replace(/"/g, '""')}"`);
+  });
+  const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'benutzer.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+// Toast-Benachrichtigung
+function showToast(msg, type = 'success', duration = 3000, undoCallback = null) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.innerHTML = '';
+  const span = document.createElement('span');
+  span.textContent = msg;
+  toast.appendChild(span);
+  if (undoCallback) {
+    const btn = document.createElement('button');
+    btn.textContent = 'Rückgängig';
+    btn.className = 'ml-4 px-3 py-1 rounded bg-white/80 text-green-700 font-bold shadow hover:bg-green-100 transition text-xs';
+    btn.onclick = () => {
+      undoCallback();
+      toast.classList.add('opacity-0');
+    };
+    toast.appendChild(btn);
+  }
+  toast.className = `fixed left-1/2 top-6 z-50 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-center text-sm font-semibold transition-opacity duration-300 pointer-events-none ${type === 'error' ? 'bg-red-600' : 'bg-green-600'} text-white opacity-100`;
+  if (!undoCallback) {
+    setTimeout(() => {
+      toast.classList.add('opacity-0');
+    }, duration);
+  }
+}
+
+// Ladeanimation
+function showLoader(show = true) {
+  const loader = document.getElementById('loader');
+  if (!loader) return;
+  loader.classList.toggle('hidden', !show);
+}
+
+// Bestätigungsdialog
+async function confirmAction(msg) {
+  return new Promise((resolve) => {
+    if (window.confirm(msg)) resolve(true); else resolve(false);
+  });
+}
 // Backend und Frontend laufen auf derselben Domain
 // Einheitliche Definition für alle Frontend-Skripte
 const BACKEND_URL = window.location.origin;
@@ -40,7 +245,7 @@ function toggleSection(id) {
 function formatDateTime(iso) {
   const d = new Date(iso);
   return d.toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin' }) + ' ' +
-         d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Europe/Berlin' });
+    d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Europe/Berlin' });
 }
 
 // Eingeloggten Benutzer laden
@@ -65,25 +270,40 @@ async function loadProducts() {
   list.innerHTML = '';
   data.filter(p => category === 'all' || p.category === category).forEach(p => {
     const li = document.createElement('li');
-    li.className = 'border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md hover:shadow-lg transition-all';
+    li.className = 'border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 p-4 rounded-2xl shadow-md hover:shadow-lg transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4';
+    const hasImage = p.image_url && p.image_url.trim() !== '';
     li.innerHTML = `
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div class="flex items-center gap-4 flex-1">
+        ${hasImage ? `<img src="${p.image_url}" alt="${p.name}" class="w-16 h-16 object-contain rounded shadow border border-gray-200 dark:border-gray-700 bg-white" loading="lazy">` : ''}
         <div>
-          <p class="text-base font-semibold">${p.name}</p>
-          <p class="text-sm text-gray-600 dark:text-gray-300">Preis: <strong>${p.price.toFixed(2)} €</strong> – Bestand: <strong>${p.stock}</strong> – Kategorie: <strong>${p.category || '-'}</strong></p>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-base font-semibold">${p.name}</span>
+            <span class="inline-block px-2 py-0.5 rounded text-xs font-bold ${p.available ? 'bg-green-200 text-green-800 dark:bg-green-700 dark:text-green-200' : 'bg-red-200 text-red-800 dark:bg-red-700 dark:text-red-200'}">
+              ${p.available ? 'Verfügbar' : 'Versteckt'}
+            </span>
+          </div>
+          <div class="text-sm text-gray-600 dark:text-gray-300">
+            <span>Preis: <strong>${p.price.toFixed(2)} €</strong></span> –
+            <span>Bestand: <strong>${p.stock}</strong></span> –
+            <span>Kategorie: <strong>${p.category || '-'}</strong></span>
+          </div>
         </div>
-        <div class="flex flex-row gap-1 sm:ml-4">
-          <button onclick="toggleAvailability('${p.id}', ${p.available})" class="bg-yellow-500 text-white text-xs px-2 py-1 rounded shadow hover:bg-yellow-600 focus:outline-none">
-            ${p.available ? 'Verstecken' : 'Anzeigen'}
-          </button>
-          <button onclick="editProduct('${p.id}')" class="bg-blue-600 text-white text-xs px-2 py-1 rounded shadow hover:bg-blue-700 focus:outline-none">
-            Bearbeiten
-          </button>
-          <button onclick="deleteProduct('${p.id}')" class="bg-red-600 text-white text-xs px-2 py-1 rounded shadow hover:bg-red-700 focus:outline-none">
-            Löschen
-          </button>
-        </div>
-      </div>`;
+      </div>
+      <div class="flex flex-row gap-2 mt-3 sm:mt-0 sm:ml-4">
+        <button onclick="toggleAvailability('${p.id}', ${p.available})" class="bg-yellow-500 text-white text-xs px-2 py-1 rounded shadow hover:bg-yellow-600 focus:outline-none flex items-center gap-1" title="${p.available ? 'Verstecken' : 'Anzeigen'}">
+          <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' /></svg>
+          ${p.available ? 'Verstecken' : 'Anzeigen'}
+        </button>
+        <button onclick="editProduct('${p.id}')" class="bg-blue-600 text-white text-xs px-2 py-1 rounded shadow hover:bg-blue-700 focus:outline-none flex items-center gap-1" title="Bearbeiten">
+          <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M11 5h2m-1 0v14m-7-7h14' /></svg>
+          Bearbeiten
+        </button>
+        <button onclick="deleteProduct('${p.id}')" class="bg-red-600 text-white text-xs px-2 py-1 rounded shadow hover:bg-red-700 focus:outline-none flex items-center gap-1" title="Löschen">
+          <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12' /></svg>
+          Löschen
+        </button>
+      </div>
+    `;
     list.appendChild(li);
   });
 }
@@ -92,12 +312,23 @@ document.getElementById('category-filter')?.addEventListener('change', loadProdu
 
 async function addProduct(e) {
   e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  if (btn) btn.disabled = true;
   const name = document.getElementById('product-name').value.trim();
   const price = parseFloat(document.getElementById('product-price').value.replace(',', '.'));
   const purchase_price = parseFloat(document.getElementById('product-purchase').value.replace(',', '.'));
   const stock = parseInt(document.getElementById('product-stock').value);
   const category = document.getElementById('product-category').value;
+  const msgEl = document.getElementById('product-result');
+  // Validierung
+  if (!name || isNaN(price) || isNaN(purchase_price) || isNaN(stock) || !category) {
+    msgEl.textContent = 'Bitte alle Felder korrekt ausfüllen!';
+    msgEl.classList.add('text-red-600');
+    if (btn) btn.disabled = false;
+    return;
+  }
   const token = await getCsrfToken();
+  let image_url = productImageDataUrl || '';
   const res = await fetch(`${BACKEND_URL}/api/admin/products`, {
     method: 'POST',
     headers: {
@@ -105,44 +336,133 @@ async function addProduct(e) {
       'x-csrf-token': token,
     },
     credentials: 'include',
-    body: JSON.stringify({ name, price, purchase_price, stock, category, created_by: currentUserId })
+    body: JSON.stringify({ name, price, purchase_price, stock, category, created_by: currentUserId, image_url })
   });
   const result = await res.json();
-  const msgEl = document.getElementById('product-result');
   msgEl.textContent = res.ok ? 'Produkt gespeichert!' : `Fehler: ${result.error}`;
+  msgEl.classList.toggle('text-red-600', !res.ok);
+  msgEl.classList.toggle('text-green-700', res.ok);
   if (res.ok) {
     e.target.reset();
+    productImageDataUrl = '';
+    if (productImagePreview) {
+      productImagePreview.src = '';
+      productImagePreview.classList.add('hidden');
+    }
     loadStats();
     loadProducts();
   }
+  if (btn) btn.disabled = false;
   setTimeout(() => {
     msgEl.textContent = '';
+    msgEl.classList.remove('text-red-600', 'text-green-700');
   }, 3000);
 }
 
 document.getElementById('add-product')?.addEventListener('submit', addProduct);
 
 async function editProduct(id) {
-  const res = await fetch(`${BACKEND_URL}/api/admin/products` , { credentials: 'include' });
+  const res = await fetch(`${BACKEND_URL}/api/admin/products`, { credentials: 'include' });
   const products = await res.json();
   const p = products.find(x => x.id === id);
   if (!p) return;
-  const newName = prompt('Neuen Produktnamen eingeben:', p.name);
-  const newPrice = prompt('Neuen Verkaufspreis in € eingeben:', p.price);
-  const newStock = prompt('Neuen Bestand eingeben:', p.stock);
-  if (!newName || !newPrice || !newStock) return;
-  const token = await getCsrfToken();
-  await fetch(`${BACKEND_URL}/api/admin/products/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-csrf-token': token,
-    },
-    credentials: 'include',
-    body: JSON.stringify({ name:newName, price:parseFloat(newPrice), stock:parseInt(newStock) })
+  let lastEditedProduct = { ...p };
+  // Dialog für Bearbeitung inkl. Bild
+  let editDialog = document.createElement('div');
+  editDialog.innerHTML = `
+    <div class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-md relative">
+        <button id="close-edit-dialog" class="absolute top-2 right-2 text-gray-400 hover:text-red-600 text-xl">&times;</button>
+        <h2 class="text-lg font-bold mb-4">Produkt bearbeiten</h2>
+        <form id="edit-product-form" class="space-y-3">
+          <input type="text" id="edit-product-name" value="${p.name}" required class="w-full p-2 rounded border" placeholder="Name" />
+          <input type="number" step="0.01" id="edit-product-price" value="${p.price}" required class="w-full p-2 rounded border" placeholder="Verkaufspreis" />
+          <input type="number" id="edit-product-stock" value="${p.stock}" required class="w-full p-2 rounded border" placeholder="Bestand" />
+          <div>
+            <label class="block text-sm mb-1">Produktbild (optional)</label>
+            <input type="file" id="edit-product-image" accept="image/*" class="block w-full text-sm" />
+            <img id="edit-product-image-preview" src="${p.image_url || ''}" alt="Vorschau" class="mt-2 max-h-32 rounded shadow${p.image_url ? '' : ' hidden'}" />
+          </div>
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Speichern</button>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(editDialog);
+  // Dialog schließen
+  editDialog.querySelector('#close-edit-dialog').onclick = () => editDialog.remove();
+  // Fokus auf erstes Feld
+  setTimeout(() => {
+    const firstInput = editDialog.querySelector('input,select,button');
+    if (firstInput) firstInput.focus();
+  }, 50);
+  // ESC schließt Dialog
+  editDialog.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      editDialog.remove();
+    }
   });
-  loadProducts();
-  loadStats();
+  // Fokus-Falle für Barrierefreiheit
+  editDialog.tabIndex = -1;
+  editDialog.focus();
+  // Bildvorschau
+  let editImageDataUrl = '';
+  const editImageInput = editDialog.querySelector('#edit-product-image');
+  const editImagePreview = editDialog.querySelector('#edit-product-image-preview');
+  editImageInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (ev) {
+        editImageDataUrl = ev.target.result;
+        editImagePreview.src = editImageDataUrl;
+        editImagePreview.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    } else {
+      editImageDataUrl = '';
+      editImagePreview.src = '';
+      editImagePreview.classList.add('hidden');
+    }
+  });
+  // Formular absenden
+  editDialog.querySelector('#edit-product-form').onsubmit = async (ev) => {
+    ev.preventDefault();
+    const newName = editDialog.querySelector('#edit-product-name').value;
+    const newPrice = editDialog.querySelector('#edit-product-price').value;
+    const newStock = editDialog.querySelector('#edit-product-stock').value;
+    const image_url = editImageDataUrl || editImagePreview.src || '';
+    const token = await getCsrfToken();
+    await fetch(`${BACKEND_URL}/api/admin/products/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-csrf-token': token,
+      },
+      credentials: 'include',
+      body: JSON.stringify({ name: newName, price: parseFloat(newPrice), stock: parseInt(newStock), image_url })
+    });
+    editDialog.remove();
+    showToast('Produkt bearbeitet.', 'success', 5000, async () => {
+      showLoader(true);
+      const token2 = await getCsrfToken();
+      await fetch(`${BACKEND_URL}/api/admin/products/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': token2,
+        },
+        credentials: 'include',
+        body: JSON.stringify(lastEditedProduct)
+      });
+      showLoader(false);
+      showToast('Bearbeitung rückgängig gemacht!', 'success');
+      loadProducts();
+      loadStats();
+    });
+    loadProducts();
+    loadStats();
+  };
 }
 
 async function toggleAvailability(id, current) {
@@ -160,12 +480,38 @@ async function toggleAvailability(id, current) {
 }
 
 async function deleteProduct(id) {
-  if (!confirm('Produkt löschen (Käufe bleiben erhalten)?')) return;
+  if (!(await confirmAction('Produkt löschen (Käufe bleiben erhalten)?'))) return;
+  showLoader(true);
   const token3 = await getCsrfToken();
+  // Produktdaten vor dem Löschen holen
+  const res = await fetch(`${BACKEND_URL}/api/admin/products`, { credentials: 'include' });
+  const products = await res.json();
+  const prod = products.find(x => x.id === id);
+  let lastDeletedProduct = prod ? { ...prod } : null;
   await fetch(`${BACKEND_URL}/api/admin/products/${id}`, {
     method: 'DELETE',
     credentials: 'include',
     headers: { 'x-csrf-token': token3 },
+  });
+  showLoader(false);
+  showToast('Produkt gelöscht.', 'success', 5000, async () => {
+    if (!lastDeletedProduct) return;
+    showLoader(true);
+    const token = await getCsrfToken();
+    await fetch(`${BACKEND_URL}/api/admin/products`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-csrf-token': token,
+      },
+      credentials: 'include',
+      body: JSON.stringify(lastDeletedProduct)
+    });
+    showLoader(false);
+    showToast('Löschung rückgängig gemacht!', 'success');
+    loadProducts();
+    loadStats();
+    loadPurchases(true);
   });
   loadProducts();
   loadStats();
@@ -214,10 +560,19 @@ function togglePurchases() {
 async function loadPurchases(initial = false) {
   const res = await fetch(`${BACKEND_URL}/api/admin/purchases?offset=${purchaseOffset}&limit=${purchaseLimit}`, { credentials: 'include' });
   const data = await res.json();
-  const list = document.getElementById('purchase-history');
-  const items = data.map(e => `<li>${formatDateTime(e.created_at)} – <strong>${e.user_name}</strong> kaufte <strong>${e.quantity || 1}x ${e.product_name}</strong> für ${e.price.toFixed(2)} €</li>`).join('');
-  if (initial) list.innerHTML = items; else list.innerHTML += items;
+  if (initial) {
+    allPurchasesCache = data;
+    filterAndRenderPurchases();
+  } else {
+    allPurchasesCache = allPurchasesCache.concat(data);
+    filterAndRenderPurchases();
+  }
   purchaseOffset += purchaseLimit;
+  // Event-Listener für Käufe-Suche und Export
+  window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('purchase-search')?.addEventListener('input', filterAndRenderPurchases);
+    document.getElementById('export-purchases')?.addEventListener('click', exportPurchasesCSV);
+  });
 }
 
 function loadMorePurchases() { loadPurchases(false); }
@@ -226,25 +581,25 @@ function loadMorePurchases() { loadPurchases(false); }
 async function loadUserPasswords() {
   const res = await fetch(`${BACKEND_URL}/api/admin/users`, { credentials: 'include' });
   const data = await res.json();
-  const list = document.getElementById('user-manage-list');
-  list.innerHTML = '';
-  data.forEach(u => {
-    const li = document.createElement('li');
-    li.className = 'flex justify-between items-center gap-2';
-    const span = document.createElement('span');
-    span.textContent = `${u.name} (${u.email})`;
-    const btn = document.createElement('button');
-    btn.textContent = 'Bearbeiten';
-    btn.className = 'bg-blue-600 text-white px-2 rounded hover:bg-blue-700';
-    btn.addEventListener('click', () => editUser(u.id, u.name));
-    li.append(span, btn);
-    list.appendChild(li);
+  allUsersCache = data;
+  filterAndRenderUsers();
+  // Event-Listener für Suche und Export
+  window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('user-search')?.addEventListener('input', filterAndRenderUsers);
+    document.getElementById('export-users')?.addEventListener('click', exportUsersCSV);
   });
 }
 
 async function editUser(id, currentName) {
+  let lastUserData = null;
+  // Hole aktuelle Userdaten
+  const resUser = await fetch(`${BACKEND_URL}/api/admin/users`, { credentials: 'include' });
+  const users = await resUser.json();
+  const user = users.find(u => u.id === id);
+  if (user) lastUserData = { ...user };
   const newName = prompt('Neuer Name:', currentName);
   if (newName && newName.trim() !== '') {
+    showLoader(true);
     const token = await getCsrfToken();
     const res = await fetch(`${BACKEND_URL}/api/admin/users/${id}`, {
       method: 'PUT',
@@ -255,13 +610,33 @@ async function editUser(id, currentName) {
       credentials: 'include',
       body: JSON.stringify({ name: newName.trim() })
     });
+    showLoader(false);
     if (!res.ok) {
-      return alert('Fehler beim Speichern des Namens');
+      showToast('Fehler beim Speichern des Namens', 'error');
+      return;
     }
+    showToast('Benutzername geändert.', 'success', 5000, async () => {
+      if (!lastUserData) return;
+      showLoader(true);
+      const token2 = await getCsrfToken();
+      await fetch(`${BACKEND_URL}/api/admin/users/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': token2,
+        },
+        credentials: 'include',
+        body: JSON.stringify({ name: lastUserData.name })
+      });
+      showLoader(false);
+      showToast('Namensänderung rückgängig gemacht!', 'success');
+      loadUserPasswords();
+    });
   }
   const newPw = prompt('Neues Passwort (mind. 6 Zeichen, leer lassen zum Überspringen):');
   if (newPw) {
-    if (newPw.length < 6) return alert('Passwort zu kurz.');
+    if (newPw.length < 6) return showToast('Passwort zu kurz.', 'error');
+    showLoader(true);
     const tokenPw = await getCsrfToken();
     const resPw = await fetch(`${BACKEND_URL}/api/admin/users/${id}/password`, {
       method: 'PUT',
@@ -272,11 +647,18 @@ async function editUser(id, currentName) {
       credentials: 'include',
       body: JSON.stringify({ password: newPw })
     });
+    showLoader(false);
     if (!resPw.ok) {
-      return alert('Fehler beim Ändern des Passworts');
+      showToast('Fehler beim Ändern des Passworts', 'error');
+      return;
     }
+    // Undo-Button für Passwortänderung (nur Demo, da altes Passwort nicht lesbar)
+    showToast('Passwort geändert.', 'success', 5000, async () => {
+      alert('Das alte Passwort kann aus Sicherheitsgründen nicht wiederhergestellt werden.');
+    });
+  } else {
+    showToast('Benutzerdaten gespeichert!', 'success');
   }
-  alert('Benutzerdaten gespeichert!');
   loadUserPasswords();
 }
 
@@ -284,19 +666,26 @@ async function loadUserBalances() {
   const res = await fetch(`${BACKEND_URL}/api/admin/users`, { credentials: 'include' });
   const data = await res.json();
   document.getElementById('balance-control-list').innerHTML = data.map(u => {
-    const cls = u.balance < 0 ? 'text-red-600 dark:text-red-400 font-bold' : 'text-green-600 dark:text-green-400';
-    return `<li class="flex flex-wrap items-center gap-2">
-      <span class="flex-1">${u.name}: <span class="${cls}">${u.balance.toFixed(2)} €</span></span>
-      <input type="number" id="bal-${u.id}" class="w-20 border px-2 py-1" step="0.01" />
-      <button onclick="updateBalance('${u.id}', 'add')" class="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700">+</button>
-      <button onclick="updateBalance('${u.id}', 'subtract')" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">-</button>
+    const cls = u.balance < 0 ? 'text-red-600 dark:text-red-400 font-bold' : 'text-green-600 dark:text-green-400 font-bold';
+    return `<li class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm mb-2">
+      <span class="flex-1 font-semibold">${u.name}: <span class="${cls}">${u.balance.toFixed(2)} €</span></span>
+      <div class="flex gap-2 mt-2 sm:mt-0">
+        <input type="number" id="bal-${u.id}" class="w-20 border px-2 py-1 rounded" step="0.01" />
+        <button onclick="updateBalance('${u.id}', 'add')" class="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 flex items-center gap-1 text-xs" title="Guthaben erhöhen">
+          <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4' /></svg>
+        </button>
+        <button onclick="updateBalance('${u.id}', 'subtract')" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 flex items-center gap-1 text-xs" title="Guthaben verringern">
+          <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M20 12H4' /></svg>
+        </button>
+      </div>
     </li>`;
   }).join('');
 }
 
 async function updateBalance(id, action) {
   const val = parseFloat(document.getElementById('bal-' + id).value);
-  if (isNaN(val)) return alert('Ungültiger Betrag.');
+  if (isNaN(val)) return showToast('Ungültiger Betrag.', 'error');
+  showLoader(true);
   const res = await fetch(`${BACKEND_URL}/api/admin/users/${id}`, { credentials: 'include' });
   const user = await res.json();
   let newBalance = user.balance;
@@ -311,7 +700,8 @@ async function updateBalance(id, action) {
     credentials: 'include',
     body: JSON.stringify({ balance: newBalance })
   });
-  alert('Guthaben aktualisiert.');
+  showLoader(false);
+  showToast('Guthaben aktualisiert.', 'success');
   loadUserBalances();
   loadStats();
 }
