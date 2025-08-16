@@ -1,5 +1,193 @@
 <!DOCTYPE html>
 <html lang="de">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Rischis Kiosk">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="theme-color" content="#0f172a">
+  <title>Adminbereich – Rischis Kiosk</title>
+  <meta name="description" content="Produkte und Spielrunden verwalten" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
+  <script src="admin.js" defer></script>
+  <script src="session.js" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@700&display=swap"
+    rel="stylesheet">
+  <link rel="icon" href="favicon.jpeg" type="image/jpeg">
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-main {
+      background: linear-gradient(90deg, #22d3ee 0%, #10b981 100%);
+      color: white;
+      font-weight: 700;
+      border: none;
+      border-radius: 9999px;
+    }
+
+    .btn-main:hover {
+      background: linear-gradient(90deg, #10b981 0%, #22d3ee 100%);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-active {
+      display: block !important;
+    }
+  </style>
+</head>
+
+<body class="text-green-900 dark:text-white">
+  <!-- Auf großen Bildschirmen oben links, auf kleinen unter dem Menü -->
+  <div class="z-50 sm:fixed sm:top-4 sm:left-4 mb-2 sm:mb-0 flex justify-center w-full sm:w-auto">
+    <a href="dashboard.html" class="btn-main flex items-center gap-2 py-2 px-4 text-sm shadow">
+      <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' />
+      </svg>
+      Zurück zum Dashboard
+    </a>
+  </div>
+  <header
+    class="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur border-b border-green-200 dark:border-green-900 flex flex-col sm:flex-row sm:items-center sm:justify-between px-2 py-2 rounded-t-3xl panel-shadow">
+    <div class="flex items-center gap-2 mb-2 sm:mb-0">
+      <svg xmlns='http://www.w3.org/2000/svg' class='inline w-7 h-7 text-green-500' fill='none' viewBox='0 0 24 24'
+        stroke='currentColor'>
+        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2'
+          d='M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z' />
+      </svg>
+      <span class="text-2xl sm:text-3xl font-bold text-green-800 dark:text-green-300">Adminbereich – Rischis
+        Kiosk</span>
+    </div>
+    <button id="darkmode-toggle" aria-label="Darkmode umschalten"
+      class="ml-auto mb-2 sm:mb-0 bg-gray-200 dark:bg-gray-700 rounded-full p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+      <svg id="darkmode-icon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor">
+        <path id="darkmode-icon-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.95l-.71.71M21 12h-1M4 12H3m16.66 5.66l-.71-.71M4.05 4.05l-.71-.71M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+      </svg>
+    </button>
+    <nav id="admin-tabs" class="flex overflow-x-auto gap-2 pb-1 hide-scrollbar"
+      style="-webkit-overflow-scrolling:touch;">
+      <button class="btn-main px-3 py-1 text-xs whitespace-nowrap" data-tab="add">Produkt hinzufügen</button>
+      <button class="btn-main px-3 py-1 text-xs whitespace-nowrap" data-tab="products">Produkte</button>
+      <button class="btn-main px-3 py-1 text-xs whitespace-nowrap" data-tab="stats">Statistik</button>
+      <button class="btn-main px-3 py-1 text-xs whitespace-nowrap" data-tab="purchases">Käufe</button>
+      <button class="btn-main px-3 py-1 text-xs whitespace-nowrap" data-tab="users">Benutzer</button>
+      <button class="btn-main px-3 py-1 text-xs whitespace-nowrap" data-tab="balance">Guthaben</button>
+      <button class="btn-main px-3 py-1 text-xs whitespace-nowrap" data-tab="buy-for-user">Kauf für Nutzer</button>
+    </nav>
+  </header>
+  <main
+    class="w-full px-3 py-4 sm:py-6 max-w-screen-lg mx-auto mt-0 sm:mt-0 p-4 sm:p-6 rounded-b-3xl panel-shadow glass-effect animate-fade-in border border-green-200 dark:border-green-900">
+    <section id="section-add" class="mb-8 tab-content">
+      <form class="space-y-4" id="add-product">
+        <input type="text" id="product-name" placeholder="Produktname" required class="p-3 border rounded w-full" />
+        <input type="number" step="0.01" id="product-purchase" placeholder="Einkaufspreis in €" required
+          class="p-3 border rounded w-full" />
+        <input type="number" step="0.01" id="product-price" placeholder="Verkaufspreis in €" required
+          class="p-3 border rounded w-full" />
+        <input type="number" id="product-stock" placeholder="Anfangsbestand" required
+          class="p-3 border rounded w-full" />
+        <input type="url" id="product-image-url" placeholder="Bild-URL (optional)" class="block w-full text-sm" />
+        <select id="product-category" required class="mt-2 p-3 border rounded w-full">
+          <option value="" disabled selected>Kategorie auswählen</option>
+          <option value="Drinks">Drinks</option>
+          <option value="Snacks">Snacks</option>
+          <option value="Supplies">Supplies</option>
+        </select>
+        <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700">Produkt
+          speichern</button>
+      </form>
+      <p class="mt-3 text-center text-sm" id="product-result"></p>
+    </section>
+    <section id="section-products" class="mb-8 tab-content">
+      <div class="flex flex-col sm:flex-row justify-between items-center mb-4">
+        <select id="category-filter" class="p-3 border rounded w-full sm:w-64">
+          <option value="all">Alle Kategorien</option>
+          <option value="Drinks">Drinks</option>
+          <option value="Snacks">Snacks</option>
+          <option value="Supplies">Supplies</option>
+        </select>
+      </div>
+      <ul id="product-list" class="space-y-4"></ul>
+    </section>
+    <section id="section-stats" class="mb-8 tab-content">
+      <h2 class="text-lg sm:text-xl font-semibold mb-4">Statistik</h2>
+      <div id="stats" class="space-y-4"></div>
+    </section>
+    <section id="section-purchases" class="mb-8 tab-content">
+      <div class="flex flex-col sm:flex-row gap-2 mb-4">
+        <div class="flex flex-col w-full sm:w-64">
+          <input id="purchase-search" type="text" placeholder="Suche nach Nutzer, Produkt, Datum oder Preis..."
+            class="p-2 border rounded w-full" />
+          <span class="text-xs text-gray-500 mt-1">Du kannst nach Nutzer, Produkt, Datum (z.B. 16.08.2025) oder Preis
+            suchen.</span>
+        </div>
+        <button id="export-purchases"
+          class="bg-cyan-600 text-white px-3 py-1 rounded shadow hover:bg-cyan-700 text-xs">Export (CSV)</button>
+      </div>
+      <ul id="purchase-history" class="space-y-2 text-sm"></ul>
+      <button onclick="loadMorePurchases()" class="mt-4 text-blue-600 hover:underline text-sm">Weitere anzeigen</button>
+    </section>
+    <section id="section-users" class="mb-8 tab-content">
+      <h2 class="text-lg sm:text-xl font-semibold mb-4">Benutzernamen und Passwörter verwalten</h2>
+      <div class="flex flex-col sm:flex-row gap-2 mb-4">
+        <input id="user-search" type="text" placeholder="Benutzer suchen..."
+          class="p-2 border rounded w-full sm:w-64" />
+        <button id="export-users"
+          class="bg-cyan-600 text-white px-3 py-1 rounded shadow hover:bg-cyan-700 text-xs">Export (CSV)</button>
+      </div>
+      <ul id="user-manage-list" class="space-y-4"></ul>
+    </section>
+    <section id="section-balance" class="mb-8 tab-content">
+      <h2 class="text-lg sm:text-xl font-semibold mb-4">Guthaben verwalten</h2>
+      <ul id="balance-control-list" class="space-y-2 text-sm"></ul>
+    </section>
+    <section id="section-buy-for-user" class="mb-8 tab-content">
+      <div class="flex flex-col sm:flex-row items-center gap-2 mb-4">
+        <select id="buy-user" class="p-2 border rounded flex-1" aria-label="Nutzer auswählen"></select>
+        <input type="text" id="buy-product-search" placeholder="Produkt suchen..." class="p-2 border rounded flex-1"
+          aria-label="Produkt suchen" />
+      </div>
+      <div id="buy-product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+      <p id="buy-for-user-result" class="mt-2 text-sm"></p>
+    </section>
+  </main>
+  <script>
+    // Tab-Navigation: Zeige immer nur den gewählten Bereich
+    const tabButtons = document.querySelectorAll('#admin-tabs button[data-tab]');
+    const tabContents = document.querySelectorAll('.tab-content');
+    function showTab(tab) {
+      tabContents.forEach(c => c.classList.toggle('tab-active', c.id === 'section-' + tab));
+      tabButtons.forEach(b => b.classList.toggle('bg-cyan-600', b.dataset.tab === tab));
+    }
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => showTab(btn.dataset.tab));
+    });
+    // Standard: Produkte anzeigen
+    showTab('products');
+  </script>
+</body>
+
+</html>
+<!-- Entferne alles ab hier (alter doppelter HTML-Block) -->
+<!DOCTYPE html>
+<html lang="de">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -17,238 +205,75 @@
   <!-- JavaScript-Logik -->
   <script src="admin.js" defer></script>
   <script src="session.js" defer></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@700&display=swap" rel="stylesheet">
-  <link rel="icon" href="/favicon.jpeg" type="image/jpeg">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@700&display=swap"
+    rel="stylesheet">
+  <link rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%2310b981' stroke='%230ea5e9' stroke-width='6'/%3E%3Ctext x='50' y='60' font-size='48' text-anchor='middle' fill='white' font-family='Poppins,sans-serif'%3ER%3C/text%3E%3C/svg%3E"
+    type="image/svg+xml">
   <style>
-  html { 
-    scroll-behavior: smooth; 
-    background: linear-gradient(135deg, #d1fae5, #a7f3d0, #6ee7b7); 
-  }
-  html.dark {
-    background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
-    color-scheme: dark;
-  }
-  body {
-    font-family: 'Inter', sans-serif;
-    max-width: 100vw;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    padding-top: env(safe-area-inset-top);
-    padding-right: env(safe-area-inset-right);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-  }
-  h1 {
-    font-family: 'Poppins', sans-serif;
-  }
-  .animate-fade-in {
-    animation: fade-in 1.4s ease-out forwards;
-  }
-  .panel-shadow {
-    box-shadow: 0 15px 35px rgba(22, 163, 74, 0.4);
-  }
-  .dark .panel-shadow {
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-  }
-  .glass-effect {
-    backdrop-filter: blur(14px);
-    background-color: rgba(255, 255, 255, 0.88);
-  }
-  .dark .glass-effect {
-    background-color: rgba(31, 41, 55, 0.8);
-  }
-  input, select, textarea {
-    background-color: white;
-    color: black;
-  }
-  ::placeholder {
-    color: #6b7280; /* Tailwind gray-500 */
-  }
-  .dark input, .dark select, .dark textarea {
-    background-color: #374151; /* Tailwind gray-700 */
-    color: white;
-  }
-  .dark ::placeholder {
-    color: #9ca3af; /* Tailwind gray-400 */
-  }
-  section { scroll-margin-top: 4rem; }
-</style>
-</head>
+    html {
+      scroll-behavior: smooth;
+      background: linear-gradient(120deg, #f0fdfa 0%, #bbf7d0 50%, #22d3ee 100%);
+    }
 
-<body class="text-green-900 relative dark:text-white">
-
-  <!-- Dark Mode Schalter -->
-  <div class="fixed bottom-4 right-4 z-50">
-    <button onclick="toggleDarkMode()" class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition">
-      🌙
-    </button>
-  </div>
-
-  <div class="fixed top-4 left-4 z-50">
-    <a href="dashboard.html" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded-full shadow text-sm">
-      ⬅️ Zurück zum Dashboard
-    </a>
-  </div>
-
-  <div class="w-full px-3 py-4 sm:py-6 max-w-screen-lg mx-auto mt-6 sm:mt-8 p-4 sm:p-6 rounded-3xl panel-shadow border-4 border-green-300 dark:border-green-500 glass-effect animate-fade-in">
-    <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-center text-green-800 dark:text-green-200">Adminbereich – Rischis Kiosk</h1>
+    html.dark {
+      background: linear-gradient(120deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+      color-scheme: dark;
+    }
 
 
-    <!-- Produkt hinzufügen -->
-    <section id="section-add" class="mb-8">
-      <button id="toggle-add" onclick="toggleSection('add')" class="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition">
-        <span>Produkt hinzufügen</span>
-        <span class="absolute right-4 arrow">▼</span>
-      </button>
-      <div id="add-container" class="mt-4 hidden">
-<form class="space-y-4" id="add-product">
-  <div class="space-y-2">
-    <input type="text"
-           id="product-name"
-           placeholder="Produktname"
-           required
-           class="p-3 border rounded w-full shadow-sm 
-                  bg-white text-black placeholder-gray-500
-                  dark:bg-gray-700 dark:text-white dark:placeholder-white" />
+    <input type="text" id="product-name" placeholder="Produktname" required aria-label="Produktname"
+    class="p-3 border rounded w-full shadow-sm
+ bg-white text-black placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-white" />
 
-    <input type="number" step="0.01"
-           id="product-purchase"
-           placeholder="Einkaufspreis in €"
-           required
-           class="p-3 border rounded w-full shadow-sm
-                  bg-white text-black placeholder-gray-500
-                  dark:bg-gray-700 dark:text-white dark:placeholder-white" />
+    <input type="number" step="0.01" id="product-purchase" placeholder="Einkaufspreis in €" required aria-label="Einkaufspreis" class="p-3 border rounded w-full shadow-sm
+ bg-white text-black placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-white" />
 
-    <input type="number" step="0.01"
-           id="product-price"
-           placeholder="Verkaufspreis in €"
-           required
-           class="p-3 border rounded w-full shadow-sm
-                  bg-white text-black placeholder-gray-500
-                  dark:bg-gray-700 dark:text-white dark:placeholder-white" />
+    <input type="number" step="0.01" id="product-price" placeholder="Verkaufspreis in €" required aria-label="Verkaufspreis" class="p-3 border rounded w-full shadow-sm
+ bg-white text-black placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-white" />
 
-    <input type="number"
-           id="product-stock"
-           placeholder="Anfangsbestand"
-           required
-           class="p-3 border rounded w-full shadow-sm 
-                  bg-white text-black placeholder-gray-500
-                  dark:bg-gray-700 dark:text-white dark:placeholder-white" />
-  </div>
+    <input type="number" id="product-stock" placeholder="Anfangsbestand" required aria-label="Anfangsbestand" class="p-3 border rounded w-full shadow-sm
+ bg-white text-black placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-white" />
 
-  <div>
-    <select id="product-category"
-            required
-            class="mt-2 p-3 border rounded w-full shadow-sm
-                   bg-white text-black
-                   dark:bg-gray-700 dark:text-white">
-      <option value="" disabled selected>Kategorie auswählen</option>
-      <option value="Drinks">Drinks</option>
-      <option value="Snacks">Snacks</option>
-      <option value="Supplies">Supplies</option>
-    </select>
-  </div>
+    <div><label for="product-image"
+    class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Produktbild (optional)</label><input type="file" id="product-image" accept="image/*"
+    class="block w-full text-sm text-gray-700 dark:text-gray-200 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" /><img id="product-image-preview" src="" alt="Vorschau"
+    class="mt-2 max-h-32 rounded shadow hidden" /></div></div><div><select id="product-category" required aria-label="Kategorie" class="mt-2 p-3 border rounded w-full shadow-sm
+ bg-white text-black dark:bg-gray-700 dark:text-white">
+ <option value="" disabled selected>Kategorie auswählen</option><option value="Drinks">Drinks</option><option value="Snacks">Snacks</option><option value="Supplies">Supplies</option></select></div><button type="submit"
+    class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none">Produkt speichern </button></form><p class="mt-3 text-center text-sm" id="product-result"></p></div></section>< !-- Statistik --><section id="section-stats" class="mb-8"><button id="toggle-stats" onclick="toggleSection('stats')"
+    class="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition"><span>Statistik</span><span class="absolute right-4 arrow">▼</span></button><div id="stats-container" class="mt-4 hidden"><div class="flex flex-col sm:flex-row justify-between items-center"><h2 class="text-lg sm:text-xl font-semibold mb-4">Statistik</h2></div><div id="stats" class="space-y-4"></div></div></section>< !-- Produkte --><section id="section-products" class="mb-8"><button id="toggle-products" onclick="toggleSection('products')"
+    class="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition"><span>Produkte</span><span class="absolute right-4 arrow">▼</span></button><div id="products-container" class="mt-4 hidden"><div class="flex flex-col sm:flex-row justify-between items-center mb-4"><h2 class="text-lg sm:text-xl font-semibold mb-2 sm:mb-0">Aktuelle Produkte</h2><select id="category-filter"
+    class="p-3 border rounded w-full sm:w-64 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"><option value="all">Alle Kategorien</option><option value="Drinks">Drinks</option><option value="Snacks">Snacks</option><option value="Supplies">Supplies</option></select></div><ul id="product-list" class="space-y-4"></ul></div></section>< !-- Käufe --><section id="section-purchases" class="mb-8"><button id="toggle-purchases" onclick="togglePurchases()"
+    class="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition"><span>Käufe</span><span class="absolute right-4 arrow">▼</span></button><div id="purchase-container"
+    class="mt-4 hidden max-h-80 overflow-y-auto overflow-x-auto border rounded-lg bg-gray-50 dark:bg-gray-700 p-4"><div class="flex flex-col sm:flex-row gap-2 mb-4"><input id="purchase-search" type="text" placeholder="Käufe durchsuchen..."
+    class="p-2 border rounded w-full sm:w-64 dark:bg-gray-700 dark:border-gray-600" /><button id="export-purchases"
+    class="bg-cyan-600 text-white px-3 py-1 rounded shadow hover:bg-cyan-700 text-xs"
+    title="Käufe als CSV exportieren">Export (CSV)</button></div><ul id="purchase-history" class="space-y-2 text-sm text-gray-700 dark:text-white"></ul><button onclick="loadMorePurchases()" class="mt-4 text-blue-600 hover:underline text-sm">Weitere anzeigen</button></div></section>< !-- Benutzernamen und Passwörter --><section id="section-users" class="mb-8"><button id="toggle-users" onclick="toggleSection('users')"
+    class="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition"><span>Benutzer</span><span class="absolute right-4 arrow">▼</span></button><div id="users-container" class="mt-4 hidden"><h2 class="text-lg sm:text-xl font-semibold mb-4">Benutzernamen und Passwörter verwalten</h2><div class="flex flex-col sm:flex-row gap-2 mb-4"><input id="user-search" type="text" placeholder="Benutzer suchen..."
+    class="p-2 border rounded w-full sm:w-64 dark:bg-gray-700 dark:border-gray-600" /><button id="export-users"
+    class="bg-cyan-600 text-white px-3 py-1 rounded shadow hover:bg-cyan-700 text-xs"
+    title="Benutzer als CSV exportieren">Export (CSV)</button></div><ul id="user-manage-list" class="space-y-4"></ul></div></section>< !-- Guthaben --><section id="section-balance" class="mb-8"><button id="toggle-balance" onclick="toggleSection('balance')"
+    class="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition"><span>Guthaben</span><span class="absolute right-4 arrow">▼</span></button><div id="balance-container" class="mt-4 hidden"><h2 class="text-lg sm:text-xl font-semibold mb-4">Guthaben verwalten</h2><ul id="balance-control-list" class="space-y-2 text-sm"></ul></div></section>< !-- Produkt für Nutzer kaufen --><section id="section-buy-for-user" class="mb-8"><button id="toggle-buy-for-user" onclick="toggleSection('buy-for-user')"
+    class="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition"><span>Produkt für Nutzer kaufen</span><span class="absolute right-4 arrow">▼</span></button><div id="buy-for-user-container" class="mt-4 hidden"><form id="buy-for-user-form" class="flex flex-col sm:flex-row items-center gap-2"><select id="buy-user"
+    class="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 flex-1 focus:ring-2 focus:ring-cyan-400"
+    aria-label="Nutzer auswählen" title="Nutzer auswählen"></select><select id="buy-product"
+    class="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 flex-1 focus:ring-2 focus:ring-cyan-400"
+    aria-label="Produkt auswählen" title="Produkt auswählen"></select><input type="number" id="buy-qty" value="1" min="1"
+    class="p-2 border rounded w-20 dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-cyan-400"
+    aria-label="Menge" title="Menge" /><button type="submit"
+    class="btn-main bg-blue-600 text-white px-3 py-1 rounded shadow hover:bg-blue-700 focus:ring-2 focus:ring-cyan-400"
+    aria-label="Kaufen" title="Kaufen"
+    style="background:linear-gradient(90deg,#38bdf8 0%,#0ea5e9 100%);">Kaufen</button><script> // Automatischer Darkmode nach System
 
-  <button type="submit"
-          class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none">
-    Produkt speichern
-  </button>
-</form>
+    if (localStorage.getItem('darkMode')===null) {
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+      }
+    }
 
-      <p class="mt-3 text-center text-sm" id="product-result"></p>
-      </div>
-    </section>
+    else if (localStorage.getItem('darkMode') !=='false') {
+      document.documentElement.classList.add('dark');
+    }
 
-    <!-- Statistik -->
-    <section id="section-stats" class="mb-8">
-      <button id="toggle-stats" onclick="toggleSection('stats')" class="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition">
-        <span>Statistik</span>
-        <span class="absolute right-4 arrow">▼</span>
-      </button>
-      <div id="stats-container" class="mt-4 hidden">
-        <div class="flex flex-col sm:flex-row justify-between items-center">
-          <h2 class="text-lg sm:text-xl font-semibold mb-4">Statistik</h2>
-        </div>
-        <div id="stats" class="space-y-4"></div>
-      </div>
-    </section>
-
-    <!-- Produkte -->
-    <section id="section-products" class="mb-8">
-      <button id="toggle-products" onclick="toggleSection('products')" class="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition">
-        <span>Produkte</span>
-        <span class="absolute right-4 arrow">▼</span>
-      </button>
-      <div id="products-container" class="mt-4 hidden">
-<div class="flex flex-col sm:flex-row justify-between items-center mb-4">
-  <h2 class="text-lg sm:text-xl font-semibold mb-2 sm:mb-0">Aktuelle Produkte</h2>
-  <select id="category-filter" class="p-3 border rounded w-full sm:w-64 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-    <option value="all">Alle Kategorien</option>
-    <option value="Drinks">Drinks</option>
-    <option value="Snacks">Snacks</option>
-    <option value="Supplies">Supplies</option>
-  </select>
-</div>
-
-<ul id="product-list" class="space-y-4"></ul>
-
-
-      </div>
-    </section>
-
-    <!-- Käufe -->
-    <section id="section-purchases" class="mb-8">
-      <button id="toggle-purchases" onclick="togglePurchases()" class="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition">
-        <span>Käufe</span>
-        <span class="absolute right-4 arrow">▼</span>
-      </button>
-      <div id="purchase-container" class="mt-4 hidden max-h-80 overflow-y-auto overflow-x-auto border rounded-lg bg-gray-50 dark:bg-gray-700 p-4">
-        <ul id="purchase-history" class="space-y-2 text-sm text-gray-700 dark:text-white"></ul>
-        <button onclick="loadMorePurchases()" class="mt-4 text-blue-600 hover:underline text-sm">Weitere anzeigen</button>
-      </div>
-    </section>
-
-    <!-- Benutzernamen und Passwörter -->
-    <section id="section-users" class="mb-8">
-      <button id="toggle-users" onclick="toggleSection('users')" class="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition">
-        <span>Benutzer</span>
-        <span class="absolute right-4 arrow">▼</span>
-      </button>
-      <div id="users-container" class="mt-4 hidden">
-        <h2 class="text-lg sm:text-xl font-semibold mb-4">Benutzernamen und Passwörter verwalten</h2>
-        <ul id="user-manage-list" class="space-y-4"></ul>
-      </div>
-    </section>
-
-    <!-- Guthaben -->
-    <section id="section-balance" class="mb-8">
-      <button id="toggle-balance" onclick="toggleSection('balance')" class="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition">
-        <span>Guthaben</span>
-        <span class="absolute right-4 arrow">▼</span>
-      </button>
-      <div id="balance-container" class="mt-4 hidden">
-        <h2 class="text-lg sm:text-xl font-semibold mb-4">Guthaben verwalten</h2>
-        <ul id="balance-control-list" class="space-y-2 text-sm"></ul>
-      </div>
-    </section>
-
-    <!-- Produkt für Nutzer kaufen -->
-    <section id="section-buy-for-user" class="mb-8">
-      <button id="toggle-buy-for-user" onclick="toggleSection('buy-for-user')" class="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition">
-        <span>Produkt für Nutzer kaufen</span>
-        <span class="absolute right-4 arrow">▼</span>
-      </button>
-      <div id="buy-for-user-container" class="mt-4 hidden">
-        <form id="buy-for-user-form" class="flex flex-col sm:flex-row items-center gap-2">
-          <select id="buy-user" class="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 flex-1"></select>
-          <select id="buy-product" class="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 flex-1"></select>
-          <input type="number" id="buy-qty" value="1" min="1" class="p-2 border rounded w-20 dark:bg-gray-700 dark:border-gray-600" />
-          <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded shadow hover:bg-blue-700">Kaufen</button>
-        </form>
-        <p id="buy-for-user-result" class="mt-2 text-sm"></p>
-      </div>
-    </section>
-  </div>
-
-</body>
-</html>
+    </script></form><p id="buy-for-user-result" class="mt-2 text-sm"></p></div></section></div></body></html>

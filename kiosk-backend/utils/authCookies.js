@@ -2,9 +2,9 @@ import env from './env.js';
 
 export function getCookieOptions() {
   const options = {
-    httpOnly: true,
-    secure: env.COOKIE_SECURE,
-    sameSite: env.COOKIE_SAMESITE,
+    httpOnly: true, // Immer httpOnly
+    secure: true,   // Immer secure
+    sameSite: 'strict', // Immer SameSite=strict
     path: '/',
     maxAge: 7 * 24 * 60 * 60 * 1000,
   };

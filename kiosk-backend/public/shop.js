@@ -68,8 +68,8 @@ async function loadProducts() {
     const recentLimit = sortOption === 'recent' ? '' : '&limit=3';
     const recentPromise = needRecent
       ? fetch(`${BACKEND_URL}/api/purchases?sort=desc${recentLimit}`, {
-          credentials: 'include',
-        })
+        credentials: 'include',
+      })
       : null;
 
     const [productRes, recentRes] = await Promise.all([
@@ -148,21 +148,25 @@ function renderProductList(products) {
     if (product.recent) {
       li.className += ' border-yellow-400';
     }
+    // Bild nur anzeigen, wenn image_url gesetzt und nicht leer
+    const hasImage = product.image_url && product.image_url.trim() !== '';
     li.innerHTML = `
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <p class="text-base font-medium">${product.name}</p>
-          ${product.recent ? '<p class="text-xs text-yellow-600 dark:text-yellow-400">Zuletzt gekauft</p>' : ''}
-          <p class="text-sm text-gray-600 dark:text-gray-300">${product.price.toFixed(2)} € – Bestand: ${product.stock}</p>
+        <div class="flex items-center gap-3">
+          ${hasImage ? `<img src="${product.image_url}" alt="${product.name}" class="w-16 h-16 object-contain rounded shadow border border-gray-200 dark:border-gray-700 bg-white" loading="lazy">` : ''}
+          <div>
+            <p class="text-base font-medium">${product.name}</p>
+            ${product.recent ? '<p class="text-xs text-yellow-600 dark:text-yellow-400">Zuletzt gekauft</p>' : ''}
+            <p class="text-sm text-gray-600 dark:text-gray-300">${product.price.toFixed(2)} € – Bestand: ${product.stock}</p>
+          </div>
         </div>
-        ${
-          product.stock > 0
-            ? `<div class="flex items-center gap-2">
+        ${product.stock > 0
+        ? `<div class="flex items-center gap-2">
             <input type="number" min="1" max="${product.stock}" value="1" id="qty-${product.id}" class="w-12 text-center bg-transparent focus:outline-none border rounded dark:text-white">
             <button class="bg-green-600 text-white text-sm px-3 py-1 rounded-md shadow hover:bg-green-700" onclick="buyProduct('${product.id}', 'qty-${product.id}', '${product.name}', ${product.price})">Kaufen</button>
           </div>`
-            : '<span class="text-red-500">Ausverkauft</span>'
-        }
+        : '<span class="text-red-500">Ausverkauft</span>'
+      }
       </div>
     `;
     list.appendChild(li);

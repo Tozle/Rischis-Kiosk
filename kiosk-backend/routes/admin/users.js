@@ -64,4 +64,20 @@ router.put(
   }),
 );
 
+
+// Benutzer löschen
+router.delete(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    // Erst aus Supabase Auth löschen
+    const { error: authError } = await supabase.auth.admin.deleteUser(id);
+    if (authError) return res.status(500).json({ error: authError.message });
+    // Dann aus der users-Tabelle löschen
+    const { error: dbError } = await supabase.from('users').delete().eq('id', id);
+    if (dbError) return res.status(500).json({ error: dbError.message });
+    res.json({ message: 'deleted' });
+  })
+);
+
 export default router;
