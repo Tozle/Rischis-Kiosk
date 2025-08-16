@@ -119,6 +119,14 @@ app.use('/api/admin/users', adminUsers);
 app.use('/api/admin/buy', adminBuyForUser);
 app.use('/api/buzzer', buzzer);
 
+
+// Fallback: Für alle unbekannten Routen statisches Next.js-Frontend ausliefern (SPA-Support)
+app.get('*', (req, res, next) => {
+  // Nur für GET-Anfragen, keine API-Routen
+  if (req.method !== 'GET' || req.path.startsWith('/api/')) return next();
+  res.sendFile(join(publicDir, 'out', 'index.html'));
+});
+
 // 404-Handler
 app.use(notFound);
 
