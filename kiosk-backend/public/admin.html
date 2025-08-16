@@ -158,13 +158,12 @@
       <ul id="balance-control-list" class="space-y-2 text-sm"></ul>
     </section>
     <section id="section-buy-for-user" class="mb-8 tab-content">
-      <form id="buy-for-user-form" class="flex flex-col sm:flex-row items-center gap-2">
+      <div class="flex flex-col sm:flex-row items-center gap-2 mb-4">
         <select id="buy-user" class="p-2 border rounded flex-1" aria-label="Nutzer auswählen"></select>
-        <select id="buy-product" class="p-2 border rounded flex-1" aria-label="Produkt auswählen"></select>
-        <input type="number" id="buy-qty" value="1" min="1" class="p-2 border rounded w-20" aria-label="Menge" />
-        <button type="submit" class="btn-main bg-blue-600 text-white px-3 py-1 rounded shadow hover:bg-blue-700"
-          aria-label="Kaufen">Kaufen</button>
-      </form>
+        <input type="text" id="buy-product-search" placeholder="Produkt suchen..." class="p-2 border rounded flex-1"
+          aria-label="Produkt suchen" />
+      </div>
+      <div id="buy-product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
       <p id="buy-for-user-result" class="mt-2 text-sm"></p>
     </section>
   </main>

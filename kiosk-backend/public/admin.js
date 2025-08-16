@@ -138,7 +138,6 @@ function renderUserList(users) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-csrf-token': token2,
         },
         credentials: 'include',
         body: JSON.stringify(lastDeletedUser)
@@ -150,6 +149,7 @@ function renderUserList(users) {
     });
     loadUserPasswords();
   }
+  window.deleteUser = deleteUser;
 }
 
 function exportUsersCSV() {
@@ -735,22 +735,46 @@ async function loadBuyUsers() {
   select.innerHTML = data.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
 }
 
+let allBuyProductsCache = [];
+function renderBuyProductList(products) {
+  const list = document.getElementById('buy-product-list');
+  if (!list) return;
+  list.innerHTML = '';
+  products.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl p-4 shadow flex flex-col items-center';
+    card.innerHTML = `
+      ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" class="w-20 h-20 object-contain mb-2 rounded shadow">` : ''}
+      <div class="font-semibold text-center mb-1">${p.name}</div>
+      <div class="text-sm text-gray-600 dark:text-gray-300 mb-1">${p.price.toFixed(2)} €</div>
+      <div class="text-xs text-gray-500 mb-2">Bestand: ${p.stock}</div>
+      <div class="flex gap-1 items-center mb-2">
+        <input type="number" min="1" max="${p.stock}" value="1" class="buy-qty-input p-1 border rounded w-14 text-center" aria-label="Menge" />
+      </div>
+      <button class="buy-for-user-btn btn-main bg-blue-600 text-white px-3 py-1 rounded shadow hover:bg-blue-700 w-full" data-product-id="${p.id}" ${p.stock < 1 ? 'disabled' : ''}>Kaufen</button>
+    `;
+    list.appendChild(card);
+  });
+}
+
 async function loadBuyProducts() {
   const res = await fetch(`${BACKEND_URL}/api/admin/products`, { credentials: 'include' });
   const data = await res.json();
-  const select = document.getElementById('buy-product');
-  if (!select) return;
-  select.innerHTML = data
-    .filter(p => p.available && p.stock > 0)
-    .map(p => `<option value="${p.id}">${p.name} (${p.stock})</option>`)
-    .join('');
+  allBuyProductsCache = data.filter(p => p.available && p.stock > 0);
+  renderBuyProductList(allBuyProductsCache);
 }
 
-async function buyForUser(e) {
-  e.preventDefault();
+function filterAndRenderBuyProducts() {
+  const search = document.getElementById('buy-product-search')?.value?.toLowerCase() || '';
+  const filtered = allBuyProductsCache.filter(p =>
+    p.name.toLowerCase().includes(search) ||
+    (p.category && p.category.toLowerCase().includes(search))
+  );
+  renderBuyProductList(filtered);
+}
+
+async function buyForUser(productId, qty) {
   const userId = document.getElementById('buy-user')?.value;
-  const productId = document.getElementById('buy-product')?.value;
-  const qty = parseInt(document.getElementById('buy-qty')?.value || '1');
   if (!userId || !productId || isNaN(qty) || qty <= 0) return;
   const token = await getCsrfToken();
   const res = await fetch(`${BACKEND_URL}/api/admin/buy`, {
@@ -783,7 +807,18 @@ window.addEventListener('DOMContentLoaded', () => {
   loadUserBalances();
   loadBuyUsers();
   loadBuyProducts();
-  document.getElementById('buy-for-user-form')?.addEventListener('submit', buyForUser);
   document.getElementById('export-purchases')?.addEventListener('click', exportPurchasesCSV);
+  // Buy for user: Produkt-Suche
+  document.getElementById('buy-product-search')?.addEventListener('input', filterAndRenderBuyProducts);
+  // Buy for user: Kaufen-Button-Logik (Event Delegation)
+  document.getElementById('buy-product-list')?.addEventListener('click', function (e) {
+    if (e.target.classList.contains('buy-for-user-btn')) {
+      const card = e.target.closest('div');
+      const productId = e.target.getAttribute('data-product-id');
+      const qtyInput = card.querySelector('.buy-qty-input');
+      const qty = parseInt(qtyInput.value || '1');
+      buyForUser(productId, qty);
+    }
+  });
   if (typeof startSessionCheck === 'function') startSessionCheck();
 });
