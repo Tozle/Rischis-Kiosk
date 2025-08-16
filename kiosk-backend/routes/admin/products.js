@@ -54,10 +54,10 @@ router.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { name, price, stock, image_url } = req.body;
+    const { name, price, stock } = req.body;
     const { error } = await supabase
       .from('products')
-      .update({ name, price, stock, image_url })
+      .update({ name, price, stock })
       .eq('id', id);
     if (error) return res.status(500).json({ error: error.message });
     res.json({ message: 'Produkt aktualisiert' });
