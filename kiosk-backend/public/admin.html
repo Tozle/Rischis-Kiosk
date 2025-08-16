@@ -1,3 +1,56 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Rischis Kiosk">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="theme-color" content="#0f172a">
+  <title>Adminbereich – Rischis Kiosk</title>
+  <meta name="description" content="Produkte und Spielrunden verwalten" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
+  <script src="admin.js" defer></script>
+  <script src="session.js" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@700&display=swap"
+    rel="stylesheet">
+  <link rel="icon" href="favicon.jpeg" type="image/jpeg">
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-main {
+      background: linear-gradient(90deg, #22d3ee 0%, #10b981 100%);
+      color: white;
+      font-weight: 700;
+      border: none;
+      border-radius: 9999px;
+    }
+
+    .btn-main:hover {
+      background: linear-gradient(90deg, #10b981 0%, #22d3ee 100%);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-active {
+      display: block !important;
+    }
+  </style>
+</head>
+
 <body class="text-green-900 dark:text-white">
   <div class="fixed top-4 left-4 z-50">
     <a href="dashboard.html" class="btn-main flex items-center gap-2 py-2 px-4 text-sm shadow">
@@ -108,7 +161,7 @@
     const tabButtons = document.querySelectorAll('#admin-tabs button[data-tab]');
     const tabContents = document.querySelectorAll('.tab-content');
     function showTab(tab) {
-      tabContents.forEach(c => c.style.display = c.id === 'section-' + tab ? '' : 'none');
+      tabContents.forEach(c => c.classList.toggle('tab-active', c.id === 'section-' + tab));
       tabButtons.forEach(b => b.classList.toggle('bg-cyan-600', b.dataset.tab === tab));
     }
     tabButtons.forEach(btn => {
@@ -118,6 +171,9 @@
     showTab('products');
   </script>
 </body>
+
+</html>
+<!-- Entferne alles ab hier (alter doppelter HTML-Block) -->
 <!DOCTYPE html>
 <html lang="de">
 
