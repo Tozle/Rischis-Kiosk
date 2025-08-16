@@ -52,7 +52,8 @@
 </head>
 
 <body class="text-green-900 dark:text-white">
-  <div class="fixed top-4 left-4 z-50">
+  <!-- Auf großen Bildschirmen oben links, auf kleinen unter dem Menü -->
+  <div class="z-50 sm:fixed sm:top-4 sm:left-4 mb-2 sm:mb-0 flex justify-center w-full sm:w-auto">
     <a href="dashboard.html" class="btn-main flex items-center gap-2 py-2 px-4 text-sm shadow">
       <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
         <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' />
@@ -71,6 +72,14 @@
       <span class="text-2xl sm:text-3xl font-bold text-green-800 dark:text-green-300">Adminbereich – Rischis
         Kiosk</span>
     </div>
+    <button id="darkmode-toggle" aria-label="Darkmode umschalten"
+      class="ml-auto mb-2 sm:mb-0 bg-gray-200 dark:bg-gray-700 rounded-full p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+      <svg id="darkmode-icon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor">
+        <path id="darkmode-icon-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.95l-.71.71M21 12h-1M4 12H3m16.66 5.66l-.71-.71M4.05 4.05l-.71-.71M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+      </svg>
+    </button>
     <nav id="admin-tabs" class="flex overflow-x-auto gap-2 pb-1 hide-scrollbar"
       style="-webkit-overflow-scrolling:touch;">
       <button class="btn-main px-3 py-1 text-xs whitespace-nowrap" data-tab="add">Produkt hinzufügen</button>
@@ -93,7 +102,7 @@
           class="p-3 border rounded w-full" />
         <input type="number" id="product-stock" placeholder="Anfangsbestand" required
           class="p-3 border rounded w-full" />
-        <input type="file" id="product-image" accept="image/*" class="block w-full text-sm" />
+        <input type="url" id="product-image-url" placeholder="Bild-URL (optional)" class="block w-full text-sm" />
         <select id="product-category" required class="mt-2 p-3 border rounded w-full">
           <option value="" disabled selected>Kategorie auswählen</option>
           <option value="Drinks">Drinks</option>

@@ -1,69 +1,22 @@
 // Produktbild-Vorschau und Upload-Handling
-const productImageInput = document.getElementById('product-image');
-const productImagePreview = document.getElementById('product-image-preview');
-let productImageDataUrl = '';
-const MAX_IMAGE_SIZE = 500 * 1024; // 500 KB
-const MAX_IMAGE_DIM = 500; // px
-if (productImageInput) {
-  productImageInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 2 * MAX_IMAGE_SIZE) {
-        showToast('Bild zu groß (max. 1 MB, wird automatisch verkleinert)', 'error');
-        productImageInput.value = '';
-        productImagePreview.src = '';
-        productImagePreview.classList.add('hidden');
-        productImageDataUrl = '';
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = function (ev) {
-        // Automatisch skalieren und komprimieren
-        const img = new window.Image();
-        img.onload = function () {
-          let w = img.width;
-          let h = img.height;
-          if (w > MAX_IMAGE_DIM || h > MAX_IMAGE_DIM) {
-            if (w > h) {
-              h = Math.round(h * (MAX_IMAGE_DIM / w));
-              w = MAX_IMAGE_DIM;
-            } else {
-              w = Math.round(w * (MAX_IMAGE_DIM / h));
-              h = MAX_IMAGE_DIM;
-            }
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-          // Komprimiere als JPEG
-          let quality = 0.85;
-          let dataUrl = canvas.toDataURL('image/jpeg', quality);
-          // Schleife: Komprimiere weiter, falls zu groß
-          while (dataUrl.length > MAX_IMAGE_SIZE * 1.37 && quality > 0.4) {
-            quality -= 0.1;
-            dataUrl = canvas.toDataURL('image/jpeg', quality);
-          }
-          if (dataUrl.length > MAX_IMAGE_SIZE * 1.37) {
-            showToast('Bild nach Komprimierung immer noch zu groß (max. 500 KB)', 'error');
-            productImageInput.value = '';
-            productImagePreview.src = '';
-            productImagePreview.classList.add('hidden');
-            productImageDataUrl = '';
-            return;
-          }
-          productImageDataUrl = dataUrl;
-          productImagePreview.src = productImageDataUrl;
-          productImagePreview.classList.remove('hidden');
-        };
-        img.src = ev.target.result;
-      };
-      reader.readAsDataURL(file);
+
+// Bild-URL Feld
+const productImageUrlInput = document.getElementById('product-image-url');
+// Bildvorschau für Bild-URL
+let productImageUrlPreview = null;
+if (productImageUrlInput) {
+  productImageUrlPreview = document.createElement('img');
+  productImageUrlPreview.alt = 'Vorschau';
+  productImageUrlPreview.className = 'mt-2 max-h-32 rounded shadow hidden';
+  productImageUrlInput.parentNode.insertBefore(productImageUrlPreview, productImageUrlInput.nextSibling);
+  productImageUrlInput.addEventListener('input', () => {
+    const url = productImageUrlInput.value.trim();
+    if (url && /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(url)) {
+      productImageUrlPreview.src = url;
+      productImageUrlPreview.classList.remove('hidden');
     } else {
-      productImageDataUrl = '';
-      productImagePreview.src = '';
-      productImagePreview.classList.add('hidden');
+      productImageUrlPreview.src = '';
+      productImageUrlPreview.classList.add('hidden');
     }
   });
 }
@@ -368,6 +321,14 @@ async function addProduct(e) {
   const category = document.getElementById('product-category').value;
   const msgEl = document.getElementById('product-result');
   // Validierung
+  // Bild-URL validieren
+  let image_url = productImageUrlInput?.value?.trim() || '';
+  if (image_url && !/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(image_url)) {
+    msgEl.textContent = 'Bitte eine gültige Bild-URL angeben (jpg, png, webp, gif, svg)!';
+    msgEl.classList.add('text-red-600');
+    if (btn) btn.disabled = false;
+    return;
+  }
   if (!name || isNaN(price) || isNaN(purchase_price) || isNaN(stock) || !category) {
     msgEl.textContent = 'Bitte alle Felder korrekt ausfüllen!';
     msgEl.classList.add('text-red-600');
@@ -375,7 +336,7 @@ async function addProduct(e) {
     return;
   }
   const token = await getCsrfToken();
-  let image_url = productImageDataUrl || '';
+  // image_url ist oben schon gesetzt
   const res = await fetch(`${BACKEND_URL}/api/admin/products`, {
     method: 'POST',
     headers: {
@@ -391,13 +352,14 @@ async function addProduct(e) {
   msgEl.classList.toggle('text-green-700', res.ok);
   if (res.ok) {
     e.target.reset();
-    productImageDataUrl = '';
-    if (productImagePreview) {
-      productImagePreview.src = '';
-      productImagePreview.classList.add('hidden');
+    if (productImageUrlPreview) {
+      productImageUrlPreview.src = '';
+      productImageUrlPreview.classList.add('hidden');
     }
     loadStats();
     loadProducts();
+    // Nach Speichern zur Produktliste wechseln
+    document.querySelector('[data-tab="products"]').click();
   }
   if (btn) btn.disabled = false;
   setTimeout(() => {
@@ -615,11 +577,8 @@ async function loadPurchases(initial = false) {
     filterAndRenderPurchases();
   }
   purchaseOffset += purchaseLimit;
-  // Event-Listener für Käufe-Suche und Export
-  window.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('purchase-search')?.addEventListener('input', filterAndRenderPurchases);
-    document.getElementById('export-purchases')?.addEventListener('click', exportPurchasesCSV);
-  });
+  // Event-Listener für Käufe-Suche (nur Suche, Export-Button in Initialisierung)
+  document.getElementById('purchase-search')?.addEventListener('input', filterAndRenderPurchases);
 }
 
 function loadMorePurchases() { loadPurchases(false); }
@@ -632,6 +591,20 @@ async function loadUserPasswords() {
   filterAndRenderUsers();
   // Event-Listener für Suche und Export
   window.addEventListener('DOMContentLoaded', () => {
+    // Darkmode-Button
+    const darkBtn = document.getElementById('darkmode-toggle');
+    if (darkBtn) {
+      darkBtn.onclick = () => {
+        toggleDarkMode();
+        // Icon wechseln
+        const icon = document.getElementById('darkmode-icon-path');
+        if (document.documentElement.classList.contains('dark')) {
+          icon.setAttribute('d', 'M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z');
+        } else {
+          icon.setAttribute('d', 'M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.95l-.71.71M21 12h-1M4 12H3m16.66 5.66l-.71-.71M4.05 4.05l-.71-.71M16 12a4 4 0 11-8 0 4 4 0 018 0z');
+        }
+      };
+    }
     document.getElementById('user-search')?.addEventListener('input', filterAndRenderUsers);
     document.getElementById('export-users')?.addEventListener('click', exportUsersCSV);
   });
@@ -811,5 +784,6 @@ window.addEventListener('DOMContentLoaded', () => {
   loadBuyUsers();
   loadBuyProducts();
   document.getElementById('buy-for-user-form')?.addEventListener('submit', buyForUser);
+  document.getElementById('export-purchases')?.addEventListener('click', exportPurchasesCSV);
   if (typeof startSessionCheck === 'function') startSessionCheck();
 });
