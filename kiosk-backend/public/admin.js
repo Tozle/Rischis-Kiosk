@@ -25,10 +25,17 @@ let allPurchasesCache = [];
 
 function filterAndRenderPurchases() {
   const search = document.getElementById('purchase-search')?.value?.toLowerCase() || '';
-  const filtered = allPurchasesCache.filter(e =>
-    e.user_name.toLowerCase().includes(search) ||
-    e.product_name.toLowerCase().includes(search)
-  );
+  const filtered = allPurchasesCache.filter(e => {
+    if (!search) return true;
+    const date = new Date(e.created_at).toLocaleDateString('de-DE');
+    const price = e.price.toFixed(2).replace('.', ',');
+    return (
+      e.user_name.toLowerCase().includes(search) ||
+      e.product_name.toLowerCase().includes(search) ||
+      date.includes(search) ||
+      price.includes(search)
+    );
+  });
   renderPurchaseList(filtered);
 }
 

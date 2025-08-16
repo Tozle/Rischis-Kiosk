@@ -131,8 +131,12 @@
     </section>
     <section id="section-purchases" class="mb-8 tab-content">
       <div class="flex flex-col sm:flex-row gap-2 mb-4">
-        <input id="purchase-search" type="text" placeholder="Käufe durchsuchen..."
-          class="p-2 border rounded w-full sm:w-64" />
+        <div class="flex flex-col w-full sm:w-64">
+          <input id="purchase-search" type="text" placeholder="Suche nach Nutzer, Produkt, Datum oder Preis..."
+            class="p-2 border rounded w-full" />
+          <span class="text-xs text-gray-500 mt-1">Du kannst nach Nutzer, Produkt, Datum (z.B. 16.08.2025) oder Preis
+            suchen.</span>
+        </div>
         <button id="export-purchases"
           class="bg-cyan-600 text-white px-3 py-1 rounded shadow hover:bg-cyan-700 text-xs">Export (CSV)</button>
       </div>
