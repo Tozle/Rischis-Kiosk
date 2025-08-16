@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Rischis Kiosk" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#0f172a" />
+    <title>Mentos – Fütterungstracker</title>
+    <meta name="description" content="Fütterungszeiten für Mentos protokollieren" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { darkMode: 'class' };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Poppins:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="/favicon.jpeg" type="image/jpeg" />
+    <style>
+      html {
+        scroll-behavior: smooth;
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0, #6ee7b7);
+      }
+      html.dark {
+        background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
+        color-scheme: dark;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        max-width: 100vw;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        padding-top: env(safe-area-inset-top);
+        padding-right: env(safe-area-inset-right);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+      }
+      h1,
+      h2 {
+        font-family: 'Poppins', sans-serif;
+      }
+      .panel-shadow {
+        box-shadow: 0 15px 35px rgba(22, 163, 74, 0.4);
+      }
+      .dark .panel-shadow {
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+      }
+      .glass-effect {
+        backdrop-filter: blur(14px);
+        background-color: rgba(255, 255, 255, 0.88);
+      }
+      .dark .glass-effect {
+        background-color: rgba(31, 41, 55, 0.8);
+      }
+      .animate-fade-in {
+        animation: fade-in 1.4s ease-out forwards;
+      }
+      input,
+      select,
+      textarea {
+        background-color: white;
+        color: black;
+      }
+      ::placeholder {
+        color: #6b7280;
+      }
+      .dark input,
+      .dark select,
+      .dark textarea {
+        background-color: #374151;
+        color: white;
+      }
+      .dark ::placeholder {
+        color: #9ca3af;
+      }
+    </style>
+  </head>
+  <body class="text-green-900 relative dark:text-white">
+    <div class="fixed bottom-4 right-4 z-50">
+      <button
+        onclick="toggleDarkMode()"
+        class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition"
+      >
+        🌙
+      </button>
+    </div>
+
+    <div class="fixed top-4 left-4 z-50">
+      <a
+        href="dashboard.html"
+        class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded-full shadow text-sm"
+      >
+        ⬅️ Zurück zum Dashboard
+      </a>
+    </div>
+
+    <div
+      class="w-full px-3 py-2 max-w-screen-sm mx-auto mt-12 sm:mt-20 p-6 sm:p-10 rounded-3xl panel-shadow border-4 border-green-300 dark:border-green-500 glass-effect animate-fade-in"
+    >
+      <h1
+        class="text-3xl sm:text-4xl font-bold mb-6 text-center text-green-800"
+      >
+        Mentos 🐱
+      </h1>
+      <h2 class="text-xl text-center">Letzte Fütterung vor:</h2>
+      <div
+        id="last-feed"
+        class="text-4xl sm:text-5xl font-mono font-semibold text-center mb-4"
+      >
+        -
+      </div>
+
+      <div class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
+        <button
+          id="btn-nass"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow"
+        >
+          🐟 Nassfutter gegeben
+        </button>
+        <button
+          id="btn-trocken"
+          class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full shadow"
+        >
+          🥣 Trockenfutter gegeben
+        </button>
+      </div>
+
+      <div
+        id="admin-buttons"
+        class="hidden flex flex-col sm:flex-row justify-center gap-4 mb-6"
+      >
+        <button
+          id="reset-timer-btn"
+          class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1 px-2 rounded-full shadow"
+        >
+          ⏱️ Timer zurücksetzen
+        </button>
+        <button
+          id="clear-history-btn"
+          class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1 px-2 rounded-full shadow"
+        >
+          🗑️ Anzeige löschen
+        </button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="table-auto w-full text-center text-base">
+          <thead>
+            <tr>
+              <th class="px-2 py-1 border-b font-semibold">Zeit</th>
+              <th class="px-2 py-1 border-b font-semibold">Futterart</th>
+              <th class="px-2 py-1 border-b font-semibold">Gefüttert von</th>
+            </tr>
+          </thead>
+          <tbody id="feedings-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      function toggleDarkMode() {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+      }
+      // Darkmode ist nun die Voreinstellung
+      if (localStorage.getItem('darkMode') !== 'false') {
+        document.documentElement.classList.add('dark');
+      }
+
+      // Einheitliche Definition für alle Frontend-Skripte
+      const BACKEND_URL = window.location.origin;
+
+      async function getCsrfToken() {
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/csrf-token`, {
+            credentials: 'include',
+          });
+          const data = await res.json();
+          return data.csrfToken;
+        } catch (err) {
+          console.error('CSRF-Token konnte nicht geladen werden', err);
+          return null;
+        }
+      }
+
+      let countdownInterval;
+
+      const adminButtons = document.getElementById('admin-buttons');
+      const resetTimerBtn = document.getElementById('reset-timer-btn');
+      const clearHistoryBtn = document.getElementById('clear-history-btn');
+
+      fetch(`${BACKEND_URL}/api/user`, { credentials: 'include' })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((user) => {
+          if (user) {
+            if (user.role === 'admin') {
+              adminButtons.classList.remove('hidden');
+            }
+          }
+        });
+
+      async function loadFeedings() {
+        const res = await fetch(`${BACKEND_URL}/api/feedings`);
+        if (!res.ok) return;
+        const data = await res.json();
+        updateTable(data);
+        if (data.length) startCountdown(new Date(data[0].zeitstempel));
+      }
+
+      function updateTable(entries) {
+        const body = document.getElementById('feedings-body');
+        body.innerHTML = entries
+          .map(
+            (e) => `
+        <tr class="odd:bg-green-50 dark:odd:bg-gray-700">
+          <td class="px-2 py-1 border-b">${new Date(e.zeitstempel).toLocaleString('de-DE', { timeZone: 'Europe/Berlin' })}</td>
+          <td class="px-2 py-1 border-b">${e.futterart}</td>
+          <td class="px-2 py-1 border-b">${e.gefuettert_von || ''}</td>
+        </tr>`,
+          )
+          .join('');
+      }
+
+      function startCountdown(time) {
+        clearInterval(countdownInterval);
+        function update() {
+          const diff = Date.now() - time.getTime();
+          const hours = Math.floor(diff / 3600000);
+          const minutes = Math.floor((diff % 3600000) / 60000);
+          const display = document.getElementById('last-feed');
+          display.textContent = `${hours}h ${minutes}m`;
+          display.classList.remove(
+            'text-green-600',
+            'text-orange-600',
+            'text-red-600',
+          );
+          if (hours < 4) display.classList.add('text-green-600');
+          else if (hours < 8) display.classList.add('text-orange-600');
+          else display.classList.add('text-red-600');
+        }
+        update();
+        countdownInterval = setInterval(update, 60000);
+      }
+
+      async function addFeeding(type) {
+        const token = await getCsrfToken();
+        await fetch(`${BACKEND_URL}/api/feedings`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': token,
+          },
+          credentials: 'include',
+          body: JSON.stringify({ type }),
+        });
+        loadFeedings();
+      }
+
+      document
+        .getElementById('btn-nass')
+        .addEventListener('click', () => addFeeding('Nassfutter'));
+      document
+        .getElementById('btn-trocken')
+        .addEventListener('click', () => addFeeding('Trockenfutter'));
+
+      function resetTimerDisplay() {
+        clearInterval(countdownInterval);
+        const display = document.getElementById('last-feed');
+        display.textContent = '-';
+        display.classList.remove(
+          'text-green-600',
+          'text-orange-600',
+          'text-red-600',
+        );
+      }
+
+      async function clearFeedingHistory() {
+        const token = await getCsrfToken();
+        await fetch(`${BACKEND_URL}/api/feedings`, {
+          method: 'DELETE',
+          headers: { 'x-csrf-token': token },
+          credentials: 'include',
+        });
+        resetTimerDisplay();
+        loadFeedings();
+      }
+
+      resetTimerBtn.addEventListener('click', () => {
+        if (confirm('Timer wirklich zurücksetzen?')) {
+          resetTimerDisplay();
+        }
+      });
+      clearHistoryBtn.addEventListener('click', () => {
+        if (confirm('Anzeige wirklich löschen?')) {
+          clearFeedingHistory();
+        }
+      });
+
+      loadFeedings();
+    </script>
+  </body>
+</html>

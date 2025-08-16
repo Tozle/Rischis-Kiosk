@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Rischis Kiosk" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Rischis Kiosk – Shop</title>
+  <meta name="description" content="Digitale Einkaufsoberfläche des Kiosks" />
+
+  <!-- Tailwind & Supabase -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
+  <!-- Externe Scripts -->
+  <script src="shop.js" defer></script>
+  <script src="session.js" defer></script>
+
+  <!-- Fonts und Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="/favicon.jpeg" type="image/jpeg">
+  <style>
+    html {
+      scroll-behavior: smooth;
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0, #6ee7b7);
+    }
+    html.dark {
+      background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
+      color-scheme: dark;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      max-width: 100vw;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    h1, h2 { font-family: 'Poppins', sans-serif; }
+    .panel-shadow { box-shadow: 0 15px 35px rgba(22, 163, 74, 0.4); }
+    .dark .panel-shadow { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6); }
+    .glass-effect { backdrop-filter: blur(14px); background-color: rgba(255, 255, 255, 0.88); }
+    .dark .glass-effect { background-color: rgba(31, 41, 55, 0.8); }
+    input, select, textarea { background-color: white; color: black; }
+    ::placeholder { color: #6b7280; }
+    .dark input, .dark select, .dark textarea { background-color: #374151; color: white; }
+    .dark ::placeholder { color: #9ca3af; }
+  </style>
+</head>
+<body class="text-green-900 relative dark:text-white">
+  <div class="fixed bottom-4 right-4 z-50">
+    <button onclick="toggleDarkMode()" class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition">
+      🌙
+    </button>
+  </div>
+  <div class="fixed top-4 left-4 z-50">
+    <a href="dashboard.html" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded-full shadow text-sm">
+      ⬅️ Zurück zum Dashboard
+    </a>
+  </div>
+  <div class="shop-container w-full px-4 py-4 sm:py-6 max-w-2xl mx-auto mt-16 sm:mt-24 rounded-3xl panel-shadow border-4 border-green-300 dark:border-green-500 glass-effect animate-fade-in">
+    <div id="loader" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center hidden z-50 dark:bg-gray-900 dark:bg-opacity-70">
+      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-green-500"></div>
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-bold mb-8 text-center text-green-800 dark:text-green-200">Rischis Kiosk</h1>
+    <label class="block mb-2 font-medium text-gray-800 dark:text-gray-100">Kategorie auswählen:</label>
+    <select id="category-filter" class="mb-6 border rounded-md p-2 w-full bg-white dark:bg-gray-700 dark:border-gray-600">
+      <option value="">Alle Kategorien</option>
+    </select>
+    <input type="text" id="search" placeholder="Produkt suchen..." class="mb-6 p-2 border rounded-md border-gray-300 bg-white placeholder-gray-500 w-full dark:bg-gray-700 dark:border-gray-600">
+    <label class="block mb-2 font-medium text-gray-800 dark:text-gray-100">Produkte sortieren:</label>
+    <select id="sort-products" class="mb-6 border rounded-md p-2 w-full bg-white dark:bg-gray-700 dark:border-gray-600">
+      <option value="price_asc">Preis aufsteigend</option>
+      <option value="price_desc">Preis absteigend</option>
+      <option value="recent">Zuletzt gekauft</option>
+    </select>
+    <div class="mb-6">
+      <p><strong>Angemeldet als:</strong> <span id="user-email"></span></p>
+      <p><strong>Guthaben:</strong> <span id="user-balance" class="font-bold">0.00 €</span></p>
+    </div>
+    <div class="mt-8">
+      <h2 class="text-lg sm:text-xl font-bold tracking-wide text-gray-800 dark:text-gray-100 uppercase mb-4">Verfügbare Produkte</h2>
+      <ul id="product-list" class="overflow-x-auto block space-y-4"></ul>
+    </div>
+    <p id="message" class="mt-4 text-sm text-center"></p>
+    <div class="mt-12">
+      <h2 class="text-lg sm:text-xl font-bold tracking-wide text-gray-800 dark:text-gray-100 uppercase mb-4">Kaufverlauf</h2>
+      <label class="block mb-2 font-medium text-gray-800 dark:text-gray-100">Kaufverlauf sortieren:</label>
+      <select id="sort-history" class="mb-6 border rounded-md p-2 w-full bg-white dark:bg-gray-700 dark:border-gray-600">
+        <option value="desc">Neuste zuerst</option>
+        <option value="asc">Älteste zuerst</option>
+        <option value="price_desc">Preis absteigend</option>
+        <option value="price_asc">Preis aufsteigend</option>
+      </select>
+      <ul id="purchase-history" class="overflow-x-auto block space-y-2 text-sm"></ul>
+    </div>
+  </div>
+
+  <!-- Darkmode Toggle -->
+  <script>
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+    }
+    if (localStorage.getItem('darkMode') !== 'false') {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
+
+</body>
+</html>
