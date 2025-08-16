@@ -8,6 +8,9 @@ const customStyles = `
 .dark .panel-shadow { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6); }
 .glass-effect { backdrop-filter: blur(14px); background-color: rgba(255,255,255,0.88); }
 .dark .glass-effect { background-color: rgba(31,41,55,0.8); }
+.shop-btn { @apply bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full shadow transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-green-400; }
+.shop-input { @apply border rounded-md p-2 w-full bg-white dark:bg-gray-700 dark:border-gray-600 mb-4 focus:ring-2 focus:ring-green-400; }
+.shop-select { @apply border rounded-md p-2 w-full bg-white dark:bg-gray-700 dark:border-gray-600 mb-4 focus:ring-2 focus:ring-green-400; }
 `;
 
 type Product = {
@@ -112,7 +115,7 @@ export default function Shop() {
     return (
         <>
             <style>{customStyles}</style>
-            <div className="min-h-screen bg-gradient-to-br from-green-100 to-cyan-100 dark:from-slate-900 dark:to-slate-800 text-green-900 dark:text-white">
+            <div className="min-h-screen bg-gradient-to-br from-green-100 to-cyan-100 dark:from-slate-900 dark:to-slate-800 text-green-900 dark:text-white flex flex-col items-center justify-center">
                 <div className="fixed bottom-4 right-4 z-50">
                     <button
                         onClick={() => {
@@ -126,36 +129,36 @@ export default function Shop() {
                 </div>
                 <div className="fixed top-4 left-4 z-50">
                     <Link href="/dashboard" legacyBehavior>
-                        <a className="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded-full shadow text-sm">⬅️ Zurück zum Dashboard</a>
+                        <a className="shop-btn text-sm px-3 py-1">⬅️ Zurück zum Dashboard</a>
                     </Link>
                 </div>
-                <div className="shop-container w-full px-4 py-4 sm:py-6 max-w-2xl mx-auto mt-16 sm:mt-24 rounded-3xl panel-shadow border-4 border-green-300 dark:border-green-500 glass-effect animate-fade-in">
-                    <h1 className="text-3xl sm:text-4xl font-bold mb-8 text-center text-green-800 dark:text-green-200">Rischis Kiosk</h1>
-                    <label className="block mb-2 font-medium text-gray-800 dark:text-gray-100">Kategorie auswählen:</label>
-                    <select value={category} onChange={e => setCategory(e.target.value)} className="mb-6 border rounded-md p-2 w-full bg-white dark:bg-gray-700 dark:border-gray-600">
-                        <option value="">Alle Kategorien</option>
-                        {categories.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                    <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Produkt suchen..." className="mb-6 p-2 border rounded-md border-gray-300 bg-white placeholder-gray-500 w-full dark:bg-gray-700 dark:border-gray-600" />
-                    <label className="block mb-2 font-medium text-gray-800 dark:text-gray-100">Produkte sortieren:</label>
-                    <select value={sort} onChange={e => setSort(e.target.value)} className="mb-6 border rounded-md p-2 w-full bg-white dark:bg-gray-700 dark:border-gray-600">
-                        <option value="price_asc">Preis aufsteigend</option>
-                        <option value="price_desc">Preis absteigend</option>
-                    </select>
-                    <div className="mb-6">
-                        <p><strong>Angemeldet als:</strong> <span>{user?.email || '-'}</span></p>
-                        <p><strong>Guthaben:</strong> <span className={`font-bold ${balance < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>{balance.toFixed(2)} €</span></p>
+                <div className="shop-container w-full max-w-2xl mx-auto mt-20 sm:mt-28 p-6 sm:p-10 rounded-3xl panel-shadow border-4 border-green-300 dark:border-green-500 glass-effect animate-fade-in">
+                    <h1 className="text-4xl sm:text-5xl font-extrabold mb-10 text-center text-green-800 dark:text-green-200 tracking-tight drop-shadow-lg">Rischis Kiosk</h1>
+                    <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                        <select value={category} onChange={e => setCategory(e.target.value)} className="shop-select flex-1">
+                            <option value="">Alle Kategorien</option>
+                            {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                        <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Produkt suchen..." className="shop-input flex-1" />
+                        <select value={sort} onChange={e => setSort(e.target.value)} className="shop-select flex-1">
+                            <option value="price_asc">Preis aufsteigend</option>
+                            <option value="price_desc">Preis absteigend</option>
+                        </select>
+                    </div>
+                    <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div className="text-base sm:text-lg"><strong>Angemeldet als:</strong> <span>{user?.email || '-'}</span></div>
+                        <div className="text-base sm:text-lg"><strong>Guthaben:</strong> <span className={`font-bold ${balance < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>{balance.toFixed(2)} €</span></div>
                     </div>
                     <div className="mt-8">
-                        <h2 className="text-lg sm:text-xl font-bold tracking-wide text-gray-800 dark:text-gray-100 uppercase mb-4">Verfügbare Produkte</h2>
+                        <h2 className="text-xl sm:text-2xl font-bold tracking-wide text-green-800 dark:text-green-100 uppercase mb-4">Verfügbare Produkte</h2>
                         <ul className="overflow-x-auto block space-y-4">
                             {filtered.length === 0 && <li className="text-center text-gray-400">Keine Produkte gefunden.</li>}
                             {filtered.map(product => (
-                                <li key={product.id} className="flex items-center justify-between bg-green-50 dark:bg-slate-800 rounded-lg p-4 shadow gap-2">
-                                    <span className="font-semibold">{product.name}</span>
-                                    <span className="text-green-700 dark:text-green-300 font-bold">{product.price?.toFixed(2)} €</span>
+                                <li key={product.id} className="flex items-center justify-between bg-green-50 dark:bg-slate-800 rounded-2xl p-4 shadow panel-shadow gap-2">
+                                    <span className="font-semibold text-lg">{product.name}</span>
+                                    <span className="text-green-700 dark:text-green-300 font-bold text-lg">{product.price?.toFixed(2)} €</span>
                                     <button
-                                        className="ml-4 bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded shadow text-sm transition disabled:opacity-50"
+                                        className="shop-btn ml-4 text-base px-5 py-2"
                                         disabled={!user || balance < product.price}
                                         onClick={async () => {
                                             if (!user) return;
@@ -201,13 +204,13 @@ export default function Shop() {
                             ))}
                         </ul>
                     </div>
-                    <p className="mt-4 text-sm text-center" style={{ color: message.startsWith('Fehler') ? '#dc2626' : '#059669' }}>{message}</p>
+                    <p className="mt-4 text-base text-center font-semibold" style={{ color: message.startsWith('Fehler') ? '#dc2626' : '#059669' }}>{message}</p>
                     <div className="mt-12">
-                        <h2 className="text-lg sm:text-xl font-bold tracking-wide text-gray-800 dark:text-gray-100 uppercase mb-4">Kaufverlauf</h2>
-                        <ul className="overflow-x-auto block space-y-2 text-sm">
+                        <h2 className="text-xl sm:text-2xl font-bold tracking-wide text-green-800 dark:text-green-100 uppercase mb-4">Kaufverlauf</h2>
+                        <ul className="overflow-x-auto block space-y-2 text-base">
                             {purchases.length === 0 && <li className="text-center text-gray-400">Noch keine Käufe.</li>}
                             {purchases.map((purchase) => (
-                                <li key={purchase.id} className="flex items-center justify-between bg-green-50 dark:bg-slate-800 rounded-lg p-2 shadow">
+                                <li key={purchase.id} className="flex items-center justify-between bg-green-50 dark:bg-slate-800 rounded-xl p-3 shadow panel-shadow">
                                     <span>{purchase.product?.name || 'Produkt'}</span>
                                     <span className="text-green-700 dark:text-green-300 font-bold">{purchase.price?.toFixed(2)} €</span>
                                     <span className="text-xs text-gray-400 ml-2">{new Date(purchase.created_at).toLocaleString('de-DE')}</span>

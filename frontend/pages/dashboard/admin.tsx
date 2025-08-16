@@ -25,6 +25,12 @@ const customStyles = `
 .dark .panel-shadow { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6); }
 .glass-effect { backdrop-filter: blur(14px); background-color: rgba(255,255,255,0.88); }
 .dark .glass-effect { background-color: rgba(31,41,55,0.8); }
+.admin-btn { @apply font-bold py-3 px-6 rounded-2xl shadow-xl text-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-green-400; }
+.admin-btn-blue { @apply bg-blue-600 hover:bg-blue-700 text-white; }
+.admin-btn-yellow { @apply bg-yellow-400 hover:bg-yellow-500 text-black; }
+.admin-btn-red { @apply bg-red-600 hover:bg-red-700 text-white; }
+.admin-input { @apply p-3 border rounded w-full focus:ring-2 focus:ring-green-400; }
+.admin-select { @apply p-3 border rounded w-full focus:ring-2 focus:ring-green-400; }
 `;
 
 export default function Admin() {
@@ -158,7 +164,7 @@ export default function Admin() {
     return (
         <>
             <style>{customStyles}</style>
-            <div className="min-h-screen bg-gradient-to-br from-green-100 to-cyan-100 dark:from-slate-900 dark:to-slate-800 text-green-900 dark:text-white">
+            <div className="min-h-screen bg-gradient-to-br from-green-100 to-cyan-100 dark:from-slate-900 dark:to-slate-800 text-green-900 dark:text-white flex flex-col items-center justify-center">
                 <div className="fixed bottom-4 right-4 z-50">
                     <button
                         onClick={() => {
@@ -172,58 +178,60 @@ export default function Admin() {
                 </div>
                 <div className="fixed top-4 left-4 z-50">
                     <Link href="/dashboard" legacyBehavior>
-                        <a className="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded-full shadow text-sm">⬅️ Zurück zum Dashboard</a>
+                        <a className="admin-btn admin-btn-blue text-sm px-3 py-1">⬅️ Zurück zum Dashboard</a>
                     </Link>
                 </div>
-                <div className="w-full px-3 py-4 sm:py-6 max-w-screen-lg mx-auto mt-6 sm:mt-8 p-4 sm:p-6 rounded-3xl panel-shadow border-4 border-green-300 dark:border-green-500 glass-effect animate-fade-in bg-white/90 dark:bg-slate-900/90">
-                    <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-green-800 dark:text-green-200">Adminbereich – Rischis Kiosk</h1>
+                <div className="w-full max-w-3xl mx-auto mt-20 sm:mt-28 p-6 sm:p-10 rounded-3xl panel-shadow border-4 border-green-300 dark:border-green-500 glass-effect animate-fade-in">
+                    <h1 className="text-4xl sm:text-5xl font-extrabold mb-10 text-center text-green-800 dark:text-green-200 tracking-tight drop-shadow-lg">Adminbereich – Rischis Kiosk</h1>
                     {/* Produktverwaltung */}
-                    <section className="mb-8">
-                        <button type="button" onClick={() => toggleSection('products')} className="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition">
+                    <section className="mb-10">
+                        <button type="button" onClick={() => toggleSection('products')} className="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-6 py-4 rounded-2xl font-semibold text-gray-800 dark:text-white text-xl transition">
                             <span>Produkte verwalten</span>
-                            <span className="absolute right-4 arrow">{openSection === 'products' ? '▲' : '▼'}</span>
+                            <span className="absolute right-6 arrow">{openSection === 'products' ? '▲' : '▼'}</span>
                         </button>
-                        <div className={openSection === 'products' ? 'mt-4' : 'mt-4 hidden'}>
-                            <form className="space-y-4" onSubmit={handleSubmit}>
+                        <div className={openSection === 'products' ? 'mt-6' : 'mt-6 hidden'}>
+                            <form className="space-y-6" onSubmit={handleSubmit}>
                                 <div className="flex flex-col sm:flex-row gap-4">
-                                    <input type="text" placeholder="Produktname" className="p-3 border rounded w-full" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
-                                    <input type="number" step="0.01" placeholder="Verkaufspreis (€)" className="p-3 border rounded w-full" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} required />
-                                    <input type="number" step="0.01" placeholder="Einkaufspreis (€)" className="p-3 border rounded w-full" value={form.purchase} onChange={e => setForm(f => ({ ...f, purchase: e.target.value }))} required />
-                                    <input type="number" placeholder="Bestand" className="p-3 border rounded w-full" value={form.stock} onChange={e => setForm(f => ({ ...f, stock: e.target.value }))} required />
-                                    <select className="p-3 border rounded w-full" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} required>
+                                    <input type="text" placeholder="Produktname" className="admin-input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
+                                    <input type="number" step="0.01" placeholder="Verkaufspreis (€)" className="admin-input" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} required />
+                                    <input type="number" step="0.01" placeholder="Einkaufspreis (€)" className="admin-input" value={form.purchase} onChange={e => setForm(f => ({ ...f, purchase: e.target.value }))} required />
+                                    <input type="number" placeholder="Bestand" className="admin-input" value={form.stock} onChange={e => setForm(f => ({ ...f, stock: e.target.value }))} required />
+                                    <select className="admin-select" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} required>
                                         <option value="">Kategorie wählen</option>
                                         <option value="Drinks">Drinks</option>
                                         <option value="Snacks">Snacks</option>
                                         <option value="Supplies">Supplies</option>
                                     </select>
                                 </div>
-                                <button type="submit" className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700">{editId ? 'Aktualisieren' : 'Hinzufügen'}</button>
-                                {editId && <button type="button" className="ml-2 px-4 py-3 rounded bg-gray-300 dark:bg-gray-700" onClick={() => { setEditId(null); setForm({ name: '', price: '', purchase: '', stock: '', category: '' }); }}>Abbrechen</button>}
-                                <p className="mt-2 text-center text-sm">{message}</p>
+                                <div className="flex gap-4">
+                                    <button type="submit" className="admin-btn admin-btn-blue flex-1">{editId ? 'Aktualisieren' : 'Hinzufügen'}</button>
+                                    {editId && <button type="button" className="admin-btn flex-1" onClick={() => { setEditId(null); setForm({ name: '', price: '', purchase: '', stock: '', category: '' }); }}>Abbrechen</button>}
+                                </div>
+                                <p className="mt-2 text-center text-base font-semibold" style={{ color: message.startsWith('Fehler') ? '#dc2626' : '#059669' }}>{message}</p>
                             </form>
-                            <div className="mt-8 overflow-x-auto">
-                                <table className="table-auto w-full text-center text-base">
+                            <div className="mt-10 overflow-x-auto">
+                                <table className="table-auto w-full text-center text-lg rounded-xl overflow-hidden">
                                     <thead>
                                         <tr>
-                                            <th className="px-2 py-1 border-b font-semibold">Name</th>
-                                            <th className="px-2 py-1 border-b font-semibold">VK (€)</th>
-                                            <th className="px-2 py-1 border-b font-semibold">EK (€)</th>
-                                            <th className="px-2 py-1 border-b font-semibold">Bestand</th>
-                                            <th className="px-2 py-1 border-b font-semibold">Kategorie</th>
-                                            <th className="px-2 py-1 border-b font-semibold">Aktionen</th>
+                                            <th className="px-2 py-2 border-b font-semibold">Name</th>
+                                            <th className="px-2 py-2 border-b font-semibold">VK (€)</th>
+                                            <th className="px-2 py-2 border-b font-semibold">EK (€)</th>
+                                            <th className="px-2 py-2 border-b font-semibold">Bestand</th>
+                                            <th className="px-2 py-2 border-b font-semibold">Kategorie</th>
+                                            <th className="px-2 py-2 border-b font-semibold">Aktionen</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {products.map(p => (
                                             <tr key={p.id} className="odd:bg-green-50 dark:odd:bg-gray-700">
-                                                <td className="px-2 py-1 border-b">{p.name}</td>
-                                                <td className="px-2 py-1 border-b">{p.price.toFixed(2)}</td>
-                                                <td className="px-2 py-1 border-b">{p.purchase.toFixed(2)}</td>
-                                                <td className="px-2 py-1 border-b">{p.stock}</td>
-                                                <td className="px-2 py-1 border-b">{p.category}</td>
-                                                <td className="px-2 py-1 border-b">
-                                                    <button className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-1 px-3 rounded mr-2" onClick={() => handleEdit(p)}>Bearbeiten</button>
-                                                    <button className="bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-3 rounded" onClick={() => handleDelete(p.id)}>Löschen</button>
+                                                <td className="px-2 py-2 border-b">{p.name}</td>
+                                                <td className="px-2 py-2 border-b">{p.price.toFixed(2)}</td>
+                                                <td className="px-2 py-2 border-b">{p.purchase.toFixed(2)}</td>
+                                                <td className="px-2 py-2 border-b">{p.stock}</td>
+                                                <td className="px-2 py-2 border-b">{p.category}</td>
+                                                <td className="px-2 py-2 border-b flex gap-2 justify-center">
+                                                    <button className="admin-btn admin-btn-yellow" onClick={() => handleEdit(p)}>Bearbeiten</button>
+                                                    <button className="admin-btn admin-btn-red" onClick={() => handleDelete(p.id)}>Löschen</button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -233,13 +241,13 @@ export default function Admin() {
                         </div>
                     </section>
                     {/* Statistik */}
-                    <section className="mb-8">
-                        <button type="button" onClick={() => toggleSection('stats')} className="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition">
+                    <section className="mb-10">
+                        <button type="button" onClick={() => toggleSection('stats')} className="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-6 py-4 rounded-2xl font-semibold text-gray-800 dark:text-white text-xl transition">
                             <span>Statistik</span>
-                            <span className="absolute right-4 arrow">{openSection === 'stats' ? '▲' : '▼'}</span>
+                            <span className="absolute right-6 arrow">{openSection === 'stats' ? '▲' : '▼'}</span>
                         </button>
-                        <div className={openSection === 'stats' ? 'mt-4' : 'mt-4 hidden'}>
-                            <div className="space-y-2">
+                        <div className={openSection === 'stats' ? 'mt-6' : 'mt-6 hidden'}>
+                            <div className="space-y-4 text-lg">
                                 <div><strong>Gesamtumsatz:</strong> {stats.total.toFixed(2)} €</div>
                                 <div><strong>Anzahl Käufe:</strong> {stats.count}</div>
                                 <div>
@@ -255,49 +263,49 @@ export default function Admin() {
                         </div>
                     </section>
                     {/* Benutzerverwaltung */}
-                    <section className="mb-8">
-                        <button type="button" onClick={() => toggleSection('users')} className="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-4 py-3 rounded-lg font-semibold text-gray-800 dark:text-white transition">
+                    <section className="mb-10">
+                        <button type="button" onClick={() => toggleSection('users')} className="w-full relative flex justify-center bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 px-6 py-4 rounded-2xl font-semibold text-gray-800 dark:text-white text-xl transition">
                             <span>Benutzer verwalten</span>
-                            <span className="absolute right-4 arrow">{openSection === 'users' ? '▲' : '▼'}</span>
+                            <span className="absolute right-6 arrow">{openSection === 'users' ? '▲' : '▼'}</span>
                         </button>
-                        <div className={openSection === 'users' ? 'mt-4' : 'mt-4 hidden'}>
+                        <div className={openSection === 'users' ? 'mt-6' : 'mt-6 hidden'}>
                             <div className="overflow-x-auto">
-                                <table className="table-auto w-full text-center text-base">
+                                <table className="table-auto w-full text-center text-lg rounded-xl overflow-hidden">
                                     <thead>
                                         <tr>
-                                            <th className="px-2 py-1 border-b font-semibold">Name</th>
-                                            <th className="px-2 py-1 border-b font-semibold">E-Mail</th>
-                                            <th className="px-2 py-1 border-b font-semibold">Rolle</th>
-                                            <th className="px-2 py-1 border-b font-semibold">Guthaben (€)</th>
-                                            <th className="px-2 py-1 border-b font-semibold">Aktionen</th>
+                                            <th className="px-2 py-2 border-b font-semibold">Name</th>
+                                            <th className="px-2 py-2 border-b font-semibold">E-Mail</th>
+                                            <th className="px-2 py-2 border-b font-semibold">Rolle</th>
+                                            <th className="px-2 py-2 border-b font-semibold">Guthaben (€)</th>
+                                            <th className="px-2 py-2 border-b font-semibold">Aktionen</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {users.map(u => (
                                             <tr key={u.id} className="odd:bg-green-50 dark:odd:bg-gray-700">
-                                                <td className="px-2 py-1 border-b">{u.name || '-'}</td>
-                                                <td className="px-2 py-1 border-b">{u.email}</td>
-                                                <td className="px-2 py-1 border-b">
-                                                    <select value={u.role} onChange={e => handleRoleChange(u.id, e.target.value)} className="p-1 rounded">
+                                                <td className="px-2 py-2 border-b">{u.name || '-'}</td>
+                                                <td className="px-2 py-2 border-b">{u.email}</td>
+                                                <td className="px-2 py-2 border-b">
+                                                    <select value={u.role} onChange={e => handleRoleChange(u.id, e.target.value)} className="admin-select">
                                                         <option value="player">Player</option>
                                                         <option value="admin">Admin</option>
                                                     </select>
                                                 </td>
-                                                <td className="px-2 py-1 border-b">
+                                                <td className="px-2 py-2 border-b">
                                                     <input
                                                         type="number"
                                                         step="0.01"
                                                         value={u.balance}
                                                         onChange={e => handleBalanceChange(u.id, parseFloat(e.target.value))}
-                                                        className="w-24 p-1 rounded text-right"
+                                                        className="admin-input w-24 text-right"
                                                     />
                                                 </td>
-                                                <td className="px-2 py-1 border-b text-xs text-gray-400">ID: {u.id.slice(0, 8)}...</td>
+                                                <td className="px-2 py-2 border-b text-xs text-gray-400">ID: {u.id.slice(0, 8)}...</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
-                                <p className="mt-2 text-center text-sm">{userMsg}</p>
+                                <p className="mt-2 text-center text-base font-semibold" style={{ color: userMsg.startsWith('Fehler') ? '#dc2626' : '#059669' }}>{userMsg}</p>
                             </div>
                         </div>
                     </section>
