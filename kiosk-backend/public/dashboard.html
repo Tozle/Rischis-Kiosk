@@ -2,135 +2,133 @@
 <html lang="de">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Rischis Kiosk">
-  <meta name="format-detection" content="telephone=no">
-  <meta name="theme-color" content="#0f172a">
-  <title>Rischis Kiosk – Auswahl</title>
-  <meta name="description" content="Auswahlmenü für Shop, Buzzer und Mentos" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Weiterleitung…</title>
+  <meta http-equiv="refresh" content="0; url=http://localhost:3000/dashboard" />
   <script>
-    tailwind.config = { darkMode: 'class' };
+    window.location.href = "http://localhost:3000/dashboard";
   </script>
-  <script src="dashboard.js" defer></script>
-  <script src="session.js" defer></script>
+</head>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@700&display=swap"
-    rel="stylesheet">
-  <link rel="icon"
-    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%2310b981' stroke='%230ea5e9' stroke-width='6'/%3E%3Ctext x='50' y='60' font-size='48' text-anchor='middle' fill='white' font-family='Poppins,sans-serif'%3ER%3C/text%3E%3C/svg%3E"
-    type="image/svg+xml">
-  <style>
-    html {
-      scroll-behavior: smooth;
-      background: linear-gradient(120deg, #f0fdfa 0%, #bbf7d0 50%, #22d3ee 100%);
+<body>
+  <p>Du wirst weitergeleitet... Falls nicht, <a href="http://localhost:3000/dashboard">hier klicken</a>.</p>
+</body>
+
+</html>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@700&display=swap"
+  rel="stylesheet">
+<link rel="icon"
+  href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%2310b981' stroke='%230ea5e9' stroke-width='6'/%3E%3Ctext x='50' y='60' font-size='48' text-anchor='middle' fill='white' font-family='Poppins,sans-serif'%3ER%3C/text%3E%3C/svg%3E"
+  type="image/svg+xml">
+<style>
+  html {
+    scroll-behavior: smooth;
+    background: linear-gradient(120deg, #f0fdfa 0%, #bbf7d0 50%, #22d3ee 100%);
+  }
+
+  html.dark {
+    background: linear-gradient(120deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    max-width: 100vw;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-top: env(safe-area-inset-top);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+  }
+
+  h1 {
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .panel-shadow {
+    box-shadow: 0 8px 32px 0 rgba(34, 197, 94, 0.25), 0 1.5px 4px 0 rgba(0, 0, 0, 0.08);
+  }
+
+  .dark .panel-shadow {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+  }
+
+  .glass-effect {
+    backdrop-filter: blur(18px) saturate(120%);
+    background-color: rgba(255, 255, 255, 0.92);
+    border: 1.5px solid rgba(16, 185, 129, 0.13);
+  }
+
+  .dark .glass-effect {
+    background-color: rgba(31, 41, 55, 0.92);
+    border: 1.5px solid rgba(16, 185, 129, 0.13);
+  }
+
+  .btn-main {
+    background: linear-gradient(90deg, #22d3ee 0%, #10b981 100%);
+    color: white;
+    font-weight: 700;
+    border: none;
+    border-radius: 9999px;
+    box-shadow: 0 4px 16px 0 rgba(34, 197, 94, 0.18);
+    transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+  }
+
+  .btn-main:hover {
+    transform: scale(1.04) translateY(-2px);
+    box-shadow: 0 8px 32px 0 rgba(34, 197, 94, 0.25);
+    background: linear-gradient(90deg, #10b981 0%, #22d3ee 100%);
+  }
+
+  .link-underline {
+    color: #0ea5e9;
+    text-decoration: underline;
+    transition: color 0.2s;
+  }
+
+  .link-underline:hover {
+    color: #10b981;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 1.4s ease-out forwards;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
     }
 
-    html.dark {
-      background: linear-gradient(120deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-      color-scheme: dark;
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
+  }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      max-width: 100vw;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-      padding-top: env(safe-area-inset-top);
-      padding-right: env(safe-area-inset-right);
-      padding-bottom: env(safe-area-inset-bottom);
-      padding-left: env(safe-area-inset-left);
-    }
+  #welcome-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    transition: opacity 0.3s ease-in-out;
+    z-index: 50;
+  }
 
-    h1 {
-      font-family: 'Poppins', sans-serif;
-    }
+  .dark #welcome-overlay {
+    background-color: rgba(31, 41, 55, 0.9);
+  }
 
-    .panel-shadow {
-      box-shadow: 0 8px 32px 0 rgba(34, 197, 94, 0.25), 0 1.5px 4px 0 rgba(0, 0, 0, 0.08);
-    }
-
-    .dark .panel-shadow {
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-    }
-
-    .glass-effect {
-      backdrop-filter: blur(18px) saturate(120%);
-      background-color: rgba(255, 255, 255, 0.92);
-      border: 1.5px solid rgba(16, 185, 129, 0.13);
-    }
-
-    .dark .glass-effect {
-      background-color: rgba(31, 41, 55, 0.92);
-      border: 1.5px solid rgba(16, 185, 129, 0.13);
-    }
-
-    .btn-main {
-      background: linear-gradient(90deg, #22d3ee 0%, #10b981 100%);
-      color: white;
-      font-weight: 700;
-      border: none;
-      border-radius: 9999px;
-      box-shadow: 0 4px 16px 0 rgba(34, 197, 94, 0.18);
-      transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
-    }
-
-    .btn-main:hover {
-      transform: scale(1.04) translateY(-2px);
-      box-shadow: 0 8px 32px 0 rgba(34, 197, 94, 0.25);
-      background: linear-gradient(90deg, #10b981 0%, #22d3ee 100%);
-    }
-
-    .link-underline {
-      color: #0ea5e9;
-      text-decoration: underline;
-      transition: color 0.2s;
-    }
-
-    .link-underline:hover {
-      color: #10b981;
-    }
-
-    .animate-fade-in {
-      animation: fade-in 1.4s ease-out forwards;
-    }
-
-    @keyframes fade-in {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    #welcome-overlay {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background-color: rgba(255, 255, 255, 0.9);
-      transition: opacity 0.3s ease-in-out;
-      z-index: 50;
-    }
-
-    .dark #welcome-overlay {
-      background-color: rgba(31, 41, 55, 0.9);
-    }
-
-    .welcome-bar {
-      width: 0%;
-      transition: width 2s linear;
-    }
-  </style>
+  .welcome-bar {
+    width: 0%;
+    transition: width 2s linear;
+  }
+</style>
 </head>
 
 <body class="flex items-center justify-center min-h-screen text-green-900 relative dark:text-white"
