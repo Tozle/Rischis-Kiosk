@@ -1,8 +1,4 @@
-function showLoader(show = true) {
-  const loader = document.getElementById('loader');
-  if (!loader) return;
-  loader.classList.toggle('hidden', !show);
-}
+
 // shop.js – ersetzt Supabase-Zugriffe durch sichere API-Aufrufe an dein Backend
 
 // Backend und Frontend laufen auf derselben Domain
@@ -38,7 +34,7 @@ function showMessage(text, type = 'info') {
 }
 
 async function loadUser() {
-  showLoader(true);
+  // Loader removed
   try {
     const res = await fetch(`${BACKEND_URL}/api/user`, {
       credentials: 'include',
@@ -60,12 +56,12 @@ async function loadUser() {
     console.error(err);
     showMessage('Fehler beim Laden des Nutzers', 'error');
   } finally {
-    showLoader(false);
+    // Loader removed
   }
 }
 
 async function loadProducts() {
-  showLoader(true);
+  // Loader removed
   try {
     const sortOption =
       document.getElementById('sort-products')?.value || 'price_asc';
@@ -117,7 +113,7 @@ async function loadProducts() {
     console.error(err);
     showMessage('Fehler beim Laden der Produkte', 'error');
   } finally {
-    showLoader(false);
+    // Loader removed
   }
 }
 
@@ -175,8 +171,10 @@ function renderProductList(products) {
         </div>
         ${product.stock > 0
         ? `<div class="flex items-center gap-2">
-            <input type="number" min="1" max="${product.stock}" value="1" id="qty-${product.id}" class="w-12 text-center bg-transparent focus:outline-none border rounded dark:text-white">
-            <button class="bg-green-600 text-white text-sm px-3 py-1 rounded-md shadow hover:bg-green-700" onclick="buyProduct('${product.id}', 'qty-${product.id}', '${product.name}', ${product.price})">Kaufen</button>
+            <button type="button" aria-label="Weniger" class="bg-gray-200 dark:bg-gray-600 text-lg px-2 py-1 rounded-full font-bold focus:ring-2 focus:ring-cyan-400" onclick="changeQty('${product.id}', -1, ${product.stock})">-</button>
+            <span id="qty-display-${product.id}" class="inline-block w-8 text-center select-none font-semibold">1</span>
+            <button type="button" aria-label="Mehr" class="bg-gray-200 dark:bg-gray-600 text-lg px-2 py-1 rounded-full font-bold focus:ring-2 focus:ring-cyan-400" onclick="changeQty('${product.id}', 1, ${product.stock})">+</button>
+            <button class="bg-green-600 text-white text-sm px-3 py-1 rounded-md shadow hover:bg-green-700" onclick="buyProduct('${product.id}', 'qty-display-${product.id}', '${product.name}', ${product.price})">Kaufen</button>
           </div>`
         : '<span class="text-red-500">Ausverkauft</span>'
       }
@@ -187,7 +185,7 @@ function renderProductList(products) {
 }
 
 async function loadPurchaseHistory() {
-  showLoader(true);
+  // Loader removed
   try {
     const sortOption = document.getElementById('sort-history')?.value || 'desc';
 
@@ -213,19 +211,18 @@ async function loadPurchaseHistory() {
     console.error(err);
     showMessage('Fehler beim Laden des Kaufverlaufs', 'error');
   } finally {
-    showLoader(false);
+    // Loader removed
   }
 }
 
 async function buyProduct(productId, qtyInputId, productName, unitPrice) {
-  const qty = parseInt(document.getElementById(qtyInputId)?.value || '1');
+  const qty = parseInt(document.getElementById(qtyInputId)?.textContent || '1');
   if (!Number.isInteger(qty) || qty <= 0)
     return showMessage('Ungültige Menge', 'error');
 
   const confirmText = `Möchtest du wirklich ${qty}x ${productName} für ${(unitPrice * qty).toFixed(2)} € kaufen?`;
   if (!confirm(confirmText)) return;
 
-  showLoader(true);
   try {
     const token = await getCsrfToken();
     const res = await fetch(`${BACKEND_URL}/api/buy`, {
@@ -252,9 +249,17 @@ async function buyProduct(productId, qtyInputId, productName, unitPrice) {
   } catch (err) {
     console.error(err);
     showMessage('Fehler beim Kauf', 'error');
-  } finally {
-    showLoader(false);
   }
+}
+
+function changeQty(productId, delta, maxStock) {
+  const display = document.getElementById(`qty-display-${productId}`);
+  if (!display) return;
+  let qty = parseInt(display.textContent || '1');
+  qty += delta;
+  if (qty < 1) qty = 1;
+  if (qty > maxStock) qty = maxStock;
+  display.textContent = qty;
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
