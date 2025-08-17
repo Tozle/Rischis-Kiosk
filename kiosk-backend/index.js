@@ -11,6 +11,7 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import helmet from 'helmet';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 
 // Routen-Imports (nur funktionsfähige Imports!)
 import feed from './routes/feed.js';
@@ -77,6 +78,15 @@ const csrfProtection = csrf({
 app.use(csrfProtection);
 app.use(express.json());
 app.use(express.static(publicDir, { maxAge: '1d' }));
+
+// Rate-Limiting für alle API-Routen
+app.use('/api/', rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 Minuten
+  max: 100, // max. 100 Requests pro IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Zu viele Anfragen, bitte später erneut versuchen.' }
+}));
 
 // Statische Routen
 ['admin', 'dashboard', 'mentos', 'shop'].forEach((page) => {
