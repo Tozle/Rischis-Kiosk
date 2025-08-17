@@ -1,27 +1,37 @@
-  <!-- FAQ Floating Button & Overlay -->
-  <button id="faq-btn" aria-label="Hilfe & FAQ anzeigen" title="Hilfe & FAQ" class="fixed bottom-4 left-4 z-50 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400 transition">
-    ?
-  </button>
-  <div id="faq-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="faq-title">
-    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-lg w-full shadow-xl relative animate-fade-in">
-      <button id="faq-close" aria-label="Schließen" class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
-      <h2 id="faq-title" class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2"><svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 10h.01M12 14v.01M12 10a4 4 0 100 8 4 4 0 000-8zm0 0V6m0 0a2 2 0 110 4 2 2 0 010-4z' /></svg> Hilfe & FAQ</h2>
-      <div class="space-y-4 text-left text-base">
-        <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
-          <summary class="font-semibold cursor-pointer">Wie kaufe ich ein Produkt?</summary>
-          <div class="mt-2">Wähle ein Produkt, passe die Menge an und bestätige den Kauf. Dein Guthaben wird automatisch angepasst.</div>
-        </details>
-        <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
-          <summary class="font-semibold cursor-pointer">Wie kann ich den Darkmode umschalten?</summary>
-          <div class="mt-2">Klicke auf das 🌙-Symbol unten rechts, um zwischen hellem und dunklem Modus zu wechseln.</div>
-        </details>
-        <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
-          <summary class="font-semibold cursor-pointer">Ich habe ein Problem – was tun?</summary>
-          <div class="mt-2">Melde dich bei Tom oder nutze den Adminbereich, falls du Admin bist. Technische Probleme bitte mit Screenshot melden.</div>
-        </details>
-      </div>
+<!-- FAQ Floating Button & Overlay -->
+<button id="faq-btn" aria-label="Hilfe & FAQ anzeigen" title="Hilfe & FAQ"
+  class="fixed bottom-4 left-4 z-50 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400 transition">
+  ?
+</button>
+<div id="faq-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden" role="dialog"
+  aria-modal="true" aria-labelledby="faq-title">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-lg w-full shadow-xl relative animate-fade-in">
+    <button id="faq-close" aria-label="Schließen"
+      class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
+    <h2 id="faq-title" class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2"><svg
+        xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24'
+        stroke='currentColor'>
+        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2'
+          d='M8 10h.01M12 14v.01M12 10a4 4 0 100 8 4 4 0 000-8zm0 0V6m0 0a2 2 0 110 4 2 2 0 010-4z' />
+      </svg> Hilfe & FAQ</h2>
+    <div class="space-y-4 text-left text-base">
+      <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
+        <summary class="font-semibold cursor-pointer">Wie kaufe ich ein Produkt?</summary>
+        <div class="mt-2">Wähle ein Produkt, passe die Menge an und bestätige den Kauf. Dein Guthaben wird automatisch
+          angepasst.</div>
+      </details>
+      <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
+        <summary class="font-semibold cursor-pointer">Wie kann ich den Darkmode umschalten?</summary>
+        <div class="mt-2">Klicke auf das 🌙-Symbol unten rechts, um zwischen hellem und dunklem Modus zu wechseln.</div>
+      </details>
+      <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
+        <summary class="font-semibold cursor-pointer">Ich habe ein Problem – was tun?</summary>
+        <div class="mt-2">Melde dich bei Tom oder nutze den Adminbereich, falls du Admin bist. Technische Probleme bitte
+          mit Screenshot melden.</div>
+      </details>
     </div>
   </div>
+</div>
 <!DOCTYPE html>
 <html lang="de">
 
@@ -44,67 +54,110 @@
   <link rel="icon"
     href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%2310b981' stroke='%230ea5e9' stroke-width='6'/%3E%3Ctext x='50' y='60' font-size='48' text-anchor='middle' fill='white' font-family='Poppins,sans-serif'%3ER%3C/text%3E%3C/svg%3E"
     type="image/svg+xml">
-    }
+  }
   </style>
 </head>
 
 <body class="flex items-center justify-center min-h-screen text-green-900 relative dark:text-white">
-  <a href="#main-content" class="skip-link absolute left-2 top-2 bg-cyan-100 text-cyan-900 px-3 py-1 rounded z-50 focus:translate-y-0 -translate-y-12 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all" tabindex="0">Zum Inhalt springen</a>
+  <a href="#main-content"
+    class="skip-link absolute left-2 top-2 bg-cyan-100 text-cyan-900 px-3 py-1 rounded z-50 focus:translate-y-0 -translate-y-12 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all"
+    tabindex="0">Zum Inhalt springen</a>
   <div class="fixed bottom-4 right-4 z-50">
-    <button onclick="toggleDarkMode()" class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition focus:ring-2 focus:ring-cyan-400" aria-label="Darkmode umschalten" title="Darkmode umschalten">🌙</button>
+    <button onclick="toggleDarkMode()"
+      class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition focus:ring-2 focus:ring-cyan-400"
+      aria-label="Darkmode umschalten" title="Darkmode umschalten">🌙</button>
   </div>
   <div class="fixed top-4 left-4 z-50" role="navigation">
-    <a href="dashboard.html" class="btn-main flex items-center gap-2 py-2 px-4 text-sm shadow focus:ring-2 focus:ring-cyan-400">
+    <a href="dashboard.html"
+      class="btn-main flex items-center gap-2 py-2 px-4 text-sm shadow focus:ring-2 focus:ring-cyan-400">
       <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
         <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' />
       </svg>
       Zurück zum Dashboard
     </a>
   </div>
-  <div id="main-content" class="w-full px-3 py-2 max-w-2xl mx-auto mt-14 sm:mt-24 p-6 sm:p-10 rounded-3xl panel-shadow glass-effect animate-fade-in border border-green-200 dark:border-green-900">
-    <h1 class="text-4xl sm:text-5xl font-bold mb-8 text-center text-green-800 dark:text-green-300 flex items-center justify-center gap-2">
-      <svg xmlns='http://www.w3.org/2000/svg' class='inline w-9 h-9 text-green-500' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z' />
+  <div id="main-content"
+    class="w-full px-3 py-2 max-w-2xl mx-auto mt-14 sm:mt-24 p-6 sm:p-10 rounded-3xl panel-shadow glass-effect animate-fade-in border border-green-200 dark:border-green-900">
+    <h1
+      class="text-4xl sm:text-5xl font-bold mb-8 text-center text-green-800 dark:text-green-300 flex items-center justify-center gap-2">
+      <svg xmlns='http://www.w3.org/2000/svg' class='inline w-9 h-9 text-green-500' fill='none' viewBox='0 0 24 24'
+        stroke='currentColor'>
+        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2'
+          d='M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z' />
       </svg>
       Rischis Kiosk
     </h1>
-    <label for="category-filter" class="block mb-2 font-medium text-gray-800 dark:text-gray-100">Kategorie auswählen:</label>
-    <select id="category-filter" aria-label="Kategorie auswählen" title="Kategorie auswählen" class="mb-6 border rounded-md p-2 w-full bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-cyan-400"><option value="">Alle Kategorien</option></select>
+    <label for="category-filter" class="block mb-2 font-medium text-gray-800 dark:text-gray-100">Kategorie
+      auswählen:</label>
+    <select id="category-filter" aria-label="Kategorie auswählen" title="Kategorie auswählen"
+      class="mb-6 border rounded-md p-2 w-full bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-cyan-400">
+      <option value="">Alle Kategorien</option>
+    </select>
     <label for="search" class="sr-only">Produkt suchen</label>
-    <input type="text" id="search" placeholder="Produkt suchen..." aria-label="Produkt suchen" title="Produkt suchen" class="mb-6 p-2 border rounded-md border-gray-300 bg-white placeholder-gray-500 w-full dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-cyan-400">
-    <label for="sort-products" class="block mb-2 font-medium text-gray-800 dark:text-gray-100">Produkte sortieren:</label>
-    <select id="sort-products" aria-label="Produkte sortieren" title="Produkte sortieren" class="mb-6 border rounded-md p-2 w-full bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-cyan-400"><option value="price_asc">Preis aufsteigend</option><option value="price_desc">Preis absteigend</option><option value="recent">Zuletzt gekauft</option></select>
-    <div class="mb-6"><p><strong>Angemeldet als:</strong> <span id="user-email"></span></p><p><strong>Guthaben:</strong> <span id="user-balance" class="font-bold">0.00 €</span></p></div>
+    <input type="text" id="search" placeholder="Produkt suchen..." aria-label="Produkt suchen" title="Produkt suchen"
+      class="mb-6 p-2 border rounded-md border-gray-300 bg-white placeholder-gray-500 w-full dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-cyan-400">
+    <label for="sort-products" class="block mb-2 font-medium text-gray-800 dark:text-gray-100">Produkte
+      sortieren:</label>
+    <select id="sort-products" aria-label="Produkte sortieren" title="Produkte sortieren"
+      class="mb-6 border rounded-md p-2 w-full bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-cyan-400">
+      <option value="price_asc">Preis aufsteigend</option>
+      <option value="price_desc">Preis absteigend</option>
+      <option value="recent">Zuletzt gekauft</option>
+    </select>
+    <div class="mb-6">
+      <p><strong>Angemeldet als:</strong> <span id="user-email"></span></p>
+      <p><strong>Guthaben:</strong> <span id="user-balance" class="font-bold">0.00 €</span></p>
+    </div>
     <div class="mt-8" aria-labelledby="products-section">
-      <h2 class="text-lg sm:text-xl font-bold tracking-wide text-gray-800 dark:text-gray-100 uppercase mb-4">Produkte</h2>
+      <h2 class="text-lg sm:text-xl font-bold tracking-wide text-gray-800 dark:text-gray-100 uppercase mb-4">Produkte
+      </h2>
       <ul id="product-list" class="overflow-x-auto block space-y-4"></ul>
     </div>
     <p id="message" class="mt-4 text-sm text-center"></p>
     <div class="mt-12">
-      <h2 class="text-lg sm:text-xl font-bold tracking-wide text-gray-800 dark:text-gray-100 uppercase mb-4">Kaufverlauf</h2>
-      <label for="sort-history" class="block mb-2 font-medium text-gray-800 dark:text-gray-100">Kaufverlauf sortieren:</label>
-      <select id="sort-history" aria-label="Kaufverlauf sortieren" title="Kaufverlauf sortieren" class="mb-6 border rounded-md p-2 w-full bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-cyan-400"><option value="desc">Neuste zuerst</option><option value="asc">Älteste zuerst</option><option value="price_desc">Preis absteigend</option><option value="price_asc">Preis aufsteigend</option></select>
+      <h2 class="text-lg sm:text-xl font-bold tracking-wide text-gray-800 dark:text-gray-100 uppercase mb-4">Kaufverlauf
+      </h2>
+      <label for="sort-history" class="block mb-2 font-medium text-gray-800 dark:text-gray-100">Kaufverlauf
+        sortieren:</label>
+      <select id="sort-history" aria-label="Kaufverlauf sortieren" title="Kaufverlauf sortieren"
+        class="mb-6 border rounded-md p-2 w-full bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-cyan-400">
+        <option value="desc">Neuste zuerst</option>
+        <option value="asc">Älteste zuerst</option>
+        <option value="price_desc">Preis absteigend</option>
+        <option value="price_asc">Preis aufsteigend</option>
+      </select>
       <ul id="purchase-history" class="overflow-x-auto block space-y-2 text-sm"></ul>
     </div>
   </div>
   <!-- FAQ Floating Button & Overlay -->
-  <button id="faq-btn" aria-label="Hilfe & FAQ anzeigen" title="Hilfe & FAQ" class="fixed bottom-4 left-4 z-50 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400 transition">?</button>
-  <div id="faq-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="faq-title">
+  <button id="faq-btn" aria-label="Hilfe & FAQ anzeigen" title="Hilfe & FAQ"
+    class="fixed bottom-4 left-4 z-50 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400 transition">?</button>
+  <div id="faq-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden" role="dialog"
+    aria-modal="true" aria-labelledby="faq-title">
     <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-lg w-full shadow-xl relative animate-fade-in">
-      <button id="faq-close" aria-label="Schließen" class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
-      <h2 id="faq-title" class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2"><svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 10h.01M12 14v.01M12 10a4 4 0 100 8 4 4 0 000-8zm0 0V6m0 0a2 2 0 110 4 2 2 0 010-4z' /></svg> Hilfe & FAQ</h2>
+      <button id="faq-close" aria-label="Schließen"
+        class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
+      <h2 id="faq-title" class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2"><svg
+          xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24'
+          stroke='currentColor'>
+          <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2'
+            d='M8 10h.01M12 14v.01M12 10a4 4 0 100 8 4 4 0 000-8zm0 0V6m0 0a2 2 0 110 4 2 2 0 010-4z' />
+        </svg> Hilfe & FAQ</h2>
       <div class="space-y-4 text-left text-base">
         <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
           <summary class="font-semibold cursor-pointer">Wie kaufe ich ein Produkt?</summary>
-          <div class="mt-2">Wähle ein Produkt, passe die Menge an und bestätige den Kauf. Dein Guthaben wird automatisch angepasst.</div>
+          <div class="mt-2">Wähle ein Produkt, passe die Menge an und bestätige den Kauf. Dein Guthaben wird automatisch
+            angepasst.</div>
         </details>
         <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
           <summary class="font-semibold cursor-pointer">Wie kann ich den Darkmode umschalten?</summary>
-          <div class="mt-2">Klicke auf das 🌙-Symbol unten rechts, um zwischen hellem und dunklem Modus zu wechseln.</div>
+          <div class="mt-2">Klicke auf das 🌙-Symbol unten rechts, um zwischen hellem und dunklem Modus zu wechseln.
+          </div>
         </details>
         <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
           <summary class="font-semibold cursor-pointer">Ich habe ein Problem – was tun?</summary>
-          <div class="mt-2">Melde dich bei Tom oder nutze den Adminbereich, falls du Admin bist. Technische Probleme bitte mit Screenshot melden.</div>
+          <div class="mt-2">Melde dich bei Tom oder nutze den Adminbereich, falls du Admin bist. Technische Probleme
+            bitte mit Screenshot melden.</div>
         </details>
       </div>
     </div>
@@ -133,4 +186,5 @@
     }
   </script>
 </body>
+
 </html>

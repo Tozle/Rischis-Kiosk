@@ -1,27 +1,37 @@
-  <!-- FAQ Floating Button & Overlay -->
-  <button id="faq-btn" aria-label="Hilfe & FAQ anzeigen" title="Hilfe & FAQ" class="fixed bottom-4 left-4 z-50 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400 transition">
-    ?
-  </button>
-  <div id="faq-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="faq-title">
-    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-lg w-full shadow-xl relative animate-fade-in">
-      <button id="faq-close" aria-label="Schließen" class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
-      <h2 id="faq-title" class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2"><svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 10h.01M12 14v.01M12 10a4 4 0 100 8 4 4 0 000-8zm0 0V6m0 0a2 2 0 110 4 2 2 0 010-4z' /></svg> Hilfe & FAQ</h2>
-      <div class="space-y-4 text-left text-base">
-        <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
-          <summary class="font-semibold cursor-pointer">Wie trage ich eine Fütterung ein?</summary>
-          <div class="mt-2">Klicke auf <b>Nassfutter gegeben</b> oder <b>Trockenfutter gegeben</b>. Die Fütterung wird gespeichert und die Anzeige aktualisiert.</div>
-        </details>
-        <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
-          <summary class="font-semibold cursor-pointer">Wie kann ich den Darkmode umschalten?</summary>
-          <div class="mt-2">Klicke auf das 🌙-Symbol unten rechts, um zwischen hellem und dunklem Modus zu wechseln.</div>
-        </details>
-        <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
-          <summary class="font-semibold cursor-pointer">Ich habe ein Problem – was tun?</summary>
-          <div class="mt-2">Melde dich bei Tom oder nutze den Adminbereich, falls du Admin bist. Technische Probleme bitte mit Screenshot melden.</div>
-        </details>
-      </div>
+<!-- FAQ Floating Button & Overlay -->
+<button id="faq-btn" aria-label="Hilfe & FAQ anzeigen" title="Hilfe & FAQ"
+  class="fixed bottom-4 left-4 z-50 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400 transition">
+  ?
+</button>
+<div id="faq-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden" role="dialog"
+  aria-modal="true" aria-labelledby="faq-title">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-lg w-full shadow-xl relative animate-fade-in">
+    <button id="faq-close" aria-label="Schließen"
+      class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
+    <h2 id="faq-title" class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2"><svg
+        xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24'
+        stroke='currentColor'>
+        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2'
+          d='M8 10h.01M12 14v.01M12 10a4 4 0 100 8 4 4 0 000-8zm0 0V6m0 0a2 2 0 110 4 2 2 0 010-4z' />
+      </svg> Hilfe & FAQ</h2>
+    <div class="space-y-4 text-left text-base">
+      <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
+        <summary class="font-semibold cursor-pointer">Wie trage ich eine Fütterung ein?</summary>
+        <div class="mt-2">Klicke auf <b>Nassfutter gegeben</b> oder <b>Trockenfutter gegeben</b>. Die Fütterung wird
+          gespeichert und die Anzeige aktualisiert.</div>
+      </details>
+      <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
+        <summary class="font-semibold cursor-pointer">Wie kann ich den Darkmode umschalten?</summary>
+        <div class="mt-2">Klicke auf das 🌙-Symbol unten rechts, um zwischen hellem und dunklem Modus zu wechseln.</div>
+      </details>
+      <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
+        <summary class="font-semibold cursor-pointer">Ich habe ein Problem – was tun?</summary>
+        <div class="mt-2">Melde dich bei Tom oder nutze den Adminbereich, falls du Admin bist. Technische Probleme bitte
+          mit Screenshot melden.</div>
+      </details>
     </div>
   </div>
+</div>
 <!DOCTYPE html>
 <html lang="de">
 
@@ -87,34 +97,56 @@
 </head>
 
 <body class="flex items-center justify-center min-h-screen text-green-900 relative dark:text-white">
-  <a href="#main-content" class="skip-link absolute left-2 top-2 bg-cyan-100 text-cyan-900 px-3 py-1 rounded z-50 focus:translate-y-0 -translate-y-12 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all" tabindex="0">Zum Inhalt springen</a>
+  <a href="#main-content"
+    class="skip-link absolute left-2 top-2 bg-cyan-100 text-cyan-900 px-3 py-1 rounded z-50 focus:translate-y-0 -translate-y-12 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all"
+    tabindex="0">Zum Inhalt springen</a>
   <div class="fixed bottom-4 right-4 z-50">
-    <button onclick="toggleDarkMode()" class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition focus:ring-2 focus:ring-cyan-400" aria-label="Darkmode umschalten" title="Darkmode umschalten">🌙</button>
+    <button onclick="toggleDarkMode()"
+      class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition focus:ring-2 focus:ring-cyan-400"
+      aria-label="Darkmode umschalten" title="Darkmode umschalten">🌙</button>
   </div>
   <div class="fixed top-4 left-4 z-50" role="navigation">
-    <a href="dashboard.html" class="btn-main flex items-center gap-2 py-2 px-4 text-sm shadow focus:ring-2 focus:ring-cyan-400">
+    <a href="dashboard.html"
+      class="btn-main flex items-center gap-2 py-2 px-4 text-sm shadow focus:ring-2 focus:ring-cyan-400">
       <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
         <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' />
       </svg>
       Zurück zum Dashboard
     </a>
   </div>
-  <main id="main-content" class="w-full px-3 py-2 max-w-md mx-auto mt-14 sm:mt-24 p-6 sm:p-10 rounded-3xl panel-shadow glass-effect animate-fade-in border border-green-200 dark:border-green-900" tabindex="-1">
-    <h1 class="text-4xl sm:text-5xl font-bold mb-8 text-center text-green-800 dark:text-green-300 flex items-center justify-center gap-2">
-      <svg xmlns='http://www.w3.org/2000/svg' class='inline w-9 h-9 text-green-500' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z' />
+  <main id="main-content"
+    class="w-full px-3 py-2 max-w-md mx-auto mt-14 sm:mt-24 p-6 sm:p-10 rounded-3xl panel-shadow glass-effect animate-fade-in border border-green-200 dark:border-green-900"
+    tabindex="-1">
+    <h1
+      class="text-4xl sm:text-5xl font-bold mb-8 text-center text-green-800 dark:text-green-300 flex items-center justify-center gap-2">
+      <svg xmlns='http://www.w3.org/2000/svg' class='inline w-9 h-9 text-green-500' fill='none' viewBox='0 0 24 24'
+        stroke='currentColor'>
+        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2'
+          d='M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z' />
       </svg>
       Mentos 🐱
     </h1>
     <h2 class="text-xl text-center">Letzte Fütterung vor:</h2>
     <div id="last-feed" class="text-4xl sm:text-5xl font-mono font-semibold text-center mb-4">-</div>
     <div class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
-      <button id="btn-nass" class="btn-main bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow focus:ring-2 focus:ring-cyan-400" aria-label="Nassfutter gegeben" title="Nassfutter gegeben" style="background:linear-gradient(90deg,#38bdf8 0%,#0ea5e9 100%);">🐟 Nassfutter gegeben</button>
-      <button id="btn-trocken" class="btn-main bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full shadow focus:ring-2 focus:ring-cyan-400" aria-label="Trockenfutter gegeben" title="Trockenfutter gegeben" style="background:linear-gradient(90deg,#fbbf24 0%,#f59e42 100%);">🥣 Trockenfutter gegeben</button>
+      <button id="btn-nass"
+        class="btn-main bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow focus:ring-2 focus:ring-cyan-400"
+        aria-label="Nassfutter gegeben" title="Nassfutter gegeben"
+        style="background:linear-gradient(90deg,#38bdf8 0%,#0ea5e9 100%);">🐟 Nassfutter gegeben</button>
+      <button id="btn-trocken"
+        class="btn-main bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full shadow focus:ring-2 focus:ring-cyan-400"
+        aria-label="Trockenfutter gegeben" title="Trockenfutter gegeben"
+        style="background:linear-gradient(90deg,#fbbf24 0%,#f59e42 100%);">🥣 Trockenfutter gegeben</button>
     </div>
     <div id="admin-buttons" class="hidden flex flex-col sm:flex-row justify-center gap-4 mb-6">
-      <button id="reset-timer-btn" class="btn-main bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1 px-2 rounded-full shadow focus:ring-2 focus:ring-cyan-400" aria-label="Timer zurücksetzen" title="Timer zurücksetzen" style="background:linear-gradient(90deg,#ef4444 0%,#f59e42 100%);">⏱️ Timer zurücksetzen</button>
-      <button id="clear-history-btn" class="btn-main bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1 px-2 rounded-full shadow focus:ring-2 focus:ring-cyan-400" aria-label="Anzeige löschen" title="Anzeige löschen" style="background:linear-gradient(90deg,#ef4444 0%,#f59e42 100%);">🗑️ Anzeige löschen</button>
+      <button id="reset-timer-btn"
+        class="btn-main bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1 px-2 rounded-full shadow focus:ring-2 focus:ring-cyan-400"
+        aria-label="Timer zurücksetzen" title="Timer zurücksetzen"
+        style="background:linear-gradient(90deg,#ef4444 0%,#f59e42 100%);">⏱️ Timer zurücksetzen</button>
+      <button id="clear-history-btn"
+        class="btn-main bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1 px-2 rounded-full shadow focus:ring-2 focus:ring-cyan-400"
+        aria-label="Anzeige löschen" title="Anzeige löschen"
+        style="background:linear-gradient(90deg,#ef4444 0%,#f59e42 100%);">🗑️ Anzeige löschen</button>
     </div>
     <div class="overflow-x-auto">
       <table class="table-auto w-full text-center text-base">
@@ -130,23 +162,34 @@
     </div>
   </main>
   <!-- FAQ Floating Button & Overlay -->
-  <button id="faq-btn" aria-label="Hilfe & FAQ anzeigen" title="Hilfe & FAQ" class="fixed bottom-4 left-4 z-50 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400 transition">?</button>
-  <div id="faq-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="faq-title">
+  <button id="faq-btn" aria-label="Hilfe & FAQ anzeigen" title="Hilfe & FAQ"
+    class="fixed bottom-4 left-4 z-50 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400 transition">?</button>
+  <div id="faq-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden" role="dialog"
+    aria-modal="true" aria-labelledby="faq-title">
     <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-lg w-full shadow-xl relative animate-fade-in">
-      <button id="faq-close" aria-label="Schließen" class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
-      <h2 id="faq-title" class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2"><svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 10h.01M12 14v.01M12 10a4 4 0 100 8 4 4 0 000-8zm0 0V6m0 0a2 2 0 110 4 2 2 0 010-4z' /></svg> Hilfe & FAQ</h2>
+      <button id="faq-close" aria-label="Schließen"
+        class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
+      <h2 id="faq-title" class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2"><svg
+          xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24'
+          stroke='currentColor'>
+          <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2'
+            d='M8 10h.01M12 14v.01M12 10a4 4 0 100 8 4 4 0 000-8zm0 0V6m0 0a2 2 0 110 4 2 2 0 010-4z' />
+        </svg> Hilfe & FAQ</h2>
       <div class="space-y-4 text-left text-base">
         <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
           <summary class="font-semibold cursor-pointer">Wie trage ich eine Fütterung ein?</summary>
-          <div class="mt-2">Klicke auf <b>Nassfutter gegeben</b> oder <b>Trockenfutter gegeben</b>. Die Fütterung wird gespeichert und die Anzeige aktualisiert.</div>
+          <div class="mt-2">Klicke auf <b>Nassfutter gegeben</b> oder <b>Trockenfutter gegeben</b>. Die Fütterung wird
+            gespeichert und die Anzeige aktualisiert.</div>
         </details>
         <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
           <summary class="font-semibold cursor-pointer">Wie kann ich den Darkmode umschalten?</summary>
-          <div class="mt-2">Klicke auf das 🌙-Symbol unten rechts, um zwischen hellem und dunklem Modus zu wechseln.</div>
+          <div class="mt-2">Klicke auf das 🌙-Symbol unten rechts, um zwischen hellem und dunklem Modus zu wechseln.
+          </div>
         </details>
         <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
           <summary class="font-semibold cursor-pointer">Ich habe ein Problem – was tun?</summary>
-          <div class="mt-2">Melde dich bei Tom oder nutze den Adminbereich, falls du Admin bist. Technische Probleme bitte mit Screenshot melden.</div>
+          <div class="mt-2">Melde dich bei Tom oder nutze den Adminbereich, falls du Admin bist. Technische Probleme
+            bitte mit Screenshot melden.</div>
         </details>
       </div>
     </div>
@@ -175,4 +218,5 @@
     }
   </script>
 </body>
+
 </html>

@@ -153,31 +153,35 @@ function renderProductList(products) {
   products.forEach((product) => {
     const li = document.createElement('li');
     li.className =
-      'border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 p-3 rounded-lg shadow-md hover:shadow-lg transition text-gray-800 dark:text-white';
+      'border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 p-4 rounded-xl shadow-md hover:shadow-lg transition text-gray-800 dark:text-white';
     if (product.recent) {
       li.className += ' border-yellow-400';
     }
     // Bild nur anzeigen, wenn image_url gesetzt und nicht leer
     const hasImage = product.image_url && product.image_url.trim() !== '';
     li.innerHTML = `
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div class="flex items-center gap-3">
-          ${hasImage ? `<img src="${product.image_url}" alt="${product.name}" class="w-16 h-16 object-contain rounded shadow border border-gray-200 dark:border-gray-700 bg-white" loading="lazy">` : ''}
+      <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+        ${hasImage ? `<img src="${product.image_url}" alt="${product.name}" class="w-28 h-28 sm:w-32 sm:h-32 object-contain rounded-xl shadow border border-gray-200 dark:border-gray-700 bg-white flex-shrink-0 mx-auto sm:mx-0" loading="lazy">` : ''}
+        <div class="flex-1 flex flex-col justify-between h-full w-full">
           <div>
-            <p class="text-base font-medium">${product.name}</p>
-            ${product.recent ? '<p class="text-xs text-yellow-600 dark:text-yellow-400">Zuletzt gekauft</p>' : ''}
-            <p class="text-sm text-gray-600 dark:text-gray-300">${product.price.toFixed(2)} € – Bestand: ${product.stock}</p>
+            <p class="text-lg font-bold mb-1">${product.name}</p>
+            ${product.recent ? '<p class="text-xs text-yellow-600 dark:text-yellow-400 mb-1">Zuletzt gekauft</p>' : ''}
+            <p class="text-base text-gray-600 dark:text-gray-300 mb-2">${product.price.toFixed(2)} € <span class="mx-1">·</span> <span class="text-xs">Bestand: ${product.stock}</span></p>
+          </div>
+          <div class="mt-2 w-full">
+            ${product.stock > 0
+        ? `<div class="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 mt-2 w-full">
+                  <div class='flex flex-row items-center gap-2 justify-center xs:justify-start'>
+                    <button type="button" aria-label="Weniger" class="bg-gray-200 dark:bg-gray-600 text-lg px-3 py-2 rounded-full font-bold focus:ring-2 focus:ring-cyan-400" onclick="changeQty('${product.id}', -1, ${product.stock})">-</button>
+                    <span id="qty-display-${product.id}" class="inline-block w-10 text-center select-none font-semibold text-lg">1</span>
+                    <button type="button" aria-label="Mehr" class="bg-gray-200 dark:bg-gray-600 text-lg px-3 py-2 rounded-full font-bold focus:ring-2 focus:ring-cyan-400" onclick="changeQty('${product.id}', 1, ${product.stock})">+</button>
+                  </div>
+                  <button class="btn-main w-full xs:w-auto px-5 py-2 text-base" style="min-width: 100px;" onclick="buyProduct('${product.id}', 'qty-display-${product.id}', '${product.name}', ${product.price})">Kaufen</button>
+                </div>`
+        : '<span class="text-red-500 font-semibold">Ausverkauft</span>'
+      }
           </div>
         </div>
-        ${product.stock > 0
-        ? `<div class="flex items-center gap-2">
-            <button type="button" aria-label="Weniger" class="bg-gray-200 dark:bg-gray-600 text-lg px-2 py-1 rounded-full font-bold focus:ring-2 focus:ring-cyan-400" onclick="changeQty('${product.id}', -1, ${product.stock})">-</button>
-            <span id="qty-display-${product.id}" class="inline-block w-8 text-center select-none font-semibold">1</span>
-            <button type="button" aria-label="Mehr" class="bg-gray-200 dark:bg-gray-600 text-lg px-2 py-1 rounded-full font-bold focus:ring-2 focus:ring-cyan-400" onclick="changeQty('${product.id}', 1, ${product.stock})">+</button>
-            <button class="bg-green-600 text-white text-sm px-3 py-1 rounded-md shadow hover:bg-green-700" onclick="buyProduct('${product.id}', 'qty-display-${product.id}', '${product.name}', ${product.price})">Kaufen</button>
-          </div>`
-        : '<span class="text-red-500">Ausverkauft</span>'
-      }
       </div>
     `;
     list.appendChild(li);

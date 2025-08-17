@@ -2,18 +2,19 @@
 .dark .btn-main {
     background: linear-gradient(90deg, #0ea5e9 0%, #10b981 100%);
     color: #e0f2fe;
-    box-shadow: 0 4px 16px 0 rgba(16,185,129,0.18);
+    box-shadow: 0 4px 16px 0 rgba(16, 185, 129, 0.18);
 }
+
 .dark .btn-main:hover,
 .dark .btn-main:focus-visible {
     background: linear-gradient(90deg, #10b981 0%, #0ea5e9 100%);
     color: #fff;
-    box-shadow: 0 8px 32px 0 rgba(16,185,129,0.25);
+    box-shadow: 0 8px 32px 0 rgba(16, 185, 129, 0.25);
 }
 
 .dark .panel-shadow,
 .dark .glass-effect {
-    background: rgba(31,41,55,0.97);
+    background: rgba(31, 41, 55, 0.97);
     border-color: #334155;
     color: #e0f2fe;
 }
@@ -31,12 +32,14 @@
     color: #e0f2fe;
     border-color: #334155;
 }
+
 .dark input:focus,
 .dark select:focus,
 .dark textarea:focus {
     border-color: #38bdf8;
     box-shadow: 0 0 0 2px #38bdf833;
 }
+
 /* Animations & Feedback */
 .animate-fade-in {
     animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
