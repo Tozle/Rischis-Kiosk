@@ -5,8 +5,9 @@ import cors from 'cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import csrf from 'csurf';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import logoutRoute from './routes/logout.js';
 
 // Routen-Imports (nur funktionsfähige Imports!)
 import feed from './routes/feed.js';
@@ -26,11 +27,10 @@ import requestLogger from './middleware/requestLogger.js';
 import notFound from './middleware/notFound.js';
 import logger from './utils/logger.js';
 import { getCookieOptions } from './utils/authCookies.js';
-const logoutRoute = require('./routes/logout');
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const publicDir = join(__dirname, 'public');
+const __dirname = path.dirname(__filename);
+const publicDir = path.join(__dirname, 'public');
 
 const app = express();
 const PORT = env.PORT;
@@ -89,11 +89,11 @@ app.use(express.static(publicDir, { maxAge: '1d' }));
 // Statische Routen
 ['admin', 'dashboard', 'mentos', 'shop'].forEach((page) => {
   app.get(`/${page}`, (req, res) => {
-    res.sendFile(join(publicDir, `${page}.html`));
+    res.sendFile(path.join(publicDir, `${page}.html`));
   });
 });
 app.get('/', (req, res) => {
-  res.sendFile(join(publicDir, 'index.html'));
+  res.sendFile(path.join(publicDir, 'index.html'));
 });
 app.get('/healthz', (req, res) => {
   res.status(200).send('OK');
