@@ -197,57 +197,57 @@ textarea:focus {
 .skip-link:focus {
     transform: translateY(0);
     box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.18);
-}
 
-to {
-    opacity: 1;
-    transform: translateY(0);
-}
-}
-
-/* Inputs & focus */
-input,
-select,
-textarea {
-    border-radius: 0.75rem;
-    border: 1.5px solid #a7f3d0;
-    padding: 0.7em 1em;
-    font-size: 1rem;
-    background: #fff;
-    color: #134e4a;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-    margin-bottom: 0.5em;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-    border-color: #22d3ee;
-    box-shadow: 0 0 0 2px #22d3ee33;
-}
-
-.dark input,
-.dark select,
-.dark textarea {
-    background: #1e293b;
-    color: #e0f2fe;
-    border-color: #334155;
-}
-
-.dark input:focus,
-.dark select:focus,
-.dark textarea:focus {
-    border-color: #38bdf8;
-    box-shadow: 0 0 0 2px #38bdf833;
-}
-
-@media (max-width: 640px) {
-    .panel-shadow {
-        box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.13);
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 
-    .glass-effect {
-        padding: 1.2em 0.5em;
+    /* removed stray bracket and orphaned 'to' block */
+
+    /* Inputs & focus */
+    input,
+    select,
+    textarea {
+        border-radius: 0.75rem;
+        border: 1.5px solid #a7f3d0;
+        padding: 0.7em 1em;
+        font-size: 1rem;
+        background: #fff;
+        color: #134e4a;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        outline: none;
+        margin-bottom: 0.5em;
     }
-}
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #22d3ee;
+        box-shadow: 0 0 0 2px #22d3ee33;
+    }
+
+    .dark input,
+    .dark select,
+    .dark textarea {
+        background: #1e293b;
+        color: #e0f2fe;
+        border-color: #334155;
+    }
+
+    .dark input:focus,
+    .dark select:focus,
+    .dark textarea:focus {
+        border-color: #38bdf8;
+        box-shadow: 0 0 0 2px #38bdf833;
+    }
+
+    @media (max-width: 640px) {
+        .panel-shadow {
+            box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.13);
+        }
+
+        .glass-effect {
+            padding: 1.2em 0.5em;
+        }
+    }

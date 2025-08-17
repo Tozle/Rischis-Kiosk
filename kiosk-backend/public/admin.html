@@ -21,7 +21,7 @@
   <style>
     html {
       scroll-behavior: smooth;
-      background: #f0fdfa;
+      background: #e6f4ef;
     }
 
     html.dark {
@@ -112,150 +112,153 @@
       </svg>
       Zurück zum Dashboard
     </a>
-  </div>
-  <main id="main-content"
-    class="w-full px-3 py-2 max-w-4xl mx-auto mt-14 sm:mt-24 p-6 sm:p-10 rounded-3xl panel-shadow glass-effect animate-fade-in border border-green-200 dark:border-green-900"
-    tabindex="-1">
-    <h1
-      class="text-3xl sm:text-4xl font-bold mb-8 text-center text-green-800 dark:text-green-300 flex items-center justify-center gap-2"
-      id="admin-title">
-      <svg xmlns='http://www.w3.org/2000/svg' class='inline w-9 h-9 text-green-500' fill='none' viewBox='0 0 24 24'
-        stroke='currentColor'>
-        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M3 10h18M9 6h6m-6 8h6m-6 4h6' />
-      </svg>
-      Adminbereich
-    </h1>
-    <nav id="admin-tabs" class="flex flex-wrap gap-2 justify-center mb-6" aria-label="Admin Tabs">
-      <button class="btn-main px-4 py-2 text-sm" data-tab="products">Produkte</button>
-      <button class="btn-main px-4 py-2 text-sm" data-tab="purchases">Käufe</button>
-      <button class="btn-main px-4 py-2 text-sm" data-tab="users">Nutzer</button>
-      <button class="btn-main px-4 py-2 text-sm" data-tab="balance">Guthaben</button>
-      <button class="btn-main px-4 py-2 text-sm" data-tab="buy-for-user">Kauf für Nutzer</button>
-    </nav>
-    <section id="section-products" class="mb-8 tab-content">
-      <h2 class="text-lg sm:text-xl font-semibold mb-4">Produkte verwalten</h2>
-      <ul id="product-list" class="space-y-4"></ul>
-    </section>
-    <section id="section-purchases" class="mb-8 tab-content">
-      <h2 class="text-lg sm:text-xl font-semibold mb-4">Käufe verwalten</h2>
-      <div class="flex flex-col sm:flex-row gap-2 mb-4">
-        <div class="flex flex-col w-full sm:w-64">
-          <input id="purchase-search" type="text" placeholder="Suche nach Nutzer, Produkt, Datum oder Preis..."
-            class="p-2 border rounded w-full" />
-          <span class="text-xs text-gray-500 mt-1">Du kannst nach Nutzer, Produkt, Datum (z.B. 16.08.2025) oder Preis
-            suchen.</span>
-        </div>
-        <button id="export-purchases"
-          class="bg-cyan-600 text-white px-3 py-1 rounded shadow hover:bg-cyan-700 text-xs">Export (CSV)</button>
-      </div>
-      <ul id="purchase-history" class="space-y-2 text-sm"></ul>
-      <button onclick="loadMorePurchases()" class="mt-4 text-blue-600 hover:underline text-sm">Weitere anzeigen</button>
-    </section>
-    <section id="section-users" class="mb-8 tab-content">
-      <h2 class="text-lg sm:text-xl font-semibold mb-4">Benutzernamen und Passwörter verwalten</h2>
-      <div class="flex flex-col sm:flex-row gap-2 mb-4">
-        <input id="user-search" type="text" placeholder="Benutzer suchen..."
-          class="p-2 border rounded w-full sm:w-64" />
-        <button id="export-users"
-          class="bg-cyan-600 text-white px-3 py-1 rounded shadow hover:bg-cyan-700 text-xs">Export (CSV)</button>
-      </div>
-      <ul id="user-manage-list" class="space-y-4"></ul>
-    </section>
-    <section id="section-balance" class="mb-8 tab-content">
-      <h2 class="text-lg sm:text-xl font-semibold mb-4">Guthaben verwalten</h2>
-      <ul id="balance-control-list" class="space-y-2 text-sm"></ul>
-    </section>
-    <section id="section-buy-for-user" class="mb-8 tab-content">
-      <h2 class="text-lg sm:text-xl font-semibold mb-4">Kauf für Nutzer</h2>
-      <div class="flex flex-col sm:flex-row items-center gap-2 mb-4">
-        <select id="buy-user" class="p-2 border rounded flex-1" aria-label="Nutzer auswählen"></select>
-        <input type="text" id="buy-product-search" placeholder="Produkt suchen..." class="p-2 border rounded flex-1"
-          aria-label="Produkt suchen" />
-      </div>
-      <div id="buy-product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
-      <p id="buy-for-user-result" class="mt-2 text-sm"></p>
-    </section>
-  </main>
-  <!-- Loader and Toast for feedback -->
-  <div id="loader" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
-    <div class="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
-  </div>
-  <div id="toast"
-    class="fixed left-1/2 top-6 z-50 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-center text-sm font-semibold transition-opacity duration-300 pointer-events-none opacity-0">
-  </div>
-  <!-- FAQ Floating Button & Overlay -->
-  <button id="faq-btn" aria-label="Hilfe & FAQ anzeigen" title="Hilfe & FAQ"
-    class="fixed bottom-4 left-4 z-50 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400 transition">?</button>
-  <div id="faq-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden" role="dialog"
-    aria-modal="true" aria-labelledby="faq-title">
-    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-lg w-full shadow-xl relative animate-fade-in">
-      <button id="faq-close" aria-label="Schließen"
-        class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
-      <h2 id="faq-title" class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2"><svg
-          xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24'
+    background: #e6f4ef; /* Set a modern background color */
+    }
+
+    <main id="main-content"
+      class="w-full px-3 py-2 max-w-4xl mx-auto mt-14 sm:mt-24 p-6 sm:p-10 rounded-3xl panel-shadow glass-effect animate-fade-in border border-green-200 dark:border-green-900"
+      tabindex="-1">
+      <h1
+        class="text-3xl sm:text-4xl font-bold mb-8 text-center text-green-800 dark:text-green-300 flex items-center justify-center gap-2"
+        id="admin-title">
+        <svg xmlns='http://www.w3.org/2000/svg' class='inline w-9 h-9 text-green-500' fill='none' viewBox='0 0 24 24'
           stroke='currentColor'>
-          <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2'
-            d='M8 10h.01M12 14v.01M12 10a4 4 0 100 8 4 4 0 000-8zm0 0V6m0 0a2 2 0 110 4 2 2 0 010-4z' />
-        </svg> Hilfe & FAQ</h2>
-      <div class="space-y-4 text-left text-base">
-        <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
-          <summary class="font-semibold cursor-pointer">Wie verwalte ich Produkte und Nutzer?</summary>
-          <div class="mt-2">Nutze die Tabs oben, um Produkte, Nutzer, Guthaben oder Käufe zu verwalten. Aktionen sind
-            direkt im jeweiligen Bereich möglich.</div>
-        </details>
-        <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
-          <summary class="font-semibold cursor-pointer">Wie kann ich den Darkmode umschalten?</summary>
-          <div class="mt-2">Klicke auf das 🌙-Symbol unten rechts, um zwischen hellem und dunklem Modus zu wechseln.
+          <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M3 10h18M9 6h6m-6 8h6m-6 4h6' />
+        </svg>
+        Adminbereich
+      </h1>
+      <nav id="admin-tabs" class="flex flex-wrap gap-2 justify-center mb-6" aria-label="Admin Tabs">
+        <button class="btn-main px-4 py-2 text-sm" data-tab="products">Produkte</button>
+        <button class="btn-main px-4 py-2 text-sm" data-tab="purchases">Käufe</button>
+        <button class="btn-main px-4 py-2 text-sm" data-tab="users">Nutzer</button>
+        <button class="btn-main px-4 py-2 text-sm" data-tab="balance">Guthaben</button>
+        <button class="btn-main px-4 py-2 text-sm" data-tab="buy-for-user">Kauf für Nutzer</button>
+      </nav>
+      <section id="section-products" class="mb-8 tab-content">
+        <h2 class="text-lg sm:text-xl font-semibold mb-4">Produkte verwalten</h2>
+        <ul id="product-list" class="space-y-4"></ul>
+      </section>
+      <section id="section-purchases" class="mb-8 tab-content">
+        <h2 class="text-lg sm:text-xl font-semibold mb-4">Käufe verwalten</h2>
+        <div class="flex flex-col sm:flex-row gap-2 mb-4">
+          <div class="flex flex-col w-full sm:w-64">
+            <input id="purchase-search" type="text" placeholder="Suche nach Nutzer, Produkt, Datum oder Preis..."
+              class="p-2 border rounded w-full" />
+            <span class="text-xs text-gray-500 mt-1">Du kannst nach Nutzer, Produkt, Datum (z.B. 16.08.2025) oder Preis
+              suchen.</span>
           </div>
-        </details>
-        <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
-          <summary class="font-semibold cursor-pointer">Ich habe ein Problem – was tun?</summary>
-          <div class="mt-2">Melde dich bei Tom oder nutze den Adminbereich, falls du Admin bist. Technische Probleme
-            bitte mit Screenshot melden.</div>
-        </details>
+          <button id="export-purchases"
+            class="bg-cyan-600 text-white px-3 py-1 rounded shadow hover:bg-cyan-700 text-xs">Export (CSV)</button>
+        </div>
+        <ul id="purchase-history" class="space-y-2 text-sm"></ul>
+        <button onclick="loadMorePurchases()" class="mt-4 text-blue-600 hover:underline text-sm">Weitere
+          anzeigen</button>
+      </section>
+      <section id="section-users" class="mb-8 tab-content">
+        <h2 class="text-lg sm:text-xl font-semibold mb-4">Benutzernamen und Passwörter verwalten</h2>
+        <div class="flex flex-col sm:flex-row gap-2 mb-4">
+          <input id="user-search" type="text" placeholder="Benutzer suchen..."
+            class="p-2 border rounded w-full sm:w-64" />
+          <button id="export-users"
+            class="bg-cyan-600 text-white px-3 py-1 rounded shadow hover:bg-cyan-700 text-xs">Export (CSV)</button>
+        </div>
+        <ul id="user-manage-list" class="space-y-4"></ul>
+      </section>
+      <section id="section-balance" class="mb-8 tab-content">
+        <h2 class="text-lg sm:text-xl font-semibold mb-4">Guthaben verwalten</h2>
+        <ul id="balance-control-list" class="space-y-2 text-sm"></ul>
+      </section>
+      <section id="section-buy-for-user" class="mb-8 tab-content">
+        <h2 class="text-lg sm:text-xl font-semibold mb-4">Kauf für Nutzer</h2>
+        <div class="flex flex-col sm:flex-row items-center gap-2 mb-4">
+          <select id="buy-user" class="p-2 border rounded flex-1" aria-label="Nutzer auswählen"></select>
+          <input type="text" id="buy-product-search" placeholder="Produkt suchen..." class="p-2 border rounded flex-1"
+            aria-label="Produkt suchen" />
+        </div>
+        <div id="buy-product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+        <p id="buy-for-user-result" class="mt-2 text-sm"></p>
+      </section>
+    </main>
+    <!-- Loader and Toast for feedback -->
+    <div id="loader" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+      <div class="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+    <div id="toast"
+      class="fixed left-1/2 top-6 z-50 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-center text-sm font-semibold transition-opacity duration-300 pointer-events-none opacity-0">
+    </div>
+    <!-- FAQ Floating Button & Overlay -->
+    <button id="faq-btn" aria-label="Hilfe & FAQ anzeigen" title="Hilfe & FAQ"
+      class="fixed bottom-4 left-4 z-50 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400 transition">?</button>
+    <div id="faq-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden" role="dialog"
+      aria-modal="true" aria-labelledby="faq-title">
+      <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-lg w-full shadow-xl relative animate-fade-in">
+        <button id="faq-close" aria-label="Schließen"
+          class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
+        <h2 id="faq-title" class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2"><svg
+            xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24'
+            stroke='currentColor'>
+            <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2'
+              d='M8 10h.01M12 14v.01M12 10a4 4 0 100 8 4 4 0 000-8zm0 0V6m0 0a2 2 0 110 4 2 2 0 010-4z' />
+          </svg> Hilfe & FAQ</h2>
+        <div class="space-y-4 text-left text-base">
+          <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
+            <summary class="font-semibold cursor-pointer">Wie verwalte ich Produkte und Nutzer?</summary>
+            <div class="mt-2">Nutze die Tabs oben, um Produkte, Nutzer, Guthaben oder Käufe zu verwalten. Aktionen sind
+              direkt im jeweiligen Bereich möglich.</div>
+          </details>
+          <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
+            <summary class="font-semibold cursor-pointer">Wie kann ich den Darkmode umschalten?</summary>
+            <div class="mt-2">Klicke auf das 🌙-Symbol unten rechts, um zwischen hellem und dunklem Modus zu wechseln.
+            </div>
+          </details>
+          <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
+            <summary class="font-semibold cursor-pointer">Ich habe ein Problem – was tun?</summary>
+            <div class="mt-2">Melde dich bei Tom oder nutze den Adminbereich, falls du Admin bist. Technische Probleme
+              bitte mit Screenshot melden.</div>
+          </details>
+        </div>
       </div>
     </div>
-  </div>
-  <script>
-    // FAQ Overlay-Logik
-    const faqBtn = document.getElementById('faq-btn');
-    const faqOverlay = document.getElementById('faq-overlay');
-    const faqClose = document.getElementById('faq-close');
-    faqBtn.addEventListener('click', () => { faqOverlay.classList.remove('hidden'); faqClose.focus(); });
-    faqClose.addEventListener('click', () => { faqOverlay.classList.add('hidden'); faqBtn.focus(); });
-    faqOverlay.addEventListener('click', (e) => { if (e.target === faqOverlay) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
-    document.addEventListener('keydown', (e) => { if (!faqOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
-    // Darkmode logic
-    function toggleDarkMode() {
-      const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-    }
-    if (localStorage.getItem('darkMode') === null) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('darkMode', 'true');
-    } else if (localStorage.getItem('darkMode') !== 'false') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    // Tab-Navigation: Zeige immer nur den gewählten Bereich
-    document.addEventListener('DOMContentLoaded', function () {
-      const tabButtons = document.querySelectorAll('#admin-tabs button[data-tab]');
-      const tabContents = document.querySelectorAll('.tab-content');
-      function showTab(tab) {
-        tabContents.forEach(function (c) {
-          c.classList.toggle('tab-active', c.id === 'section-' + tab);
-        });
-        tabButtons.forEach(function (b) {
-          b.classList.toggle('ring-2', b.dataset.tab === tab);
-        });
+    <script>
+      // FAQ Overlay-Logik
+      const faqBtn = document.getElementById('faq-btn');
+      const faqOverlay = document.getElementById('faq-overlay');
+      const faqClose = document.getElementById('faq-close');
+      faqBtn.addEventListener('click', () => { faqOverlay.classList.remove('hidden'); faqClose.focus(); });
+      faqClose.addEventListener('click', () => { faqOverlay.classList.add('hidden'); faqBtn.focus(); });
+      faqOverlay.addEventListener('click', (e) => { if (e.target === faqOverlay) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
+      document.addEventListener('keydown', (e) => { if (!faqOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
+      // Darkmode logic
+      function toggleDarkMode() {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('darkMode', isDark ? 'true' : 'false');
       }
-      tabButtons.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          showTab(btn.dataset.tab);
+      if (localStorage.getItem('darkMode') === null) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('darkMode', 'true');
+      } else if (localStorage.getItem('darkMode') !== 'false') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      // Tab-Navigation: Zeige immer nur den gewählten Bereich
+      document.addEventListener('DOMContentLoaded', function () {
+        const tabButtons = document.querySelectorAll('#admin-tabs button[data-tab]');
+        const tabContents = document.querySelectorAll('.tab-content');
+        function showTab(tab) {
+          tabContents.forEach(function (c) {
+            c.classList.toggle('tab-active', c.id === 'section-' + tab);
+          });
+          tabButtons.forEach(function (b) {
+            b.classList.toggle('ring-2', b.dataset.tab === tab);
+          });
+        }
+        tabButtons.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            showTab(btn.dataset.tab);
+          });
         });
+        showTab('products');
       });
-      showTab('products');
-    });
-  </script>
+    </script>
 </body>

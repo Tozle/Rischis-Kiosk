@@ -15,7 +15,7 @@ async function loadFeedings() {
     const { data, error } = await supabase
         .from('mentos_feedings')
         .select('*')
-        .order('created_at', { ascending: false })
+        .order('zeitstempel', { ascending: false })
         .limit(20);
     if (error) {
         feedingsBody.innerHTML = '<tr><td colspan="3" class="text-red-600">Fehler beim Laden</td></tr>';
@@ -25,15 +25,15 @@ async function loadFeedings() {
     data.forEach(f => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-      <td class="px-2 py-1">${new Date(f.created_at).toLocaleString('de-DE')}</td>
-      <td class="px-2 py-1">${f.type === 'nass' ? 'Nassfutter' : 'Trockenfutter'}</td>
-      <td class="px-2 py-1">${f.fed_by || '-'}</td>
+      <td class="px-2 py-1">${new Date(f.zeitstempel).toLocaleString('de-DE')}</td>
+      <td class="px-2 py-1">${f.futterart === 'nass' ? 'Nassfutter' : f.futterart === 'trocken' ? 'Trockenfutter' : f.futterart}</td>
+      <td class="px-2 py-1">${f.gefuettert_von || '-'}</td>
     `;
         feedingsBody.appendChild(tr);
     });
     if (data.length > 0) {
         const last = data[0];
-        const diff = Math.floor((Date.now() - new Date(last.created_at)) / 1000);
+        const diff = Math.floor((Date.now() - new Date(last.zeitstempel)) / 1000);
         lastFeedDiv.textContent = formatTimeDiff(diff);
     } else {
         lastFeedDiv.textContent = '-';
@@ -47,11 +47,11 @@ function formatTimeDiff(seconds) {
     return `${Math.floor(seconds / 86400)} Tage`;
 }
 
-async function addFeeding(type) {
-    const fed_by = prompt('Wer hat gefüttert? (optional)') || '';
+async function addFeeding(futterart) {
+    const gefuettert_von = prompt('Wer hat gefüttert? (optional)') || '';
     const { error } = await supabase
         .from('mentos_feedings')
-        .insert([{ type, fed_by }]);
+        .insert([{ futterart, gefuettert_von }]);
     if (error) {
         alert('Fehler beim Eintragen!');
         return;
