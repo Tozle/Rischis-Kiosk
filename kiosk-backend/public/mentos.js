@@ -76,7 +76,7 @@ async function addFeeding(futterart) {
     }
 }
 
-btnNass?.addEventListener('click', () => addFeeding('nassfutter'));
-btnTrocken?.addEventListener('click', () => addFeeding('trockenfutter'));
+btnNass?.addEventListener('click', () => addFeeding('Nassfutter'));
+btnTrocken?.addEventListener('click', () => addFeeding('Trockenfutter'));
 
 document.addEventListener('DOMContentLoaded', loadFeedings);
