@@ -43,3 +43,6 @@ async function loadCustomerOfWeek() {
   } catch (err) {
     console.error('Fehler beim Laden des Kunden der Woche', err);
   }
+}
+
+// ...Ende dashboard.js: Datei jetzt korrekt abgeschlossen

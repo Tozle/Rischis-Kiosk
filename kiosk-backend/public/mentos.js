@@ -1,9 +1,10 @@
 // mentos.js – High-End Supabase Integration für Fütterungstracker
 // Achtung: SUPABASE_URL und SUPABASE_ANON_KEY müssen im HTML eingebunden werden oder hier als Konstante stehen!
 
-const SUPABASE_URL = '{{ SUPABASE_URL }}'; // Render-Placeholder
-const SUPABASE_ANON_KEY = '{{ SUPABASE_ANON_KEY }}'; // Render-Placeholder
 
+// Supabase-Keys werden wie auf den anderen Seiten über globale Variablen von Render gesetzt
+const SUPABASE_URL = window.SUPABASE_URL;
+const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY;
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const feedingsBody = document.getElementById('feedings-body');
