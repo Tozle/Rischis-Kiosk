@@ -21,4 +21,63 @@ paths:
                     type: boolean
         '500':
           description: Serverfehler
-  # Weitere Endpunkte können hier ergänzt werden
+  /feedings:
+    get:
+      summary: Gibt die letzten Mentos-Fütterungen zurück
+      responses:
+        '200':
+          description: Liste der Fütterungen
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    zeitstempel:
+                      type: string
+                      format: date-time
+                    futterart:
+                      type: string
+                    gefuettert_von:
+                      type: string
+        '500':
+          description: Serverfehler
+    post:
+      summary: Neue Fütterung eintragen
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: Nassfutter
+      responses:
+        '200':
+          description: Fütterung gespeichert
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '500':
+          description: Serverfehler
+    delete:
+      summary: Löscht alle Fütterungen (nur Admin)
+      responses:
+        '200':
+          description: Verlauf gelöscht
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '500':
+          description: Serverfehler
