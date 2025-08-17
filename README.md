@@ -1,3 +1,21 @@
+## Supabase-Keys für Mentos-Tracker (Render)
+
+Damit die Mentos-Seite funktioniert, müssen die Supabase-URL und der Anon-Key als Umgebungsvariablen im Render-Dashboard hinterlegt werden:
+
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+
+Im Code (`mentos.js`) werden Platzhalter (`{{ SUPABASE_URL }}` und `{{ SUPABASE_ANON_KEY }}`) verwendet. Diese werden beim Deployment automatisch durch die echten Werte ersetzt.
+
+**Empfohlener Build/Start-Befehl für Render:**
+
+```sh
+sed -i "s|{{ SUPABASE_URL }}|$SUPABASE_URL|g; s|{{ SUPABASE_ANON_KEY }}|$SUPABASE_ANON_KEY|g" kiosk-backend/public/mentos.js
+# Danach wie gewohnt starten, z.B.:
+npm start
+```
+
+So sind die Keys nie im Git, aber zur Laufzeit im Frontend verfügbar.
 # Rischis Kiosk Backend
 
 Eine kleine Express-Anwendung zur Verwaltung eines digitalen Kiosks. Die Anwendung nutzt Supabase als Datenbank.
