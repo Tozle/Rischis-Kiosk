@@ -25,19 +25,27 @@ router.get(
 router.post(
   '/',
   asyncHandler(async (req, res) => {
-    const user = await getUserFromRequest(req, res);
-    const { type } = req.body;
-
-    const name = user ? (await getUserName(user.id)) || user.email : null;
-
-    const { error } = await supabase.from('mentos_feedings').insert({
-      futterart: type,
-      gefuettert_von: name,
-      zeitstempel: new Date().toISOString(),
-    });
-
-    if (error) return res.status(500).json({ error: error.message });
-    res.json({ success: true });
+    try {
+      const user = await getUserFromRequest(req, res);
+      const { type } = req.body;
+      console.log('POST /api/feedings', { user, body: req.body });
+      const name = user ? (await getUserName(user.id)) || user.email : null;
+      const insertObj = {
+        futterart: type,
+        gefuettert_von: name,
+        zeitstempel: new Date().toISOString(),
+      };
+      console.log('Insert:', insertObj);
+      const { error } = await supabase.from('mentos_feedings').insert(insertObj);
+      if (error) {
+        console.error('Supabase Insert Error:', error);
+        return res.status(500).json({ error: error.message });
+      }
+      res.json({ success: true });
+    } catch (err) {
+      console.error('API /api/feedings error:', err);
+      res.status(500).json({ error: err.message || 'Unknown error' });
+    }
   }),
 );
 
