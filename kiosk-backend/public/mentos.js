@@ -62,10 +62,17 @@ async function addFeeding(futterart) {
             credentials: 'include',
             body: JSON.stringify({ type: futterart }),
         });
-        if (!res.ok) throw new Error('Fehler beim Eintragen!');
+        if (!res.ok) {
+            let msg = 'Fehler beim Eintragen!';
+            try {
+                const err = await res.json();
+                if (err && err.error) msg += `\n${err.error}`;
+            } catch {}
+            throw new Error(msg);
+        }
         await loadFeedings();
     } catch (err) {
-        alert('Fehler beim Eintragen!');
+        alert(err.message || 'Fehler beim Eintragen!');
     }
 }
 
