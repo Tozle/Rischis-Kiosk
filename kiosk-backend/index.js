@@ -38,6 +38,7 @@ const publicDir = path.join(__dirname, 'public');
 const swaggerDocument = YAML.load('./swagger.yaml');
 
 const app = express();
+app.set('trust proxy', 1); // Für sichere Cookies hinter Proxy/Render immer aktiv
 const PORT = env.PORT;
 
 // Middleware
@@ -57,16 +58,6 @@ app.use(
 );
 app.use(cookieParser());
 app.use(requestLogger);
-
-if (env.FORCE_HTTPS) {
-  app.set('trust proxy', 1);
-  app.use((req, res, next) => {
-    if (!req.secure && req.headers['x-forwarded-proto'] !== 'https') {
-      return res.redirect(`https://${req.headers.host}${req.originalUrl}`);
-    }
-    next();
-  });
-}
 
 const csrfProtection = csrf({
   cookie: {

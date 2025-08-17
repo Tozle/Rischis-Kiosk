@@ -6,7 +6,7 @@ export function getCookieOptions() {
     secure: true,   // Immer secure
     sameSite: 'strict', // Immer SameSite=strict
     path: '/',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    maxAge: 24 * 60 * 60 * 1000, // 1 Tag
   };
 
   if (env.COOKIE_DOMAIN) {
