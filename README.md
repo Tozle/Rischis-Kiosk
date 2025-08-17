@@ -2,7 +2,7 @@
 
 Eine kleine Express-Anwendung zur Verwaltung eines digitalen Kiosks. Die Anwendung nutzt Supabase als Datenbank.
 
-Zusätzlich enthält das Repository ein Multiplayer-Buzzer-Spiel, das ebenfalls Supabase zur Echtzeit-Synchronisation verwendet. Der Server stellt hierfür unter `/api/buzzer` diverse Endpunkte bereit.
+
 
 ## Installation
 
@@ -32,7 +32,7 @@ Legen Sie eine `.env` Datei im Verzeichnis `kiosk-backend` an oder nutzen Sie di
 | `FORCE_HTTPS`           | `true` leitet HTTP-Anfragen auf HTTPS um                          |
 | `NODE_ENV`              | Umgebung (`production`, `development`, ...) |
 | `CORS_TLD`              | Top-Level-Domain, die in `production` für CORS erlaubt ist |
-| `BANK_USER_NAME`        | Name des System-Users für Buzzer-Auszahlungen (optional) |
+
 
 Beim Start des Servers werden diese Variablen mit einem Zod-Schema
 validiert. Fehlen erforderliche Werte oder sind sie ungültig, wird der
@@ -43,10 +43,6 @@ Start abgebrochen.
 Damit Kaufvorgänge funktionieren, muss in Supabase die Funktion
 `purchase_product` vorhanden sein. Führen Sie dazu das SQL-Skript
 `kiosk-backend/sql/purchase_product.sql` in Ihrem Supabase-Projekt aus.
-
-Damit stets nur eine einzige Buzzer‑Runde aktiv sein kann, empfiehlt es sich
-zusätzlich das Skript `kiosk-backend/sql/unique_active_round.sql` auszuführen.
-Dieses legt einen partiellen Unique‑Index auf `buzzer_rounds(active)` an.
 
 Anschließend können Produkte im Shop gekauft werden.
 
@@ -107,27 +103,4 @@ npm run lint     # Code mit ESLint prüfen
 npm run format   # Code mit Prettier formatieren
 ```
 
-## Buzzer-Spiel
 
-Das Buzzer-Spiel ermöglicht schnelle Musikquiz-Runden. Es nutzt Supabase für Authentifizierung, Datenbankzugriffe und Realtime-Channels.
-
-### Features
-
-- **Rundenverwaltung** durch einen Admin
-- **Echtzeit-Buzzern** und Skippen – nur der erste Buzz zählt
-- Punktevergabe manuell durch den Admin
-- Verteilung des Einsatzes: 95 % an Gewinner, 5 % an Bank
-
-### API-Endpunkte (Auszug)
-
-- `GET /api/buzzer/round` – aktive Runde abrufen
-- `GET /api/buzzer/kolo` – aktuelles KOLO abrufen
-- `POST /api/buzzer/round` – neue Runde starten (Admin)
-- `POST /api/buzzer/round/end` – laufende Runde beenden (Admin)
-- `POST /api/buzzer/join` – aktueller Runde beitreten
-- `POST /api/buzzer/buzz` – im laufenden KOLO buzzern
-- `POST /api/buzzer/skip` – Buzz überspringen
-- `POST /api/buzzer/kolo` – neues KOLO starten (Admin)
-- `POST /api/buzzer/kolo/end` – KOLO beenden und werten (Admin)
-
-Weitere Details zum kompletten Ablauf finden sich in [docs/buzzer_flow.md](docs/buzzer_flow.md).
