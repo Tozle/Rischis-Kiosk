@@ -1,3 +1,8 @@
+function showLoader(show = true) {
+  const loader = document.getElementById('loader');
+  if (!loader) return;
+  loader.classList.toggle('hidden', !show);
+}
 // shop.js – ersetzt Supabase-Zugriffe durch sichere API-Aufrufe an dein Backend
 
 // Backend und Frontend laufen auf derselben Domain
@@ -22,15 +27,18 @@ async function getCsrfToken() {
 }
 
 function showMessage(text, type = 'info') {
-  const el = document.getElementById('message');
-  el.textContent = text;
-  el.className = type === 'error' ? 'text-red-600' : 'text-green-600';
+  // Toast-Benachrichtigungssystem wie im Adminbereich
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = text;
+  toast.className = `fixed left-1/2 top-6 z-50 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-center text-sm font-semibold transition-opacity duration-300 pointer-events-none ${type === 'error' ? 'bg-red-600' : 'bg-green-600'} text-white opacity-100`;
   setTimeout(() => {
-    el.textContent = '';
+    toast.classList.add('opacity-0');
   }, 4000);
 }
 
 async function loadUser() {
+  showLoader(true);
   try {
     const res = await fetch(`${BACKEND_URL}/api/user`, {
       credentials: 'include',
@@ -51,10 +59,13 @@ async function loadUser() {
   } catch (err) {
     console.error(err);
     showMessage('Fehler beim Laden des Nutzers', 'error');
+  } finally {
+    showLoader(false);
   }
 }
 
 async function loadProducts() {
+  showLoader(true);
   try {
     const sortOption =
       document.getElementById('sort-products')?.value || 'price_asc';
@@ -105,6 +116,8 @@ async function loadProducts() {
   } catch (err) {
     console.error(err);
     showMessage('Fehler beim Laden der Produkte', 'error');
+  } finally {
+    showLoader(false);
   }
 }
 
@@ -174,6 +187,7 @@ function renderProductList(products) {
 }
 
 async function loadPurchaseHistory() {
+  showLoader(true);
   try {
     const sortOption = document.getElementById('sort-history')?.value || 'desc';
 
@@ -198,6 +212,8 @@ async function loadPurchaseHistory() {
   } catch (err) {
     console.error(err);
     showMessage('Fehler beim Laden des Kaufverlaufs', 'error');
+  } finally {
+    showLoader(false);
   }
 }
 
@@ -209,6 +225,7 @@ async function buyProduct(productId, qtyInputId, productName, unitPrice) {
   const confirmText = `Möchtest du wirklich ${qty}x ${productName} für ${(unitPrice * qty).toFixed(2)} € kaufen?`;
   if (!confirm(confirmText)) return;
 
+  showLoader(true);
   try {
     const token = await getCsrfToken();
     const res = await fetch(`${BACKEND_URL}/api/buy`, {
@@ -235,6 +252,8 @@ async function buyProduct(productId, qtyInputId, productName, unitPrice) {
   } catch (err) {
     console.error(err);
     showMessage('Fehler beim Kauf', 'error');
+  } finally {
+    showLoader(false);
   }
 }
 

@@ -1,3 +1,29 @@
+.btn-main {
+background: linear-gradient(90deg, #22d3ee 0%, #10b981 100%);
+color: white;
+font-weight: 700;
+border: none;
+border-radius: 9999px;
+box-shadow: 0 4px 16px 0 rgba(34, 197, 94, 0.18);
+transition: transform 0.15s, box-shadow 0.15s, background 0.2s, filter 0.1s;
+touch-action: manipulation;
+user-select: none;
+outline: none;
+}
+
+.btn-main:hover,
+.btn-main:focus-visible {
+transform: scale(1.04) translateY(-2px);
+box-shadow: 0 8px 32px 0 rgba(34, 197, 94, 0.25);
+background: linear-gradient(90deg, #10b981 0%, #22d3ee 100%);
+filter: brightness(1.08);
+}
+
+.btn-main:active {
+transform: scale(0.97) translateY(1px);
+filter: brightness(0.93);
+box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.18);
+}
 <!DOCTYPE html>
 <html lang="de">
 
@@ -7,10 +33,13 @@
   <title>Rischis Kiosk – Login</title>
   <meta name="description" content="Login und Registrierung für Rischis Kiosk" />
   <link rel="stylesheet" href="tailwind.css">
-  rel="stylesheet">
 </head>
 
 <body class="text-green-900 relative dark:bg-gray-900 dark:text-white" aria-label="Login und Registrierung">
+  <!-- Toast Container -->
+  <div id="toast" aria-live="polite"
+    class="fixed left-1/2 top-6 z-50 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-center text-sm font-semibold transition-opacity duration-300 pointer-events-none opacity-0">
+  </div>
   <div class="fixed bottom-4 right-4 z-50">
     <button onclick="toggleDarkMode()"
       class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition">
@@ -94,7 +123,8 @@
           onclick="switchForm('login')" tabindex="0">Zurück zum Login</a></p>
     </form>
 
-    <p id="message" class="text-red-500 mt-4 hidden text-center"></p>
+    <!-- Alte Message-Ausgabe bleibt als Fallback, wird aber nicht mehr genutzt -->
+    <p id="message" class="text-red-500 mt-4 hidden text-center" style="display:none"></p>
   </div>
 
   <script>
@@ -128,11 +158,19 @@
       }
     }
 
+    // Toast-Benachrichtigungssystem wie im Shop/Admin
+    function showToast(msg, type = 'success', duration = 4000) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.className = `fixed left-1/2 top-6 z-50 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-center text-sm font-semibold transition-opacity duration-300 pointer-events-none ${type === 'error' ? 'bg-red-600' : 'bg-green-600'} text-white opacity-100`;
+      setTimeout(() => {
+        toast.classList.add('opacity-0');
+      }, duration);
+    }
+    // Kompatibilität: showMessage ruft jetzt showToast auf
     function showMessage(text, success = false) {
-      message.textContent = text;
-      message.className = success ? 'text-green-600 mt-4 text-center' : 'text-red-500 mt-4 text-center';
-      message.classList.remove('hidden');
-      setTimeout(() => message.classList.add('hidden'), 5000);
+      showToast(text, success ? 'success' : 'error');
     }
 
     function switchForm(mode) {
