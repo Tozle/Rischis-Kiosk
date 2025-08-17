@@ -1,0 +1,250 @@
+/* Darkmode-Feinschliff */
+.dark .btn-main {
+    background: linear-gradient(90deg, #0ea5e9 0%, #10b981 100%);
+    color: #e0f2fe;
+    box-shadow: 0 4px 16px 0 rgba(16,185,129,0.18);
+}
+.dark .btn-main:hover,
+.dark .btn-main:focus-visible {
+    background: linear-gradient(90deg, #10b981 0%, #0ea5e9 100%);
+    color: #fff;
+    box-shadow: 0 8px 32px 0 rgba(16,185,129,0.25);
+}
+
+.dark .panel-shadow,
+.dark .glass-effect {
+    background: rgba(31,41,55,0.97);
+    border-color: #334155;
+    color: #e0f2fe;
+}
+
+.dark #toast {
+    background: #0f172a;
+    color: #a7f3d0;
+    border: 1.5px solid #334155;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+    background: #1e293b;
+    color: #e0f2fe;
+    border-color: #334155;
+}
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 2px #38bdf833;
+}
+/* Animations & Feedback */
+.animate-fade-in {
+    animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.btn-main {
+    transition: transform 0.15s, box-shadow 0.15s, background 0.2s, filter 0.1s, outline 0.15s;
+}
+
+.panel-shadow,
+.glass-effect {
+    transition: box-shadow 0.2s, background 0.2s;
+}
+
+#toast {
+    transition: opacity 0.3s, transform 0.3s;
+    will-change: opacity, transform;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Visuelles Feedback für Inputs */
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid #06b6d4;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px #a7f3d0;
+}
+
+/* Gemeinsame Komponenten-Styles für Rischis Kiosk */
+
+.btn-main {
+    background: linear-gradient(90deg, #22d3ee 0%, #10b981 100%);
+    color: white;
+    font-weight: 700;
+    border: none;
+    border-radius: 9999px;
+    box-shadow: 0 4px 16px 0 rgba(34, 197, 94, 0.18);
+    transition: transform 0.15s, box-shadow 0.15s, background 0.2s, filter 0.1s;
+    touch-action: manipulation;
+    user-select: none;
+    outline: none;
+    font-size: 1.1rem;
+    letter-spacing: 0.01em;
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-main:hover,
+.btn-main:focus-visible {
+    transform: scale(1.04) translateY(-2px);
+    box-shadow: 0 8px 32px 0 rgba(34, 197, 94, 0.25);
+    background: linear-gradient(90deg, #10b981 0%, #22d3ee 100%);
+    filter: brightness(1.08);
+}
+
+.btn-main:active {
+    transform: scale(0.97) translateY(1px);
+    filter: brightness(0.93);
+    box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.18);
+}
+
+.btn-danger {
+    background: linear-gradient(90deg, #ef4444 0%, #f59e42 100%);
+}
+
+.btn-info {
+    background: linear-gradient(90deg, #38bdf8 0%, #0ea5e9 100%);
+}
+
+.btn-secondary {
+    background: linear-gradient(90deg, #a78bfa 0%, #f472b6 100%);
+}
+
+/* Buttons: große Touch-Flächen, Fokus, mobile-friendly */
+.btn-main {
+    background: linear-gradient(90deg, #22d3ee 0%, #10b981 100%);
+    color: white;
+    font-weight: 700;
+    border: none;
+    border-radius: 9999px;
+    box-shadow: 0 4px 16px 0 rgba(34, 197, 94, 0.18);
+    transition: transform 0.15s, box-shadow 0.15s, background 0.2s, filter 0.1s;
+    touch-action: manipulation;
+    user-select: none;
+    outline: none;
+    font-size: 1.1rem;
+    letter-spacing: 0.01em;
+    min-height: 48px;
+    min-width: 48px;
+    padding: 0.75rem 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    line-height: 1.2;
+    -webkit-tap-highlight-color: rgba(16, 185, 129, 0.15);
+}
+
+.btn-main:active {
+    filter: brightness(0.93);
+    transform: scale(0.98);
+}
+
+.btn-main:hover,
+.btn-main:focus-visible {
+    transform: scale(1.04) translateY(-2px);
+    box-shadow: 0 8px 32px 0 rgba(34, 197, 94, 0.25);
+    background: linear-gradient(90deg, #10b981 0%, #22d3ee 100%);
+    filter: brightness(1.08);
+    outline: 2px solid #06b6d4;
+    outline-offset: 2px;
+}
+
+/* Panels: bessere Scrollbarkeit auf Mobile */
+.panel-shadow,
+.glass-effect {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Skip-Link sichtbar bei Fokus */
+.skip-link {
+    position: absolute;
+    left: 0.5rem;
+    top: 0.5rem;
+    z-index: 1000;
+    background: #cffafe;
+    color: #0e7490;
+    padding: 0.5rem 1.2rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transform: translateY(-3rem);
+    transition: transform 0.2s;
+    outline: none;
+}
+
+.skip-link:focus {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.18);
+}
+
+to {
+    opacity: 1;
+    transform: translateY(0);
+}
+}
+
+/* Inputs & focus */
+input,
+select,
+textarea {
+    border-radius: 0.75rem;
+    border: 1.5px solid #a7f3d0;
+    padding: 0.7em 1em;
+    font-size: 1rem;
+    background: #fff;
+    color: #134e4a;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    margin-bottom: 0.5em;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #22d3ee;
+    box-shadow: 0 0 0 2px #22d3ee33;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+    background: #1e293b;
+    color: #e0f2fe;
+    border-color: #334155;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 2px #38bdf833;
+}
+
+@media (max-width: 640px) {
+    .panel-shadow {
+        box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.13);
+    }
+
+    .glass-effect {
+        padding: 1.2em 0.5em;
+    }
+}

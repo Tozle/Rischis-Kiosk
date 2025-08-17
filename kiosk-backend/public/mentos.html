@@ -1,3 +1,27 @@
+  <!-- FAQ Floating Button & Overlay -->
+  <button id="faq-btn" aria-label="Hilfe & FAQ anzeigen" title="Hilfe & FAQ" class="fixed bottom-4 left-4 z-50 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400 transition">
+    ?
+  </button>
+  <div id="faq-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="faq-title">
+    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-lg w-full shadow-xl relative animate-fade-in">
+      <button id="faq-close" aria-label="Schließen" class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
+      <h2 id="faq-title" class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2"><svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 10h.01M12 14v.01M12 10a4 4 0 100 8 4 4 0 000-8zm0 0V6m0 0a2 2 0 110 4 2 2 0 010-4z' /></svg> Hilfe & FAQ</h2>
+      <div class="space-y-4 text-left text-base">
+        <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
+          <summary class="font-semibold cursor-pointer">Wie trage ich eine Fütterung ein?</summary>
+          <div class="mt-2">Klicke auf <b>Nassfutter gegeben</b> oder <b>Trockenfutter gegeben</b>. Die Fütterung wird gespeichert und die Anzeige aktualisiert.</div>
+        </details>
+        <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
+          <summary class="font-semibold cursor-pointer">Wie kann ich den Darkmode umschalten?</summary>
+          <div class="mt-2">Klicke auf das 🌙-Symbol unten rechts, um zwischen hellem und dunklem Modus zu wechseln.</div>
+        </details>
+        <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
+          <summary class="font-semibold cursor-pointer">Ich habe ein Problem – was tun?</summary>
+          <div class="mt-2">Melde dich bei Tom oder nutze den Adminbereich, falls du Admin bist. Technische Probleme bitte mit Screenshot melden.</div>
+        </details>
+      </div>
+    </div>
+  </div>
 <!DOCTYPE html>
 <html lang="de">
 
@@ -14,6 +38,7 @@
   <title>Mentos – Rischis Kiosk</title>
   <meta name="description" content="Mentos Fütterungstracker" />
   <link rel="stylesheet" href="tailwind.css">
+  <link rel="stylesheet" href="components.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@700&display=swap"
     rel="stylesheet" />
   <link rel="icon"
@@ -24,10 +49,12 @@
       scroll-behavior: smooth;
       background: linear-gradient(120deg, #f0fdfa 0%, #bbf7d0 50%, #22d3ee 100%);
     }
+
     html.dark {
       background: linear-gradient(120deg, #0f172a 0%, #1e293b 50%, #334155 100%);
       color-scheme: dark;
     }
+
     body {
       font-family: 'Inter', sans-serif;
       max-width: 100vw;
@@ -38,185 +65,106 @@
       padding-bottom: env(safe-area-inset-bottom);
       padding-left: env(safe-area-inset-left);
     }
+
     h1 {
       font-family: 'Poppins', sans-serif;
     }
+
     .panel-shadow {
-      box-shadow: 0 8px 32px 0 rgba(34,197,94,0.18), 0 1.5px 4px 0 rgba(0,0,0,0.08);
+      box-shadow: 0 8px 32px 0 rgba(34, 197, 94, 0.18), 0 1.5px 4px 0 rgba(0, 0, 0, 0.08);
     }
+
     .dark .panel-shadow {
-      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
     }
+
     .glass-effect {
       backdrop-filter: blur(18px) saturate(120%);
-      background-color: rgba(255,255,255,0.96);
-      border: 1.5px solid rgba(16,185,129,0.13);
-    }
-    .dark .glass-effect {
-      background-color: rgba(31,41,55,0.96);
-      border: 1.5px solid rgba(16,185,129,0.13);
-    }
-    .btn-main {
-      background: linear-gradient(90deg, #22d3ee 0%, #10b981 100%);
-      color: white;
-      font-weight: 700;
-      border: none;
-      border-radius: 9999px;
-      box-shadow: 0 4px 16px 0 rgba(34,197,94,0.18);
-      transition: transform 0.15s, box-shadow 0.15s, background 0.2s, filter 0.1s;
-      touch-action: manipulation;
-      user-select: none;
-      outline: none;
-      font-size: 1.1rem;
-      letter-spacing: 0.01em;
-      min-height: 44px;
-      min-width: 44px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-    .btn-main:hover, .btn-main:focus-visible {
-      transform: scale(1.04) translateY(-2px);
-      box-shadow: 0 8px 32px 0 rgba(34,197,94,0.25);
-      background: linear-gradient(90deg, #10b981 0%, #22d3ee 100%);
-      filter: brightness(1.08);
-    }
-    .btn-main:active {
-      transform: scale(0.97) translateY(1px);
-      filter: brightness(0.93);
-      box-shadow: 0 2px 8px 0 rgba(34,197,94,0.18);
-    }
-    .link-underline {
-      color: #0ea5e9;
-      text-decoration: underline;
-      transition: color 0.2s;
-    }
-    .link-underline:hover {
-      color: #10b981;
-    }
-    .animate-fade-in {
-      animation: fade-in 1.2s cubic-bezier(.4,0,.2,1) forwards;
-    }
-    @keyframes fade-in {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    /* Inputs & focus */
-    input, select, textarea {
-      border-radius: 0.75rem;
-      border: 1.5px solid #a7f3d0;
-      padding: 0.7em 1em;
-      font-size: 1rem;
-      background: #fff;
-      color: #134e4a;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      outline: none;
-      margin-bottom: 0.5em;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: #22d3ee;
-      box-shadow: 0 0 0 2px #22d3ee33;
-    }
-    .dark input, .dark select, .dark textarea {
-      background: #1e293b;
-      color: #e0f2fe;
-      border-color: #334155;
-    }
-    .dark input:focus, .dark select:focus, .dark textarea:focus {
-      border-color: #38bdf8;
-      box-shadow: 0 0 0 2px #38bdf833;
-    }
-    /* Responsive Panel */
-    @media (max-width: 640px) {
-      .panel-shadow {
-        box-shadow: 0 2px 8px 0 rgba(34,197,94,0.13);
-      }
-      .glass-effect {
-        padding: 1.2em 0.5em;
-      }
+      background-color: rgba(255, 255, 255, 0.96);
+
     }
   </style>
 </head>
 
-
-<body class="flex items-center justify-center min-h-screen text-green-900 relative dark:text-white" <body
-  class="min-h-screen text-green-900 relative dark:text-white">
+<body class="flex items-center justify-center min-h-screen text-green-900 relative dark:text-white">
+  <a href="#main-content" class="skip-link absolute left-2 top-2 bg-cyan-100 text-cyan-900 px-3 py-1 rounded z-50 focus:translate-y-0 -translate-y-12 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all" tabindex="0">Zum Inhalt springen</a>
   <div class="fixed bottom-4 right-4 z-50">
-    <button onclick="toggleDarkMode()"
-      class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition focus:ring-2 focus:ring-cyan-400">
-      🌙
-    </button>
+    <button onclick="toggleDarkMode()" class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition focus:ring-2 focus:ring-cyan-400" aria-label="Darkmode umschalten" title="Darkmode umschalten">🌙</button>
   </div>
-  <div class="fixed top-4 left-4 z-50">
-    <a href="dashboard.html"
-      class="btn-main flex items-center gap-2 py-2 px-4 text-sm shadow focus:ring-2 focus:ring-cyan-400">
+  <div class="fixed top-4 left-4 z-50" role="navigation">
+    <a href="dashboard.html" class="btn-main flex items-center gap-2 py-2 px-4 text-sm shadow focus:ring-2 focus:ring-cyan-400">
       <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
         <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' />
       </svg>
       Zurück zum Dashboard
     </a>
   </div>
-  <div class="flex items-center justify-center min-h-screen">
-    <div
-      class="w-full px-3 py-2 max-w-md mx-auto mt-14 sm:mt-24 p-6 sm:p-10 rounded-3xl panel-shadow glass-effect animate-fade-in border border-green-200 dark:border-green-900">
-      <h1
-        class="text-4xl sm:text-5xl font-bold mb-8 text-center text-green-800 dark:text-green-300 flex items-center justify-center gap-2">
-        <svg xmlns='http://www.w3.org/2000/svg' class='inline w-9 h-9 text-green-500' fill='none' viewBox='0 0 24 24'
-          stroke='currentColor'>
-          <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2'
-            d='M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z' />
-        </svg>
-        Mentos 🐱
-      </h1>
-      <h2 class="text-xl text-center">Letzte Fütterung vor:</h2>
-      <div id="last-feed" class="text-4xl sm:text-5xl font-mono font-semibold text-center mb-4">-</div>
-      <div class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
-        <button id="btn-nass"
-          class="btn-main bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow focus:ring-2 focus:ring-cyan-400"
-          aria-label="Nassfutter gegeben" title="Nassfutter gegeben"
-          style="background:linear-gradient(90deg,#38bdf8 0%,#0ea5e9 100%);">🐟 Nassfutter gegeben</button>
-        <button id="btn-trocken"
-          class="btn-main bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full shadow focus:ring-2 focus:ring-cyan-400"
-          aria-label="Trockenfutter gegeben" title="Trockenfutter gegeben"
-          style="background:linear-gradient(90deg,#fbbf24 0%,#f59e42 100%);">🥣 Trockenfutter gegeben</button>
-      </div>
-      <div id="admin-buttons" class="hidden flex flex-col sm:flex-row justify-center gap-4 mb-6">
-        <button id="reset-timer-btn"
-          class="btn-main bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1 px-2 rounded-full shadow focus:ring-2 focus:ring-cyan-400"
-          aria-label="Timer zurücksetzen" title="Timer zurücksetzen"
-          style="background:linear-gradient(90deg,#ef4444 0%,#f59e42 100%);">⏱️ Timer zurücksetzen</button>
-        <button id="clear-history-btn"
-          class="btn-main bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1 px-2 rounded-full shadow focus:ring-2 focus:ring-cyan-400"
-          aria-label="Anzeige löschen" title="Anzeige löschen"
-          style="background:linear-gradient(90deg,#ef4444 0%,#f59e42 100%);">🗑️ Anzeige löschen</button>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="table-auto w-full text-center text-base">
-          <thead>
-            <tr>
-              <th class="px-2 py-1 border-b font-semibold">Zeit</th>
-              <th class="px-2 py-1 border-b font-semibold">Futterart</th>
-              <th class="px-2 py-1 border-b font-semibold">Gefüttert von</th>
-            </tr>
-          </thead>
-          <tbody id="feedings-body"></tbody>
-        </table>
+  <main id="main-content" class="w-full px-3 py-2 max-w-md mx-auto mt-14 sm:mt-24 p-6 sm:p-10 rounded-3xl panel-shadow glass-effect animate-fade-in border border-green-200 dark:border-green-900" tabindex="-1">
+    <h1 class="text-4xl sm:text-5xl font-bold mb-8 text-center text-green-800 dark:text-green-300 flex items-center justify-center gap-2">
+      <svg xmlns='http://www.w3.org/2000/svg' class='inline w-9 h-9 text-green-500' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z' />
+      </svg>
+      Mentos 🐱
+    </h1>
+    <h2 class="text-xl text-center">Letzte Fütterung vor:</h2>
+    <div id="last-feed" class="text-4xl sm:text-5xl font-mono font-semibold text-center mb-4">-</div>
+    <div class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
+      <button id="btn-nass" class="btn-main bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow focus:ring-2 focus:ring-cyan-400" aria-label="Nassfutter gegeben" title="Nassfutter gegeben" style="background:linear-gradient(90deg,#38bdf8 0%,#0ea5e9 100%);">🐟 Nassfutter gegeben</button>
+      <button id="btn-trocken" class="btn-main bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full shadow focus:ring-2 focus:ring-cyan-400" aria-label="Trockenfutter gegeben" title="Trockenfutter gegeben" style="background:linear-gradient(90deg,#fbbf24 0%,#f59e42 100%);">🥣 Trockenfutter gegeben</button>
+    </div>
+    <div id="admin-buttons" class="hidden flex flex-col sm:flex-row justify-center gap-4 mb-6">
+      <button id="reset-timer-btn" class="btn-main bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1 px-2 rounded-full shadow focus:ring-2 focus:ring-cyan-400" aria-label="Timer zurücksetzen" title="Timer zurücksetzen" style="background:linear-gradient(90deg,#ef4444 0%,#f59e42 100%);">⏱️ Timer zurücksetzen</button>
+      <button id="clear-history-btn" class="btn-main bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1 px-2 rounded-full shadow focus:ring-2 focus:ring-cyan-400" aria-label="Anzeige löschen" title="Anzeige löschen" style="background:linear-gradient(90deg,#ef4444 0%,#f59e42 100%);">🗑️ Anzeige löschen</button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="table-auto w-full text-center text-base">
+        <thead>
+          <tr>
+            <th class="px-2 py-1 border-b font-semibold">Zeit</th>
+            <th class="px-2 py-1 border-b font-semibold">Futterart</th>
+            <th class="px-2 py-1 border-b font-semibold">Gefüttert von</th>
+          </tr>
+        </thead>
+        <tbody id="feedings-body"></tbody>
+      </table>
+    </div>
+  </main>
+  <!-- FAQ Floating Button & Overlay -->
+  <button id="faq-btn" aria-label="Hilfe & FAQ anzeigen" title="Hilfe & FAQ" class="fixed bottom-4 left-4 z-50 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400 transition">?</button>
+  <div id="faq-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="faq-title">
+    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-lg w-full shadow-xl relative animate-fade-in">
+      <button id="faq-close" aria-label="Schließen" class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
+      <h2 id="faq-title" class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2"><svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 10h.01M12 14v.01M12 10a4 4 0 100 8 4 4 0 000-8zm0 0V6m0 0a2 2 0 110 4 2 2 0 010-4z' /></svg> Hilfe & FAQ</h2>
+      <div class="space-y-4 text-left text-base">
+        <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
+          <summary class="font-semibold cursor-pointer">Wie trage ich eine Fütterung ein?</summary>
+          <div class="mt-2">Klicke auf <b>Nassfutter gegeben</b> oder <b>Trockenfutter gegeben</b>. Die Fütterung wird gespeichert und die Anzeige aktualisiert.</div>
+        </details>
+        <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
+          <summary class="font-semibold cursor-pointer">Wie kann ich den Darkmode umschalten?</summary>
+          <div class="mt-2">Klicke auf das 🌙-Symbol unten rechts, um zwischen hellem und dunklem Modus zu wechseln.</div>
+        </details>
+        <details class="rounded border p-2 bg-cyan-50 dark:bg-gray-800">
+          <summary class="font-semibold cursor-pointer">Ich habe ein Problem – was tun?</summary>
+          <div class="mt-2">Melde dich bei Tom oder nutze den Adminbereich, falls du Admin bist. Technische Probleme bitte mit Screenshot melden.</div>
+        </details>
       </div>
     </div>
   </div>
   <script>
+    // FAQ Overlay-Logik
+    const faqBtn = document.getElementById('faq-btn');
+    const faqOverlay = document.getElementById('faq-overlay');
+    const faqClose = document.getElementById('faq-close');
+    faqBtn.addEventListener('click', () => { faqOverlay.classList.remove('hidden'); faqClose.focus(); });
+    faqClose.addEventListener('click', () => { faqOverlay.classList.add('hidden'); faqBtn.focus(); });
+    faqOverlay.addEventListener('click', (e) => { if (e.target === faqOverlay) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
+    document.addEventListener('keydown', (e) => { if (!faqOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
+    // Darkmode logic
     function toggleDarkMode() {
       const isDark = document.documentElement.classList.toggle('dark');
       localStorage.setItem('darkMode', isDark ? 'true' : 'false');
     }
-    // Darkmode standardmäßig aktivieren, aber ausschaltbar lassen
     if (localStorage.getItem('darkMode') === null) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('darkMode', 'true');
@@ -225,8 +173,6 @@
     } else {
       document.documentElement.classList.remove('dark');
     }
-    // ...existing JS logic for feeding, admin, etc. ...
   </script>
 </body>
-
 </html>

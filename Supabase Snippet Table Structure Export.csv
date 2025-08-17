@@ -1,0 +1,94 @@
+table_name,column_name,data_type,is_nullable,column_default
+buzzer_answers,id,uuid,NO,gen_random_uuid()
+buzzer_answers,round_id,uuid,NO,null
+buzzer_answers,user_id,uuid,NO,null
+buzzer_answers,answer_text,text,NO,null
+buzzer_answers,is_correct,boolean,YES,null
+buzzer_answers,adjudicated_by,uuid,YES,null
+buzzer_answers,submitted_at,timestamp with time zone,NO,now()
+buzzer_answers,adjudicated_at,timestamp with time zone,YES,null
+buzzer_leaderboard,round_id,uuid,YES,null
+buzzer_leaderboard,user_id,uuid,YES,null
+buzzer_leaderboard,email,text,YES,null
+buzzer_leaderboard,points,integer,YES,null
+buzzer_leaderboard,rank,bigint,YES,null
+buzzer_locks,round_id,uuid,NO,null
+buzzer_locks,user_id,uuid,NO,null
+buzzer_locks,locked_at,timestamp with time zone,NO,now()
+buzzer_participants,id,uuid,NO,gen_random_uuid()
+buzzer_participants,round_id,uuid,NO,null
+buzzer_participants,user_id,uuid,NO,null
+buzzer_participants,joined_at,timestamp with time zone,NO,now()
+buzzer_presses,id,uuid,NO,gen_random_uuid()
+buzzer_presses,round_id,uuid,NO,null
+buzzer_presses,user_id,uuid,NO,null
+buzzer_presses,pressed_at,timestamp with time zone,NO,now()
+buzzer_presses,queue_pos,integer,YES,null
+buzzer_presses,consumed,boolean,NO,false
+buzzer_presses,result,text,YES,null
+buzzer_round_state,id,uuid,YES,null
+buzzer_round_state,title,text,YES,null
+buzzer_round_state,bet_eur,numeric,YES,null
+buzzer_round_state,points_limit,integer,YES,null
+buzzer_round_state,points_award,integer,YES,null
+buzzer_round_state,house_fee_pct,numeric,YES,null
+buzzer_round_state,status,text,YES,null
+buzzer_round_state,start_time,timestamp with time zone,YES,null
+buzzer_round_state,end_time,timestamp with time zone,YES,null
+buzzer_round_state,house_user_id,uuid,YES,null
+buzzer_round_state,created_by,uuid,YES,null
+buzzer_round_state,created_at,timestamp with time zone,YES,null
+buzzer_round_state,participant_count,bigint,YES,null
+buzzer_round_state,total_points,bigint,YES,null
+buzzer_rounds,id,uuid,NO,gen_random_uuid()
+buzzer_rounds,title,text,NO,null
+buzzer_rounds,bet_eur,numeric,NO,null
+buzzer_rounds,points_limit,integer,NO,null
+buzzer_rounds,points_award,integer,NO,1
+buzzer_rounds,house_fee_pct,numeric,NO,5.00
+buzzer_rounds,status,text,NO,'draft'::text
+buzzer_rounds,start_time,timestamp with time zone,YES,null
+buzzer_rounds,end_time,timestamp with time zone,YES,null
+buzzer_rounds,house_user_id,uuid,NO,null
+buzzer_rounds,created_by,uuid,NO,null
+buzzer_rounds,created_at,timestamp with time zone,NO,now()
+buzzer_scores,round_id,uuid,NO,null
+buzzer_scores,user_id,uuid,NO,null
+buzzer_scores,points,integer,NO,0
+buzzer_transactions,id,uuid,NO,gen_random_uuid()
+buzzer_transactions,round_id,uuid,NO,null
+buzzer_transactions,user_id,uuid,YES,null
+buzzer_transactions,kind,text,NO,null
+buzzer_transactions,amount_eur,numeric,NO,null
+buzzer_transactions,note,text,YES,null
+buzzer_transactions,created_at,timestamp with time zone,NO,now()
+mentos_feedings,id,uuid,NO,gen_random_uuid()
+mentos_feedings,zeitstempel,timestamp with time zone,NO,now()
+mentos_feedings,futterart,text,NO,null
+mentos_feedings,gefuettert_von,text,YES,null
+mentos_feedings,created_at,timestamp with time zone,YES,now()
+products,id,uuid,NO,gen_random_uuid()
+products,name,text,NO,null
+products,price,numeric,NO,null
+products,purchase_price,numeric,NO,null
+products,stock,bigint,NO,null
+products,available,boolean,YES,true
+products,created_by,uuid,NO,null
+products,category,text,YES,null
+products,image_url,text,YES,null
+purchases,id,bigint,NO,null
+purchases,product_id,uuid,YES,null
+purchases,product_name,text,NO,null
+purchases,user_id,uuid,NO,null
+purchases,user_name,text,NO,null
+purchases,price,numeric,NO,null
+purchases,quantity,integer,NO,1
+purchases,created_at,timestamp with time zone,YES,now()
+user_sessions,user_id,uuid,NO,null
+user_sessions,username,text,YES,null
+user_sessions,online,boolean,YES,false
+users,id,uuid,NO,null
+users,email,text,NO,null
+users,name,text,NO,null
+users,role,text,NO,'buyer'::text
+users,balance,numeric,NO,0
