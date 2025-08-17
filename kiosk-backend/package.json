@@ -7,7 +7,7 @@
     "start": "node index.js",
     "build:css": "node ./node_modules/tailwindcss/lib/cli.js -i ./public/style.css -o ./public/tailwind.css --minify",
     "build": "npm run build:css",
-    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+    "test": "node --experimental-vm-modules --require dotenv/config ./node_modules/jest/bin/jest.js",
     "lint": "eslint .",
     "format": "prettier --write ."
   },

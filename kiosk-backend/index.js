@@ -1,7 +1,6 @@
 import env from './utils/env.js';
 
 import express from 'express';
-import cors from 'cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import csrf from 'csurf';
@@ -10,6 +9,8 @@ import { fileURLToPath } from 'url';
 import logoutRoute from './routes/logout.js';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
+import helmet from 'helmet';
+import cors from 'cors';
 
 // Routen-Imports (nur funktionsfähige Imports!)
 import feed from './routes/feed.js';
@@ -40,28 +41,16 @@ const PORT = env.PORT;
 
 // Middleware
 app.use(compression());
+app.use(helmet());
 app.use(
   cors({
-    // Allow all origins in development. In production only domains matching
-    // the CORS_TLD environment variable are permitted. Requests without an
-    // origin header (e.g. curl) are also allowed.
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-
-      if (env.NODE_ENV !== 'production') {
-        return callback(null, true);
-      }
-
-      try {
-        const { hostname } = new URL(origin);
-        if (hostname.endsWith(`.${env.CORS_TLD}`)) {
-          return callback(null, true);
-        }
-      } catch {
-        // Ignore invalid origins
-      }
-      return callback(new Error('Not allowed by CORS'));
-    },
+    origin: [
+      'https://rischis-kiosk.de',
+      'https://www.rischis-kiosk.de',
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:8080',
+    ],
     credentials: true,
   }),
 );
