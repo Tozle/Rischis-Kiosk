@@ -26,6 +26,7 @@ import requestLogger from './middleware/requestLogger.js';
 import notFound from './middleware/notFound.js';
 import logger from './utils/logger.js';
 import { getCookieOptions } from './utils/authCookies.js';
+const logoutRoute = require('./routes/logout');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -114,6 +115,7 @@ app.use('/api/admin/purchases', adminPurchases);
 app.use('/api/admin/stats', adminStats);
 app.use('/api/admin/users', adminUsers);
 app.use('/api/admin/buy', adminBuyForUser);
+app.use('/api/logout', logoutRoute);
 
 // 404-Handler
 app.use(notFound);

@@ -80,6 +80,10 @@
         Zurück zum Dashboard
       </a>
     </div>
+    <div class="fixed top-4 right-4 z-50">
+      <button id="logoutBtn" class="logout-btn bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full shadow focus:ring-2 focus:ring-cyan-400"
+        aria-label="Logout" title="Logout" tabindex="0">Logout</button>
+    </div>
     <main id="main-content"
       class="w-full px-3 py-2 max-w-md mx-auto mt-14 sm:mt-24 p-6 sm:p-10 rounded-3xl panel-shadow glass-effect animate-fade-in border border-green-200 dark:border-green-900"
       tabindex="-1">
@@ -182,6 +186,34 @@
       } else {
         document.documentElement.classList.remove('dark');
       }
+      // Logout and session timeout logic
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+          fetch('/api/logout', { method: 'POST', credentials: 'include' })
+            .finally(() => {
+              sessionStorage.clear();
+              window.location.href = '/index.html';
+            });
+        });
+      }
+      // Session timeout (20 min inactivity)
+      let sessionTimeout;
+      function resetSessionTimeout() {
+        clearTimeout(sessionTimeout);
+        sessionTimeout = setTimeout(() => {
+          alert('Session abgelaufen. Du wirst abgemeldet.');
+          fetch('/api/logout', { method: 'POST', credentials: 'include' })
+            .finally(() => {
+              sessionStorage.clear();
+              window.location.href = '/index.html';
+            });
+        }, 20 * 60 * 1000);
+      }
+      ['click', 'keydown', 'mousemove', 'touchstart'].forEach(evt => {
+        window.addEventListener(evt, resetSessionTimeout);
+      });
+      resetSessionTimeout();
     </script>
   </body>
 

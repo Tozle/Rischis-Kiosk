@@ -146,6 +146,37 @@
       </script>
     </div>
   </div>
+  <!-- Add to header/navbar -->
+  <button id="logoutBtn" class="logout-btn" aria-label="Logout" title="Logout" tabindex="0">Logout</button>
+  <script>
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        fetch('/api/logout', { method: 'POST', credentials: 'include' })
+          .finally(() => {
+            sessionStorage.clear();
+            window.location.href = '/index.html';
+          });
+      });
+    }
+    // Session timeout (20 min inactivity)
+    let sessionTimeout;
+    function resetSessionTimeout() {
+      clearTimeout(sessionTimeout);
+      sessionTimeout = setTimeout(() => {
+        alert('Session abgelaufen. Du wirst abgemeldet.');
+        fetch('/api/logout', { method: 'POST', credentials: 'include' })
+          .finally(() => {
+            sessionStorage.clear();
+            window.location.href = '/index.html';
+          });
+      }, 20 * 60 * 1000);
+    }
+    ['click', 'keydown', 'mousemove', 'touchstart'].forEach(evt => {
+      window.addEventListener(evt, resetSessionTimeout);
+    });
+    resetSessionTimeout();
+  </script>
 </body>
 
 </html>

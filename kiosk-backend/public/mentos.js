@@ -50,7 +50,35 @@ function formatTimeDiff(seconds) {
     return `${Math.floor(seconds / 3600)} Std.`;
 }
 
+function showToast(msg, type = 'success') {
+    let toast = document.getElementById('mentos-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'mentos-toast';
+        toast.style.position = 'fixed';
+        toast.style.top = '2rem';
+        toast.style.left = '50%';
+        toast.style.transform = 'translateX(-50%)';
+        toast.style.zIndex = '9999';
+        toast.style.padding = '1rem 2rem';
+        toast.style.borderRadius = '1rem';
+        toast.style.fontWeight = 'bold';
+        toast.style.fontSize = '1.1rem';
+        toast.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.background = type === 'success' ? '#22c55e' : '#ef4444';
+    toast.style.color = 'white';
+    toast.style.opacity = '1';
+    setTimeout(() => { toast.style.opacity = '0'; }, 2500);
+}
+
 async function addFeeding(futterart) {
+    const btn = futterart === 'Nassfutter' ? btnNass : btnTrocken;
+    btn.disabled = true;
+    btn.classList.add('opacity-60');
+    btn.textContent = '...';
     try {
         const csrfToken = await getCsrfToken();
         const res = await fetch(`${BACKEND_URL}/api/feedings`, {
@@ -71,8 +99,13 @@ async function addFeeding(futterart) {
             throw new Error(msg);
         }
         await loadFeedings();
+        showToast('Fütterung gespeichert!', 'success');
     } catch (err) {
-        alert(err.message || 'Fehler beim Eintragen!');
+        showToast(err.message || 'Fehler beim Eintragen!', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.classList.remove('opacity-60');
+        btn.textContent = futterart === 'Nassfutter' ? '🐟 Nassfutter gegeben' : '🥣 Trockenfutter gegeben';
     }
 }
 
