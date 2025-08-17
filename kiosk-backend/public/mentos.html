@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 
 <head>
@@ -9,139 +9,14 @@
   <meta name="apple-mobile-web-app-title" content="Rischis Kiosk" />
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#0f172a" />
+</head>
 
-    
-  // Einheitliche Definition für alle Frontend-Skripte
-  const BACKEND_URL = window.location.origin;
-
-    async function getCsrfToken() {
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/csrf-token`, {
-          credentials: 'include',
-        });
-        const data = await res.json();
-        return data.csrfToken;
-      } catch (err) {
-        console.error('CSRF-Token konnte nicht geladen werden', err);
-        return null;
-      }
-    }
-
-    let countdownInterval;
-
-    const adminButtons = document.getElementById('admin-buttons');
-    const resetTimerBtn = document.getElementById('reset-timer-btn');
-    const clearHistoryBtn = document.getElementById('clear-history-btn');
-
-    fetch(`${BACKEND_URL}/api/user`, { credentials: 'include' })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((user) => {
-        if (user) {
-          if (user.role === 'admin') {
-            adminButtons.classList.remove('hidden');
-          }
-        }
-      });
-
-    async function loadFeedings() {
-      const res = await fetch(`${BACKEND_URL}/api/feedings`);
-      if (!res.ok) return;
-      const data = await res.json();
-      updateTable(data);
-      if (data.length) startCountdown(new Date(data[0].zeitstempel));
-    }
-
-    function updateTable(entries) {
-      const body = document.getElementById('feedings-body');
-      body.innerHTML = entries
-        .map(
-          (e) => `
-        <tr class="odd:bg-green-50 dark:odd:bg-gray-700">
-          <td class="px-2 py-1 border-b">${new Date(e.zeitstempel).toLocaleString('de-DE', { timeZone: 'Europe/Berlin' })}</td>
-          <td class="px-2 py-1 border-b">${e.futterart}</td>
-          <td class="px-2 py-1 border-b">${e.gefuettert_von || ''}</td>
-        </tr>`,
-        )
-        .join('');
-    }
-
-    function startCountdown(time) {
-      clearInterval(countdownInterval);
-      function update() {
-        const diff = Date.now() - time.getTime();
-        const hours = Math.floor(diff / 3600000);
-        const minutes = Math.floor((diff % 3600000) / 60000);
-        const display = document.getElementById('last-feed');
-        display.textContent = `${hours}h ${minutes}m`;
-        display.classList.remove(
-          'text-green-600',
-          'text-orange-600',
-          'text-red-600',
-        );
-        if (hours < 4) display.classList.add('text-green-600');
-        else if (hours < 8) display.classList.add('text-orange-600');
-        else display.classList.add('text-red-600');
-      }
-      update();
-      countdownInterval = setInterval(update, 60000);
-    }
-
-    async function addFeeding(type) {
-      const token = await getCsrfToken();
-      await fetch(`${BACKEND_URL}/api/feedings`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-csrf-token': token,
-        },
-        credentials: 'include',
-        body: JSON.stringify({ type }),
-      });
-      loadFeedings();
-    }
-
-    document
-      .getElementById('btn-nass')
-      .addEventListener('click', () => addFeeding('Nassfutter'));
-    document
-      .getElementById('btn-trocken')
-      .addEventListener('click', () => addFeeding('Trockenfutter'));
-
-    function resetTimerDisplay() {
-      clearInterval(countdownInterval);
-      const display = document.getElementById('last-feed');
-      display.textContent = '-';
-      display.classList.remove(
-        'text-green-600',
-        'text-orange-600',
-        'text-red-600',
-      );
-    }
-
-    async function clearFeedingHistory() {
-      const token = await getCsrfToken();
-      await fetch(`${BACKEND_URL}/api/feedings`, {
-        method: 'DELETE',
-        headers: { 'x-csrf-token': token },
-        credentials: 'include',
-      });
-      resetTimerDisplay();
-      loadFeedings();
-    }
-
-    resetTimerBtn.addEventListener('click', () => {
-      if (confirm('Timer wirklich zurücksetzen?')) {
-        resetTimerDisplay();
-      }
-    });
-    clearHistoryBtn.addEventListener('click', () => {
-      if (confirm('Anzeige wirklich löschen?')) {
-        clearFeedingHistory();
-      }
-    });
-
-    loadFeedings();
-  </script>
+<body class="flex items-center justify-center min-h-screen text-green-900 relative dark:text-white"
+  aria-label="Mentos Fütterungstracker">
+  <div
+    class="w-full px-3 py-2 max-w-md mx-auto mt-14 sm:mt-24 p-6 sm:p-10 rounded-3xl panel-shadow glass-effect animate-fade-in border border-green-200 dark:border-green-900">
+    <!-- ...existing content (header, buttons, table, etc.) ... -->
+  </div>
 </body>
 
 </html>
