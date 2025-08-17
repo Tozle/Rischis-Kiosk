@@ -49,65 +49,123 @@
 </head>
 
 <body class="flex items-center justify-center min-h-screen text-green-900 dark:text-white">
-  <!-- Auf großen Bildschirmen oben links, auf kleinen unter dem Menü -->
-  <div class="z-50 sm:fixed sm:top-4 sm:left-4 mb-2 sm:mb-0 flex justify-center w-full sm:w-auto">
+  <div class="fixed top-4 left-4 z-50">
     <a href="dashboard.html" class="btn-main flex items-center gap-2 py-2 px-4 text-sm shadow">
       <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
         <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' />
-        <!-- Styles are now in tailwind.css -->
-        </section>
-        <section id="section-purchases" class="mb-8 tab-content">
-          <div class="flex flex-col sm:flex-row gap-2 mb-4">
-            <div class="flex flex-col w-full sm:w-64">
-              <input id="purchase-search" type="text" placeholder="Suche nach Nutzer, Produkt, Datum oder Preis..."
-                class="p-2 border rounded w-full" />
-              <span class="text-xs text-gray-500 mt-1">Du kannst nach Nutzer, Produkt, Datum (z.B. 16.08.2025) oder
-                Preis
-                suchen.</span>
-            </div>
-            <button id="export-purchases"
-              class="bg-cyan-600 text-white px-3 py-1 rounded shadow hover:bg-cyan-700 text-xs">Export (CSV)</button>
+      </svg>
+      Zurück zum Dashboard
+    </a>
+  </div>
+  <div class="fixed bottom-4 right-4 z-50">
+    <button onclick="toggleDarkMode()"
+      class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition focus:ring-2 focus:ring-cyan-400"
+      aria-label="Darkmode umschalten" title="Darkmode umschalten">
+      🌙
+    </button>
+  </div>
+  <div
+    class="w-full px-3 py-2 max-w-2xl mx-auto mt-14 sm:mt-24 p-6 sm:p-10 rounded-3xl panel-shadow glass-effect animate-fade-in border border-green-200 dark:border-green-900">
+    <h1
+      class="text-4xl sm:text-5xl font-bold mb-8 text-center text-green-800 dark:text-green-300 flex items-center justify-center gap-2">
+      <svg xmlns='http://www.w3.org/2000/svg' class='inline w-9 h-9 text-green-500' fill='none' viewBox='0 0 24 24'
+        stroke='currentColor'>
+        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M3 10h18M9 6h6m-6 8h6m-6 4h6' />
+      </svg>
+      Adminbereich
+    </h1>
+    <nav id="admin-tabs" class="flex flex-wrap gap-2 justify-center mb-6" aria-label="Admin Tabs">
+      <button class="btn-main px-4 py-2 text-sm" data-tab="products">Produkte</button>
+      <button class="btn-main px-4 py-2 text-sm" data-tab="purchases">Käufe</button>
+      <button class="btn-main px-4 py-2 text-sm" data-tab="users">Nutzer</button>
+      <button class="btn-main px-4 py-2 text-sm" data-tab="balance">Guthaben</button>
+      <button class="btn-main px-4 py-2 text-sm" data-tab="buy-for-user">Kauf für Nutzer</button>
+    </nav>
+    <main>
+      <section id="section-products" class="mb-8 tab-content">
+        <h2 class="text-lg sm:text-xl font-semibold mb-4">Produkte verwalten</h2>
+        <div id="products-list"></div>
+      </section>
+      <section id="section-purchases" class="mb-8 tab-content">
+        <h2 class="text-lg sm:text-xl font-semibold mb-4">Käufe verwalten</h2>
+        <div class="flex flex-col sm:flex-row gap-2 mb-4">
+          <div class="flex flex-col w-full sm:w-64">
+            <input id="purchase-search" type="text" placeholder="Suche nach Nutzer, Produkt, Datum oder Preis..."
+              class="p-2 border rounded w-full" />
+            <span class="text-xs text-gray-500 mt-1">Du kannst nach Nutzer, Produkt, Datum (z.B. 16.08.2025) oder Preis
+              suchen.</span>
           </div>
-          <ul id="purchase-history" class="space-y-2 text-sm"></ul>
-          <button onclick="loadMorePurchases()" class="mt-4 text-blue-600 hover:underline text-sm">Weitere
-            anzeigen</button>
-        </section>
-        <section id="section-users" class="mb-8 tab-content">
-          <h2 class="text-lg sm:text-xl font-semibold mb-4">Benutzernamen und Passwörter verwalten</h2>
-          <div class="flex flex-col sm:flex-row gap-2 mb-4">
-            <input id="user-search" type="text" placeholder="Benutzer suchen..."
-              class="p-2 border rounded w-full sm:w-64" />
-            <button id="export-users"
-              class="bg-cyan-600 text-white px-3 py-1 rounded shadow hover:bg-cyan-700 text-xs">Export (CSV)</button>
-          </div>
-          <ul id="user-manage-list" class="space-y-4"></ul>
-        </section>
-        <section id="section-balance" class="mb-8 tab-content">
-          <h2 class="text-lg sm:text-xl font-semibold mb-4">Guthaben verwalten</h2>
-          <ul id="balance-control-list" class="space-y-2 text-sm"></ul>
-        </section>
-        <section id="section-buy-for-user" class="mb-8 tab-content">
-          <div class="flex flex-col sm:flex-row items-center gap-2 mb-4">
-            <select id="buy-user" class="p-2 border rounded flex-1" aria-label="Nutzer auswählen"></select>
-            <input type="text" id="buy-product-search" placeholder="Produkt suchen..." class="p-2 border rounded flex-1"
-              aria-label="Produkt suchen" />
-          </div>
-          <div id="buy-product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
-          <p id="buy-for-user-result" class="mt-2 text-sm"></p>
-        </section>
-        </main>
-        <script>
-          // Tab-Navigation: Zeige immer nur den gewählten Bereich
-          const tabButtons = document.querySelectorAll('#admin-tabs button[data-tab]');
-          const tabContents = document.querySelectorAll('.tab-content');
-          function showTab(tab) {
-            tabContents.forEach(c => c.classList.toggle('tab-active', c.id === 'section-' + tab));
-            tabButtons.forEach(b => b.classList.toggle('bg-cyan-600', b.dataset.tab === tab));
-          }
-          tabButtons.forEach(btn => {
-            btn.addEventListener('click', () => showTab(btn.dataset.tab));
-          });
-          // Standard: Produkte anzeigen
-          showTab('products');
-        </script>
+          <button id="export-purchases"
+            class="bg-cyan-600 text-white px-3 py-1 rounded shadow hover:bg-cyan-700 text-xs">Export (CSV)</button>
+        </div>
+        <ul id="purchase-history" class="space-y-2 text-sm"></ul>
+        <button onclick="loadMorePurchases()" class="mt-4 text-blue-600 hover:underline text-sm">Weitere
+          anzeigen</button>
+      </section>
+      <section id="section-users" class="mb-8 tab-content">
+        <h2 class="text-lg sm:text-xl font-semibold mb-4">Benutzernamen und Passwörter verwalten</h2>
+        <div class="flex flex-col sm:flex-row gap-2 mb-4">
+          <input id="user-search" type="text" placeholder="Benutzer suchen..."
+            class="p-2 border rounded w-full sm:w-64" />
+          <button id="export-users"
+            class="bg-cyan-600 text-white px-3 py-1 rounded shadow hover:bg-cyan-700 text-xs">Export (CSV)</button>
+        </div>
+        <ul id="user-manage-list" class="space-y-4"></ul>
+      </section>
+      <section id="section-balance" class="mb-8 tab-content">
+        <h2 class="text-lg sm:text-xl font-semibold mb-4">Guthaben verwalten</h2>
+        <ul id="balance-control-list" class="space-y-2 text-sm"></ul>
+      </section>
+      <section id="section-buy-for-user" class="mb-8 tab-content">
+        <h2 class="text-lg sm:text-xl font-semibold mb-4">Kauf für Nutzer</h2>
+        <div class="flex flex-col sm:flex-row items-center gap-2 mb-4">
+          <select id="buy-user" class="p-2 border rounded flex-1" aria-label="Nutzer auswählen"></select>
+          <input type="text" id="buy-product-search" placeholder="Produkt suchen..." class="p-2 border rounded flex-1"
+            aria-label="Produkt suchen" />
+        </div>
+        <div id="buy-product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+        <p id="buy-for-user-result" class="mt-2 text-sm"></p>
+      </section>
+    </main>
+    <div class="mt-8 flex flex-col gap-2">
+      <a href="dashboard.html" class="btn-main w-full">Zurück zum Dashboard</a>
+    </div>
+  </div>
+  <script>
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+    }
+    if (localStorage.getItem('darkMode') === null) {
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+      }
+    } else if (localStorage.getItem('darkMode') !== 'false') {
+      document.documentElement.classList.add('dark');
+    }
+    // Tab-Navigation: Zeige immer nur den gewählten Bereich
+    const tabButtons = document.querySelectorAll('#admin-tabs button[data-tab]');
+    const tabContents = document.querySelectorAll('.tab-content');
+    function showTab(tab) {
+      tabContents.forEach(c => c.classList.toggle('tab-active', c.id === 'section-' + tab));
+      tabButtons.forEach(b => b.classList.toggle('ring-2', b.dataset.tab === tab));
+    }
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => showTab(btn.dataset.tab));
+    });
+    // Standard: Produkte anzeigen
+    showTab('products');
+  </script>
+  const tabButtons = document.querySelectorAll('#admin-tabs button[data-tab]');
+  const tabContents = document.querySelectorAll('.tab-content');
+  function showTab(tab) {
+  tabContents.forEach(c => c.classList.toggle('tab-active', c.id === 'section-' + tab));
+  tabButtons.forEach(b => b.classList.toggle('bg-cyan-600', b.dataset.tab === tab));
+  }
+  tabButtons.forEach(btn => {
+  btn.addEventListener('click', () => showTab(btn.dataset.tab));
+  });
+  // Standard: Produkte anzeigen
+  showTab('products');
+  </script>
 </body>

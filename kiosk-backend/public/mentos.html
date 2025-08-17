@@ -11,12 +11,84 @@
   <meta name="theme-color" content="#0f172a" />
 </head>
 
+
 <body class="flex items-center justify-center min-h-screen text-green-900 relative dark:text-white"
   aria-label="Mentos Fütterungstracker">
+  <div class="fixed top-4 left-4 z-50">
+    <a href="dashboard.html" class="btn-main flex items-center gap-2 py-2 px-4 text-sm shadow">
+      <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' />
+      </svg>
+      Zurück zum Dashboard
+    </a>
+  </div>
+  <div class="fixed bottom-4 right-4 z-50">
+    <button onclick="toggleDarkMode()"
+      class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition focus:ring-2 focus:ring-cyan-400"
+      aria-label="Darkmode umschalten" title="Darkmode umschalten">
+      🌙
+    </button>
+  </div>
   <div
     class="w-full px-3 py-2 max-w-md mx-auto mt-14 sm:mt-24 p-6 sm:p-10 rounded-3xl panel-shadow glass-effect animate-fade-in border border-green-200 dark:border-green-900">
-    <!-- ...existing content (header, buttons, table, etc.) ... -->
+    <h1
+      class="text-4xl sm:text-5xl font-bold mb-8 text-center text-green-800 dark:text-green-300 flex items-center justify-center gap-2">
+      <svg xmlns='http://www.w3.org/2000/svg' class='inline w-9 h-9 text-green-500' fill='none' viewBox='0 0 24 24'
+        stroke='currentColor'>
+        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2'
+          d='M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z' />
+      </svg>
+      Mentos 🐱
+    </h1>
+    <h2 class="text-xl text-center">Letzte Fütterung vor:</h2>
+    <div id="last-feed" class="text-4xl sm:text-5xl font-mono font-semibold text-center mb-4">-</div>
+    <div class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
+      <button id="btn-nass"
+        class="btn-main bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow focus:ring-2 focus:ring-cyan-400"
+        aria-label="Nassfutter gegeben" title="Nassfutter gegeben"
+        style="background:linear-gradient(90deg,#38bdf8 0%,#0ea5e9 100%);">🐟 Nassfutter gegeben</button>
+      <button id="btn-trocken"
+        class="btn-main bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full shadow focus:ring-2 focus:ring-cyan-400"
+        aria-label="Trockenfutter gegeben" title="Trockenfutter gegeben"
+        style="background:linear-gradient(90deg,#fbbf24 0%,#f59e42 100%);">🥣 Trockenfutter gegeben</button>
+    </div>
+    <div id="admin-buttons" class="hidden flex flex-col sm:flex-row justify-center gap-4 mb-6">
+      <button id="reset-timer-btn"
+        class="btn-main bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1 px-2 rounded-full shadow focus:ring-2 focus:ring-cyan-400"
+        aria-label="Timer zurücksetzen" title="Timer zurücksetzen"
+        style="background:linear-gradient(90deg,#ef4444 0%,#f59e42 100%);">⏱️ Timer zurücksetzen</button>
+      <button id="clear-history-btn"
+        class="btn-main bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1 px-2 rounded-full shadow focus:ring-2 focus:ring-cyan-400"
+        aria-label="Anzeige löschen" title="Anzeige löschen"
+        style="background:linear-gradient(90deg,#ef4444 0%,#f59e42 100%);">🗑️ Anzeige löschen</button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="table-auto w-full text-center text-base">
+        <thead>
+          <tr>
+            <th class="px-2 py-1 border-b font-semibold">Zeit</th>
+            <th class="px-2 py-1 border-b font-semibold">Futterart</th>
+            <th class="px-2 py-1 border-b font-semibold">Gefüttert von</th>
+          </tr>
+        </thead>
+        <tbody id="feedings-body"></tbody>
+      </table>
+    </div>
   </div>
+  <script>
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+    }
+    if (localStorage.getItem('darkMode') === null) {
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+      }
+    } else if (localStorage.getItem('darkMode') !== 'false') {
+      document.documentElement.classList.add('dark');
+    }
+    // ...existing JS logic for feeding, admin, etc. ...
+  </script>
 </body>
 
 </html>
