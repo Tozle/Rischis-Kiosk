@@ -2,9 +2,15 @@
 // Achtung: SUPABASE_URL und SUPABASE_ANON_KEY müssen im HTML eingebunden werden oder hier als Konstante stehen!
 
 
+
 // Supabase-Keys werden wie auf den anderen Seiten über globale Variablen von Render gesetzt
-const SUPABASE_URL = window.SUPABASE_URL;
-const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY;
+// Fehler vermeiden, falls Variablen schon existieren oder nicht gesetzt sind
+var SUPABASE_URL = typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : window.SUPABASE_URL;
+var SUPABASE_ANON_KEY = typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : window.SUPABASE_ANON_KEY;
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    alert('Supabase-Konfiguration fehlt! Bitte SUPABASE_URL und SUPABASE_ANON_KEY korrekt setzen.');
+    throw new Error('Supabase-Konfiguration fehlt!');
+}
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const feedingsBody = document.getElementById('feedings-body');
