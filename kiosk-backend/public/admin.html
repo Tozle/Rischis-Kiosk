@@ -19,15 +19,6 @@
     rel="stylesheet">
   <link rel="icon" href="favicon.jpeg" type="image/jpeg">
   <!-- All inline and duplicate CSS removed. Only external CSS is used. -->
-
-  .btn-main:hover,
-  .btn-main:focus-visible {
-  transform: scale(1.04) translateY(-2px);
-  box-shadow: 0 8px 32px 0 rgba(34, 197, 94, 0.25);
-  background: linear-gradient(90deg, #10b981 0%, #22d3ee 100%);
-  filter: brightness(1.08);
-  }
-  </style>
 </head>
 
 <body class="flex items-center justify-center min-h-screen text-green-900 relative dark:text-white bg-gradient-to-br from-green-50 via-cyan-100 to-green-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" role="main" aria-label="Adminbereich">
@@ -47,8 +38,6 @@
       </svg>
       Zurück zum Dashboard
     </a>
-    background: #e6f4ef; /* Set a modern background color */
-    }
 
     <main id="main-content"
       class="text-center p-3 sm:p-6 max-w-2xl w-full rounded-2xl panel-shadow glass-effect space-y-6 animate-fade-in border border-green-200 dark:border-green-900 mx-2 overflow-y-auto max-h-[90vh]"
@@ -182,7 +171,11 @@
         const tabContents = document.querySelectorAll('.tab-content');
         function showTab(tab) {
           tabContents.forEach(function (c) {
-            c.classList.toggle('tab-active', c.id === 'section-' + tab);
+            if (c.id === 'section-' + tab) {
+              c.style.display = '';
+            } else {
+              c.style.display = 'none';
+            }
           });
           tabButtons.forEach(function (b) {
             b.classList.toggle('ring-2', b.dataset.tab === tab);
