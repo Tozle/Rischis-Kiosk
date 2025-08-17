@@ -32,19 +32,34 @@ async function loadFeedings() {
     }
 }
 
+async function getCsrfToken() {
+    try {
+        const res = await fetch(`${BACKEND_URL}/api/csrf-token`, {
+            credentials: 'include',
+        });
+        const data = await res.json();
+        return data.csrfToken;
+    } catch (err) {
+        console.error('CSRF-Token konnte nicht geladen werden', err);
+        return null;
+    }
+}
+
 function formatTimeDiff(seconds) {
-    if (seconds < 3600) return `${Math.floor(seconds / 60)} Min.`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)} Std.`;
-    return `${Math.floor(seconds / 86400)} Tage`;
+    // Immer in Stunden anzeigen, auch wenn >24h
+    return `${Math.floor(seconds / 3600)} Std.`;
 }
 
 async function addFeeding(futterart) {
     try {
+        const csrfToken = await getCsrfToken();
         const res = await fetch(`${BACKEND_URL}/api/feedings`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'CSRF-Token': csrfToken,
             },
+            credentials: 'include',
             body: JSON.stringify({ type: futterart }),
         });
         if (!res.ok) throw new Error('Fehler beim Eintragen!');
