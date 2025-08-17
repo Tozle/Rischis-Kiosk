@@ -8,6 +8,8 @@ import csrf from 'csurf';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import logoutRoute from './routes/logout.js';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 
 // Routen-Imports (nur funktionsfähige Imports!)
 import feed from './routes/feed.js';
@@ -31,6 +33,7 @@ import { getCookieOptions } from './utils/authCookies.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const publicDir = path.join(__dirname, 'public');
+const swaggerDocument = YAML.load('./swagger.yaml');
 
 const app = express();
 const PORT = env.PORT;
@@ -116,6 +119,7 @@ app.use('/api/admin/stats', adminStats);
 app.use('/api/admin/users', adminUsers);
 app.use('/api/admin/buy', adminBuyForUser);
 app.use('/api/logout', logoutRoute);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // 404-Handler
 app.use(notFound);

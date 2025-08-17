@@ -1,0 +1,24 @@
+openapi: 3.0.0
+info:
+  title: Rischis Kiosk API
+  version: 1.0.0
+  description: API-Dokumentation für Rischis Kiosk
+servers:
+  - url: /api
+paths:
+  /logout:
+    post:
+      summary: Loggt den aktuellen Nutzer aus
+      responses:
+        '200':
+          description: Erfolgreich ausgeloggt
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '500':
+          description: Serverfehler
+  # Weitere Endpunkte können hier ergänzt werden
