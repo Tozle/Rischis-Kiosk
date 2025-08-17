@@ -187,13 +187,14 @@
         </svg>Adminbereich
       </a>
       <script>
-        // Automatischer Darkmode nach System
+        // Darkmode standardmäßig aktivieren, aber ausschaltbar lassen
         if (localStorage.getItem('darkMode') === null) {
-          if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-          }
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('darkMode', 'true');
         } else if (localStorage.getItem('darkMode') !== 'false') {
           document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
         }
       </script>
     </div>
