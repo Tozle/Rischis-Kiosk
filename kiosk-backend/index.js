@@ -21,7 +21,6 @@ import adminPurchases from './routes/admin/purchases.js';
 import adminStats from './routes/admin/stats.js';
 import adminUsers from './routes/admin/users.js';
 import adminBuyForUser from './routes/admin/buy_for_user.js';
-import buzzer from './routes/buzzer.js';
 import errorHandler from './middleware/errorHandler.js';
 import requestLogger from './middleware/requestLogger.js';
 import notFound from './middleware/notFound.js';
@@ -87,7 +86,7 @@ app.use(express.json());
 app.use(express.static(publicDir, { maxAge: '1d' }));
 
 // Statische Routen
-['admin', 'dashboard', 'mentos', 'shop', 'buzzer'].forEach((page) => {
+['admin', 'dashboard', 'mentos', 'shop'].forEach((page) => {
   app.get(`/${page}`, (req, res) => {
     res.sendFile(join(publicDir, `${page}.html`));
   });
@@ -115,7 +114,6 @@ app.use('/api/admin/purchases', adminPurchases);
 app.use('/api/admin/stats', adminStats);
 app.use('/api/admin/users', adminUsers);
 app.use('/api/admin/buy', adminBuyForUser);
-app.use('/api/buzzer', buzzer);
 
 // 404-Handler
 app.use(notFound);
