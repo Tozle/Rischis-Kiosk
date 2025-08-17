@@ -1,0 +1,78 @@
+/* Button Styles ausgelagert für bessere Modularität */
+
+.btn-main {
+    background: linear-gradient(90deg, #22d3ee 0%, #10b981 100%);
+    color: white;
+    font-weight: 700;
+    border: none;
+    border-radius: 9999px;
+    box-shadow: 0 4px 16px 0 rgba(34, 197, 94, 0.18);
+    transition: transform 0.15s, box-shadow 0.15s, background 0.2s, filter 0.1s;
+    touch-action: manipulation;
+    user-select: none;
+    outline: none;
+    font-size: 1.1rem;
+    letter-spacing: 0.01em;
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    line-height: 1.2;
+    -webkit-tap-highlight-color: rgba(16, 185, 129, 0.15);
+}
+
+.btn-main:hover,
+.btn-main:focus-visible {
+    transform: scale(1.04) translateY(-2px);
+    box-shadow: 0 8px 32px 0 rgba(34, 197, 94, 0.25);
+    background: linear-gradient(90deg, #10b981 0%, #22d3ee 100%);
+    filter: brightness(1.08);
+    outline: 2px solid #06b6d4;
+    outline-offset: 2px;
+}
+
+.btn-main:active {
+    filter: brightness(0.93);
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.18);
+}
+
+.btn-danger {
+    background: linear-gradient(90deg, #ef4444 0%, #f59e42 100%);
+}
+
+.btn-info {
+    background: linear-gradient(90deg, #38bdf8 0%, #0ea5e9 100%);
+}
+
+.btn-secondary {
+    background: linear-gradient(90deg, #a78bfa 0%, #f472b6 100%);
+}
+
+.logout-btn {
+  background: linear-gradient(90deg, #f87171 0%, #ef4444 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-left: 1rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(239,68,68,0.08);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+
+.logout-btn:focus {
+  outline: 2px solid #f87171;
+  outline-offset: 2px;
+}
+
+.logout-btn:hover, .logout-btn:active {
+  background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%);
+  box-shadow: 0 4px 16px rgba(239,68,68,0.16);
+  transform: translateY(-2px) scale(1.03);
+}
