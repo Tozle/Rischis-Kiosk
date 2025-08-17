@@ -1,4 +1,3 @@
-
 // mentos.js – jetzt wie shop.js: alle Datenzugriffe über das Backend
 const BACKEND_URL = window.location.origin;
 
@@ -34,21 +33,19 @@ async function loadFeedings() {
 }
 
 function formatTimeDiff(seconds) {
-    if (seconds < 60) return `${seconds} Sek.`;
     if (seconds < 3600) return `${Math.floor(seconds / 60)} Min.`;
     if (seconds < 86400) return `${Math.floor(seconds / 3600)} Std.`;
     return `${Math.floor(seconds / 86400)} Tage`;
 }
 
 async function addFeeding(futterart) {
-    const gefuettert_von = prompt('Wer hat gefüttert? (optional)') || '';
     try {
         const res = await fetch(`${BACKEND_URL}/api/feedings`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ type: futterart, gefuettert_von }),
+            body: JSON.stringify({ type: futterart }),
         });
         if (!res.ok) throw new Error('Fehler beim Eintragen!');
         await loadFeedings();
