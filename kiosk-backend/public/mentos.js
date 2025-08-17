@@ -9,7 +9,7 @@ const btnTrocken = document.getElementById('btn-trocken');
 
 async function loadFeedings() {
     try {
-        const res = await fetch(`${BACKEND_URL}/api/feed`);
+        const res = await fetch(`${BACKEND_URL}/api/feedings`);
         const data = await res.json();
         feedingsBody.innerHTML = '';
         data.forEach(f => {
@@ -43,7 +43,7 @@ function formatTimeDiff(seconds) {
 async function addFeeding(futterart) {
     const gefuettert_von = prompt('Wer hat gefüttert? (optional)') || '';
     try {
-        const res = await fetch(`${BACKEND_URL}/api/feed`, {
+        const res = await fetch(`${BACKEND_URL}/api/feedings`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
