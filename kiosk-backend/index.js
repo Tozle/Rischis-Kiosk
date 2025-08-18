@@ -3,7 +3,7 @@ import env from './utils/env.js';
 import express from 'express';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
-import csrf from 'csurf';
+import Tokens from 'csrf';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import logoutRoute from './routes/logout.js';
@@ -68,14 +68,17 @@ app.use(
 app.use(cookieParser());
 app.use(requestLogger);
 
-const csrfProtection = csrf({
-  cookie: {
-    ...getCookieOptions(),
-    sameSite: 'strict',
-  },
+const tokens = new Tokens();
+app.use((req, res, next) => {
+  let secret = req.cookies['csrfSecret'];
+  if (!secret) {
+    secret = tokens.secretSync();
+    res.cookie('csrfSecret', secret, { ...getCookieOptions(), sameSite: 'strict' });
+  }
+  req.csrfToken = () => tokens.create(secret);
+  req.csrfSecret = secret;
+  next();
 });
-
-app.use(csrfProtection);
 app.use(express.json());
 app.use(express.static(publicDir, { maxAge: '1d' }));
 
