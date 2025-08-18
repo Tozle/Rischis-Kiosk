@@ -61,13 +61,23 @@ function filterAndRenderPurchases() {
 function renderPurchaseList(purchases) {
   const list = document.getElementById('purchase-history');
   list.innerHTML = '';
+  // Kopfzeile
+  const header = document.createElement('li');
+  header.className = 'grid grid-cols-4 gap-2 font-bold text-green-800 dark:text-green-200 mb-1 px-2';
+  header.innerHTML = `
+    <span>Datum</span>
+    <span>Name</span>
+    <span>Menge & Produkt</span>
+    <span>Preis</span>
+  `;
+  list.appendChild(header);
   purchases.forEach(e => {
     const li = document.createElement('li');
-    li.className = 'border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm mb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2';
+    li.className = 'grid grid-cols-4 gap-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl p-2 shadow-sm mb-2 items-center';
     li.innerHTML = `
       <span class="text-xs text-gray-500 dark:text-gray-400">${formatDateTime(e.created_at)}</span>
-      <span class="flex-1 font-semibold">${e.user_name}</span>
-      <span class="">${e.quantity || 1}x ${e.product_name}</span>
+      <span class="font-semibold">${e.user_name}</span>
+      <span>${e.quantity || 1}x ${e.product_name}</span>
       <span class="font-bold">${e.price.toFixed(2)} €</span>
     `;
     list.appendChild(li);
@@ -840,4 +850,83 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
   if (typeof startSessionCheck === 'function') startSessionCheck();
+});
+
+// FAQ Overlay-Logik, Darkmode, Tabs, Logout, Session-Timeout
+window.addEventListener('DOMContentLoaded', () => {
+  // FAQ Overlay
+  const faqBtn = document.getElementById('faq-btn');
+  const faqOverlay = document.getElementById('faq-overlay');
+  const faqClose = document.getElementById('faq-close');
+  if (faqBtn && faqOverlay && faqClose) {
+    faqBtn.addEventListener('click', () => { faqOverlay.classList.remove('hidden'); faqClose.focus(); });
+    faqClose.addEventListener('click', () => { faqOverlay.classList.add('hidden'); faqBtn.focus(); });
+    faqOverlay.addEventListener('click', (e) => { if (e.target === faqOverlay) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
+    document.addEventListener('keydown', (e) => { if (!faqOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
+  }
+  // Darkmode
+  const darkModeBtn = document.getElementById('darkModeBtn');
+  if (darkModeBtn) {
+    darkModeBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+    });
+  }
+  if (localStorage.getItem('darkMode') === null) {
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('darkMode', 'true');
+  } else if (localStorage.getItem('darkMode') !== 'false') {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+  // Tab-Navigation
+  const tabButtons = document.querySelectorAll('#admin-tabs button[data-tab]');
+  const tabContents = document.querySelectorAll('.tab-content');
+  function showTab(tab) {
+    tabContents.forEach(function (c) {
+      if (c.id === 'section-' + tab) {
+        c.style.display = '';
+      } else {
+        c.style.display = 'none';
+      }
+    });
+    tabButtons.forEach(function (b) {
+      b.classList.toggle('ring-2', b.dataset.tab === tab);
+    });
+  }
+  tabButtons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      showTab(btn.dataset.tab);
+    });
+  });
+  showTab('products');
+  // Logout
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      fetch('/api/logout', { method: 'POST', credentials: 'include' })
+        .finally(() => {
+          sessionStorage.clear();
+          window.location.href = '/index.html';
+        });
+    });
+  }
+  // Session timeout (20 min inactivity)
+  let sessionTimeout;
+  function resetSessionTimeout() {
+    clearTimeout(sessionTimeout);
+    sessionTimeout = setTimeout(() => {
+      alert('Session abgelaufen. Du wirst abgemeldet.');
+      fetch('/api/logout', { method: 'POST', credentials: 'include' })
+        .finally(() => {
+          sessionStorage.clear();
+          window.location.href = '/index.html';
+        });
+    }, 20 * 60 * 1000);
+  }
+  ['click', 'keydown', 'mousemove', 'touchstart'].forEach(evt => {
+    window.addEventListener(evt, resetSessionTimeout);
+  });
+  resetSessionTimeout();
 });
