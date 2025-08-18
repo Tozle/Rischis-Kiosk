@@ -1,5 +1,5 @@
 // CSP-konformes Event-Binding für Darkmode-Button und 'Weitere anzeigen'
-function toggleDarkMode() {
+function toggleDarkModeAdmin() {
   const isDark = document.documentElement.classList.toggle('dark');
   localStorage.setItem('darkMode', isDark ? 'true' : 'false');
 }
@@ -9,7 +9,7 @@ if (localStorage.getItem('darkMode') !== 'false') {
 window.addEventListener('DOMContentLoaded', () => {
   const darkBtn = document.getElementById('darkmode-toggle-btn');
   if (darkBtn) {
-    darkBtn.addEventListener('click', toggleDarkMode);
+    darkBtn.addEventListener('click', toggleDarkModeAdmin);
   }
   const moreBtn = document.getElementById('load-more-purchases');
   if (moreBtn && typeof loadMorePurchases === 'function') {
@@ -280,14 +280,7 @@ async function getCsrfToken() {
   }
 }
 
-// Darkmode
-function toggleDarkMode() {
-  const isDark = document.documentElement.classList.toggle('dark');
-  localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-}
-if (localStorage.getItem('darkMode') !== 'false') {
-  document.documentElement.classList.add('dark');
-}
+
 
 function toggleSection(id) {
   const container = document.getElementById(`${id}-container`);
