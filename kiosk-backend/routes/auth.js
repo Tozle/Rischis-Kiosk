@@ -48,10 +48,26 @@ router.get(
       return res.status(401).json({ loggedIn: false });
     }
 
+
+    // Helper: Holt User-Objekt inkl. Rolle aus DB
+    async function getUserWithRole(user) {
+      // user.id = Supabase-UUID
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, email, name, role, balance')
+        .eq('id', user.id)
+        .single();
+      if (!error && data) {
+        return { ...user, ...data };
+      }
+      return user;
+    }
+
     if (token) {
       const { data, error } = await supabase.auth.getUser(token);
       if (!error && data?.user) {
-        return res.json({ loggedIn: true, user: data.user });
+        const userWithRole = await getUserWithRole(data.user);
+        return res.json({ loggedIn: true, user: userWithRole });
       }
     }
 
@@ -62,7 +78,8 @@ router.get(
 
       if (!error && data.session?.access_token) {
         setAuthCookies(res, data.session);
-        return res.json({ loggedIn: true, user: data.user });
+        const userWithRole = await getUserWithRole(data.user);
+        return res.json({ loggedIn: true, user: userWithRole });
       }
     }
 
