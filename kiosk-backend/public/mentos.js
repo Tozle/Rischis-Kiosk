@@ -127,7 +127,18 @@ btnNass?.addEventListener('click', () => addFeeding('Nassfutter'));
 btnTrocken?.addEventListener('click', () => addFeeding('Trockenfutter'));
 
 document.addEventListener('DOMContentLoaded', () => {
+
     loadFeedings();
+
+    // Admin-Buttons sichtbar machen, wenn User Admin ist
+    import('./user.js').then(({ getCurrentUser }) => {
+        getCurrentUser().then(user => {
+            if (user && (user.role === 'admin' || user.role === 'superadmin')) {
+                const adminDiv = document.getElementById('admin-buttons');
+                if (adminDiv) adminDiv.classList.remove('hidden');
+            }
+        });
+    });
 
     // FAQ Overlay-Logik
     const faqBtn = document.getElementById('faq-btn');
