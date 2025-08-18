@@ -82,19 +82,18 @@
           <input type="checkbox" id="remember-me" class="mr-2 accent-green-500" aria-checked="false"> Eingeloggt bleiben
         </label>
         <button type="submit"
-          class="btn-main w-full sm:w-auto px-6 py-3 text-lg sm:ml-4 flex items-center justify-center gap-2 relative"
+          class="btn-main w-full sm:w-auto px-6 py-3 text-lg sm:ml-4 flex items-center justify-center gap-2"
           aria-label="Login">
-          <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-            <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 12h14M12 5l7 7-7 7' />
-          </svg>
-          <span id="login-btn-text">Login</span>
-          <span id="login-loader" class="hidden absolute right-4 top-1/2 -translate-y-1/2 animate-spin"
-            aria-live="polite" aria-label="Lädt...">
+          <span id="login-loader" class="hidden animate-spin" aria-live="polite" aria-label="Lädt...">
             <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
             </svg>
           </span>
+          <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+            <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 12h14M12 5l7 7-7 7' />
+          </svg>
+          <span id="login-btn-text">Login</span>
         </button>
       </div>
       <p class="text-sm text-center mt-2">Noch kein Konto? <a href="#" class="link-underline" id="show-register-link"

@@ -126,4 +126,57 @@ async function addFeeding(futterart) {
 btnNass?.addEventListener('click', () => addFeeding('Nassfutter'));
 btnTrocken?.addEventListener('click', () => addFeeding('Trockenfutter'));
 
-document.addEventListener('DOMContentLoaded', loadFeedings);
+document.addEventListener('DOMContentLoaded', () => {
+    loadFeedings();
+
+    // FAQ Overlay-Logik
+    const faqBtn = document.getElementById('faq-btn');
+    const faqOverlay = document.getElementById('faq-overlay');
+    const faqClose = document.getElementById('faq-close');
+    if (faqBtn && faqOverlay && faqClose) {
+        faqBtn.addEventListener('click', () => { faqOverlay.classList.remove('hidden'); faqClose.focus(); });
+        faqClose.addEventListener('click', () => { faqOverlay.classList.add('hidden'); faqBtn.focus(); });
+        faqOverlay.addEventListener('click', (e) => { if (e.target === faqOverlay) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
+        document.addEventListener('keydown', (e) => { if (!faqOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
+    }
+
+    // Darkmode-Initialisierung (nur falls noch nicht gesetzt)
+    if (localStorage.getItem('darkMode') === null) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('darkMode', 'true');
+    } else if (localStorage.getItem('darkMode') !== 'false') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+
+    // Logout-Button
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            fetch('/api/logout', { method: 'POST', credentials: 'include' })
+                .finally(() => {
+                    sessionStorage.clear();
+                    window.location.href = '/index.html';
+                });
+        });
+    }
+
+    // Session timeout (20 min inactivity)
+    let sessionTimeout;
+    function resetSessionTimeout() {
+        clearTimeout(sessionTimeout);
+        sessionTimeout = setTimeout(() => {
+            alert('Session abgelaufen. Du wirst abgemeldet.');
+            fetch('/api/logout', { method: 'POST', credentials: 'include' })
+                .finally(() => {
+                    sessionStorage.clear();
+                    window.location.href = '/index.html';
+                });
+        }, 20 * 60 * 1000);
+    }
+    ['click', 'keydown', 'mousemove', 'touchstart'].forEach(evt => {
+        window.addEventListener(evt, resetSessionTimeout);
+    });
+    resetSessionTimeout();
+});
