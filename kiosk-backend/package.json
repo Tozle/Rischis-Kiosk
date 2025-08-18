@@ -7,7 +7,7 @@
     "start": "node index.js",
   "preinstall": "",
   "prepare": "chmod +x ./node_modules/.bin/tailwindcss || true",
-  "build:css": "npx tailwindcss -i ./public/style.css -o ./public/dist/style.css --minify",
+  "build:css": "node ./node_modules/tailwindcss/lib/cli.js -i ./public/style.css -o ./public/dist/style.css --minify",
     "build": "npm run build:css && npx esbuild public/admin.js public/dashboard.js public/index.js public/mentos.js public/session.js public/shop.js public/user.js --bundle --minify --outdir=public/dist --format=iife --target=es2018",
     "test": "node --experimental-vm-modules --require dotenv/config ./node_modules/jest/bin/jest.js",
     "lint": "eslint .",
