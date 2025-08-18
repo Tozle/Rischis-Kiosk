@@ -1,14 +1,17 @@
 /* E-Mail-Input immer sichtbar und lesbar */
+
 #login-email,
 #register-email {
     color: #134e4a !important;
     background: #fff !important;
+    caret-color: #134e4a !important;
 }
 
 .dark #login-email,
 .dark #register-email {
-    color: #e0f2fe !important;
+    color: #134e4a !important;
     background: #1e293b !important;
+    caret-color: #134e4a !important;
 }
 
 @import url('buttons.css');

@@ -50,7 +50,7 @@
     class="fixed left-1/2 top-6 z-50 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-center text-sm font-semibold transition-opacity duration-300 pointer-events-none opacity-0">
   </div>
   <div class="fixed bottom-4 right-4 z-50">
-    <button onclick="toggleDarkMode()"
+    <button id="darkmode-toggle-btn"
       class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition">
       🌙
     </button>
@@ -97,8 +97,7 @@
           </span>
         </button>
       </div>
-      <p class="text-sm text-center mt-2">Noch kein Konto? <a href="#" class="link-underline"
-          onclick="switchForm('register')" tabindex="0">Jetzt registrieren</a></p>
+  <p class="text-sm text-center mt-2">Noch kein Konto? <a href="#" class="link-underline" id="show-register-link" tabindex="0">Jetzt registrieren</a></p>
     </form>
 
     <form id="register-form" class="space-y-5 hidden" aria-label="Registrierungs-Formular" autocomplete="on">
@@ -129,8 +128,7 @@
           </svg>
         </span>
       </button>
-      <p class="text-sm text-center mt-2">Schon registriert? <a href="#" class="link-underline"
-          onclick="switchForm('login')" tabindex="0">Zurück zum Login</a></p>
+  <p class="text-sm text-center mt-2">Schon registriert? <a href="#" class="link-underline" id="show-login-link" tabindex="0">Zurück zum Login</a></p>
     </form>
 
     <!-- Alte Message-Ausgabe bleibt als Fallback, wird aber nicht mehr genutzt -->

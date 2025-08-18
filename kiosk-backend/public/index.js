@@ -38,6 +38,7 @@ function switchForm(mode) {
   document.getElementById('message').classList.add('hidden');
 }
 
+
 // Darkmode
 function toggleDarkMode() {
   const isDark = document.documentElement.classList.toggle('dark');
@@ -46,6 +47,28 @@ function toggleDarkMode() {
 if (localStorage.getItem('darkMode') !== 'false') {
   document.documentElement.classList.add('dark');
 }
+// CSP: Event-Binding für Darkmode-Button
+document.addEventListener('DOMContentLoaded', () => {
+  const darkBtn = document.getElementById('darkmode-toggle-btn');
+  if (darkBtn) {
+    darkBtn.addEventListener('click', toggleDarkMode);
+  }
+  // CSP: Event-Binding für Formular-Umschaltung
+  const showRegister = document.getElementById('show-register-link');
+  if (showRegister) {
+    showRegister.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchForm('register');
+    });
+  }
+  const showLogin = document.getElementById('show-login-link');
+  if (showLogin) {
+    showLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchForm('login');
+    });
+  }
+});
 
 // LOGIN
 document.getElementById('login-form').addEventListener('submit', async (e) => {
