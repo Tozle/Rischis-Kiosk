@@ -171,7 +171,7 @@ function renderUserList(users) {
     list.appendChild(li);
   });
   // Event Delegation für User-Buttons
-  list.onclick = function(e) {
+  list.onclick = function (e) {
     const editBtn = e.target.closest('.edit-user-btn');
     if (editBtn) {
       editUser(editBtn.dataset.id, editBtn.dataset.name);
@@ -183,42 +183,42 @@ function renderUserList(users) {
       return;
     }
   };
-// Undo-fähige Benutzerlöschung (global)
-let lastDeletedUser = null;
-async function deleteUser(id) {
-  if (!(await confirmAction('Benutzer wirklich löschen? Alle Käufe bleiben erhalten.'))) return;
-  showLoader(true);
-  // Hole Userdaten vor dem Löschen
-  const res = await fetch(`${BACKEND_URL}/api/admin/users`, { credentials: 'include' });
-  const users = await res.json();
-  const user = users.find(u => u.id === id);
-  lastDeletedUser = user ? { ...user } : null;
-  const token = await getCsrfToken();
-  await fetch(`${BACKEND_URL}/api/admin/users/${id}`, {
-    method: 'DELETE',
-    credentials: 'include',
-    headers: { 'x-csrf-token': token },
-  });
-  showLoader(false);
-  showToast('Benutzer gelöscht.', 'success', 5000, async () => {
-    if (!lastDeletedUser) return;
+  // Undo-fähige Benutzerlöschung (global)
+  let lastDeletedUser = null;
+  async function deleteUser(id) {
+    if (!(await confirmAction('Benutzer wirklich löschen? Alle Käufe bleiben erhalten.'))) return;
     showLoader(true);
-    const token2 = await getCsrfToken();
-    await fetch(`${BACKEND_URL}/api/admin/users`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    // Hole Userdaten vor dem Löschen
+    const res = await fetch(`${BACKEND_URL}/api/admin/users`, { credentials: 'include' });
+    const users = await res.json();
+    const user = users.find(u => u.id === id);
+    lastDeletedUser = user ? { ...user } : null;
+    const token = await getCsrfToken();
+    await fetch(`${BACKEND_URL}/api/admin/users/${id}`, {
+      method: 'DELETE',
       credentials: 'include',
-      body: JSON.stringify(lastDeletedUser)
+      headers: { 'x-csrf-token': token },
     });
     showLoader(false);
-    showToast('Löschung rückgängig gemacht!', 'success');
+    showToast('Benutzer gelöscht.', 'success', 5000, async () => {
+      if (!lastDeletedUser) return;
+      showLoader(true);
+      const token2 = await getCsrfToken();
+      await fetch(`${BACKEND_URL}/api/admin/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(lastDeletedUser)
+      });
+      showLoader(false);
+      showToast('Löschung rückgängig gemacht!', 'success');
+      loadUserPasswords();
+      lastDeletedUser = null;
+    });
     loadUserPasswords();
-    lastDeletedUser = null;
-  });
-  loadUserPasswords();
-}
+  }
 }
 
 function exportUsersCSV() {
@@ -376,7 +376,7 @@ async function loadProducts() {
     list.appendChild(li);
   });
   // Event Delegation für Produkt-Buttons
-  list.onclick = function(e) {
+  list.onclick = function (e) {
     const toggleBtn = e.target.closest('.toggle-availability-btn');
     if (toggleBtn) {
       toggleAvailability(toggleBtn.dataset.id, toggleBtn.dataset.available === 'true');
@@ -782,7 +782,7 @@ async function loadUserBalances() {
     </li>`;
   }).join('');
   // Event Delegation für Guthaben-Buttons
-  list.onclick = function(e) {
+  list.onclick = function (e) {
     const addBtn = e.target.closest('.balance-add-btn');
     if (addBtn) {
       updateBalance(addBtn.dataset.id, 'add');
@@ -794,30 +794,30 @@ async function loadUserBalances() {
       return;
     }
   };
-// updateBalance muss global sein
-async function updateBalance(id, action) {
-  const val = parseFloat(document.getElementById('bal-' + id).value);
-  if (isNaN(val)) return showToast('Ungültiger Betrag.', 'error');
-  showLoader(true);
-  const res = await fetch(`${BACKEND_URL}/api/admin/users/${id}`, { credentials: 'include' });
-  const user = await res.json();
-  let newBalance = user.balance;
-  if (action === 'add') newBalance += val; else newBalance -= val;
-  const token = await getCsrfToken();
-  await fetch(`${BACKEND_URL}/api/admin/users/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-csrf-token': token,
-    },
-    credentials: 'include',
-    body: JSON.stringify({ balance: newBalance })
-  });
-  showLoader(false);
-  showToast('Guthaben aktualisiert.', 'success');
-  loadUserBalances();
-  loadStats();
-}
+  // updateBalance muss global sein
+  async function updateBalance(id, action) {
+    const val = parseFloat(document.getElementById('bal-' + id).value);
+    if (isNaN(val)) return showToast('Ungültiger Betrag.', 'error');
+    showLoader(true);
+    const res = await fetch(`${BACKEND_URL}/api/admin/users/${id}`, { credentials: 'include' });
+    const user = await res.json();
+    let newBalance = user.balance;
+    if (action === 'add') newBalance += val; else newBalance -= val;
+    const token = await getCsrfToken();
+    await fetch(`${BACKEND_URL}/api/admin/users/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-csrf-token': token,
+      },
+      credentials: 'include',
+      body: JSON.stringify({ balance: newBalance })
+    });
+    showLoader(false);
+    showToast('Guthaben aktualisiert.', 'success');
+    loadUserBalances();
+    loadStats();
+  }
 }
 
 async function updateBalance(id, action) {

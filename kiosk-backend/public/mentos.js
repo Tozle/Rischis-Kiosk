@@ -1,5 +1,5 @@
 // CSP-konformes Event-Binding für Darkmode-Button
-function toggleDarkMode() {
+function toggleDarkModeMentos() {
     const isDark = document.documentElement.classList.toggle('dark');
     localStorage.setItem('darkMode', isDark ? 'true' : 'false');
 }
@@ -9,7 +9,7 @@ if (localStorage.getItem('darkMode') !== 'false') {
 document.addEventListener('DOMContentLoaded', () => {
     const darkBtn = document.getElementById('darkmode-toggle-btn');
     if (darkBtn) {
-        darkBtn.addEventListener('click', toggleDarkMode);
+        darkBtn.addEventListener('click', toggleDarkModeMentos);
     }
 });
 // mentos.js – jetzt wie shop.js: alle Datenzugriffe über das Backend
@@ -136,34 +136,34 @@ document.addEventListener('DOMContentLoaded', () => {
             if (user && (user.role === 'admin' || user.role === 'superadmin')) {
                 const adminDiv = document.getElementById('admin-buttons');
                 if (adminDiv) adminDiv.classList.remove('hidden');
-                
-                    // Löschen-Button: Verlauf löschen
-                    const clearBtn = document.getElementById('clear-history-btn');
-                    if (clearBtn) {
-                        clearBtn.addEventListener('click', async () => {
-                            if (!confirm('Möchtest du wirklich den gesamten Fütterungsverlauf unwiderruflich löschen?')) return;
-                            clearBtn.disabled = true;
-                            clearBtn.textContent = '...';
-                            try {
-                                const csrfToken = await getCsrfToken();
-                                const res = await fetch(`${BACKEND_URL}/api/feedings`, {
-                                    method: 'DELETE',
-                                    headers: {
-                                        'CSRF-Token': csrfToken,
-                                    },
-                                    credentials: 'include',
-                                });
-                                if (!res.ok) throw new Error('Fehler beim Löschen!');
-                                showToast('Verlauf gelöscht!', 'success');
-                                await loadFeedings();
-                            } catch (err) {
-                                showToast(err.message || 'Fehler beim Löschen!', 'error');
-                            } finally {
-                                clearBtn.disabled = false;
-                                clearBtn.textContent = '🗑️ Anzeige löschen';
-                            }
-                        });
-                    }
+
+                // Löschen-Button: Verlauf löschen
+                const clearBtn = document.getElementById('clear-history-btn');
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', async () => {
+                        if (!confirm('Möchtest du wirklich den gesamten Fütterungsverlauf unwiderruflich löschen?')) return;
+                        clearBtn.disabled = true;
+                        clearBtn.textContent = '...';
+                        try {
+                            const csrfToken = await getCsrfToken();
+                            const res = await fetch(`${BACKEND_URL}/api/feedings`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'CSRF-Token': csrfToken,
+                                },
+                                credentials: 'include',
+                            });
+                            if (!res.ok) throw new Error('Fehler beim Löschen!');
+                            showToast('Verlauf gelöscht!', 'success');
+                            await loadFeedings();
+                        } catch (err) {
+                            showToast(err.message || 'Fehler beim Löschen!', 'error');
+                        } finally {
+                            clearBtn.disabled = false;
+                            clearBtn.textContent = '🗑️ Anzeige löschen';
+                        }
+                    });
+                }
             }
         });
     });

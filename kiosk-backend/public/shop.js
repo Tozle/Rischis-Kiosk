@@ -206,7 +206,7 @@ function renderProductList(products) {
     list.appendChild(li);
   });
   // Event Delegation für Kaufen und Menge ändern
-  list.onclick = function(e) {
+  list.onclick = function (e) {
     const minusBtn = e.target.closest('.qty-minus-btn');
     if (minusBtn) {
       changeQty(minusBtn.dataset.id, -1, parseInt(minusBtn.dataset.max));

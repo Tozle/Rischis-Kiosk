@@ -1,26 +1,27 @@
 {
-  "name": "rischis-kiosk-frontend",
-  "version": "1.0.0",
-  "description": "Frontend für Rischis Kiosk",
-  "main": "index.js",
-  "scripts": {
-    "start": "vite",
-    "build": "vite build",
-    "dev": "vite"
-  },
-  "keywords": [
-    "kiosk",
-    "frontend",
-    "vite"
-  ],
-  "author": "Tom Zeiler",
-  "license": "MIT",
-  "devDependencies": {
-    "vite": "^4.0.0"
-  },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not op_mini all"
-  ]
+    "name": "rischis-kiosk-frontend",
+    "version": "1.0.0",
+    "description": "Frontend für Rischis Kiosk",
+    "main": "index.js",
+    "scripts": {
+        "start": "vite",
+        "build": "vite build",
+        "dev": "vite"
+    },
+    "keywords": [
+        "kiosk",
+        "frontend",
+        "vite"
+    ],
+    "author": "Tom Zeiler",
+    "license": "MIT",
+    "devDependencies": {
+        "esbuild": "^0.25.9",
+        "vite": "^4.0.0"
+    },
+    "browserslist": [
+        ">0.2%",
+        "not dead",
+        "not op_mini all"
+    ]
 }

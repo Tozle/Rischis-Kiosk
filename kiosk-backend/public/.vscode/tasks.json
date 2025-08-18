@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Minify and bundle CSS/JS",
+			"type": "shell",
+			"command": "npx esbuild admin.js buzzer.js dashboard.js index.js mentos.js session.js shop.js user.js --bundle --minify --outdir=dist && npx esbuild style.css components.css buttons.css --bundle --minify --outdir=dist",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}
