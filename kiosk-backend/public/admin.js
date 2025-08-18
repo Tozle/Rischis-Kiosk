@@ -1,3 +1,10 @@
+import { getCurrentUser } from './user.js';
+// Admin-Check: Nur Admins dürfen diese Seite sehen
+getCurrentUser().then(user => {
+  if (!user || (user.role !== 'admin' && user.role !== 'superadmin')) {
+    window.location.href = '/index.html';
+  }
+});
 // CSP-konformes Event-Binding für Darkmode-Button und 'Weitere anzeigen'
 function toggleDarkModeAdmin() {
   const isDark = document.documentElement.classList.toggle('dark');
