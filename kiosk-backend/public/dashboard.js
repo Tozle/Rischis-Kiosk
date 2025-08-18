@@ -1,3 +1,23 @@
+// CSP-konforme Event-Handler für Logout und Darkmode
+window.addEventListener('DOMContentLoaded', () => {
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      fetch('/api/logout', { method: 'POST', credentials: 'include' })
+        .finally(() => {
+          sessionStorage.clear();
+          window.location.href = '/index.html';
+        });
+    });
+  }
+  const darkModeBtn = document.getElementById('darkModeBtn');
+  if (darkModeBtn) {
+    darkModeBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+    });
+  }
+});
 // dashboard.js – Admin-Zugriff und Session-Check
 
 // Adresse des Backends

@@ -33,7 +33,7 @@
     class="skip-link absolute left-2 top-2 bg-cyan-100 text-cyan-900 px-3 py-1 rounded z-50 focus:translate-y-0 -translate-y-12 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all"
     tabindex="0">Zum Inhalt springen</a>
   <div class="fixed top-4 right-4 z-50">
-    <button onclick="logout()"
+    <button id="logoutBtn"
       class="btn-main bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full shadow text-sm flex items-center gap-2 focus:ring-2 focus:ring-cyan-400"
       style="background:linear-gradient(90deg,#ef4444 0%,#f59e42 100%);" aria-label="Logout" title="Abmelden">
       <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
@@ -43,7 +43,7 @@
     </button>
   </div>
   <div class="fixed bottom-4 right-4 z-50">
-    <button onclick="toggleDarkMode()"
+    <button id="darkModeBtn"
       class="bg-gray-300/75 dark:bg-gray-700/75 text-black dark:text-white p-2 rounded-full shadow opacity-70 hover:opacity-100 transition focus:ring-2 focus:ring-cyan-400"
       aria-label="Darkmode umschalten" title="Darkmode umschalten">
       🌙
@@ -87,16 +87,7 @@
         </div>
       </div>
     </div>
-    <script>
-      // FAQ Overlay-Logik
-      const faqBtn = document.getElementById('faq-btn');
-      const faqOverlay = document.getElementById('faq-overlay');
-      const faqClose = document.getElementById('faq-close');
-      faqBtn.addEventListener('click', () => { faqOverlay.classList.remove('hidden'); faqClose.focus(); });
-      faqClose.addEventListener('click', () => { faqOverlay.classList.add('hidden'); faqBtn.focus(); });
-      faqOverlay.addEventListener('click', (e) => { if (e.target === faqOverlay) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
-      document.addEventListener('keydown', (e) => { if (!faqOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
-    </script>
+    <!-- FAQ Overlay-Logik ausgelagert nach dashboard.js -->
     <h1 class="text-2xl sm:text-3xl font-bold flex items-center justify-center gap-2 text-green-800 dark:text-green-300"
       id="dashboard-title">
       <svg xmlns='http://www.w3.org/2000/svg' class='inline w-7 h-7 text-green-500' fill='none' viewBox='0 0 24 24'
@@ -135,48 +126,11 @@
         </svg>Adminbereich
       </a>
       <!-- Darkmode-Init -->
-      <script>
-        if (localStorage.getItem('darkMode') === null) {
-          document.documentElement.classList.add('dark');
-          localStorage.setItem('darkMode', 'true');
-        } else if (localStorage.getItem('darkMode') !== 'false') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-      </script>
+      <!-- Darkmode-Init ausgelagert nach dashboard.js -->
     </div>
   </div>
   <!-- Entferne doppelten Logout-Button -->
-  <script>
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', () => {
-        fetch('/api/logout', { method: 'POST', credentials: 'include' })
-          .finally(() => {
-            sessionStorage.clear();
-            window.location.href = '/index.html';
-          });
-      });
-    }
-    // Session timeout (20 min inactivity)
-    let sessionTimeout;
-    function resetSessionTimeout() {
-      clearTimeout(sessionTimeout);
-      sessionTimeout = setTimeout(() => {
-        alert('Session abgelaufen. Du wirst abgemeldet.');
-        fetch('/api/logout', { method: 'POST', credentials: 'include' })
-          .finally(() => {
-            sessionStorage.clear();
-            window.location.href = '/index.html';
-          });
-      }, 20 * 60 * 1000);
-    }
-    ['click', 'keydown', 'mousemove', 'touchstart'].forEach(evt => {
-      window.addEventListener(evt, resetSessionTimeout);
-    });
-    resetSessionTimeout();
-  </script>
+  <!-- Logout- und Session-Timeout-Logik ausgelagert nach dashboard.js -->
 </body>
 
 </html>

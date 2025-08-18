@@ -18,8 +18,10 @@ router.post(
       password,
     });
 
+
     if (error || !data.session) {
-      return res.status(401).json({ error: 'Login fehlgeschlagen' });
+      console.error('Login-Fehler:', error, 'User:', email);
+      return res.status(401).json({ error: error?.message || 'Login fehlgeschlagen' });
     }
 
     setAuthCookies(res, data.session);

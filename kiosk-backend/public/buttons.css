@@ -53,26 +53,27 @@
 }
 
 .logout-btn {
-  background: linear-gradient(90deg, #f87171 0%, #ef4444 100%);
-  color: #fff;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1.2rem;
-  font-size: 1rem;
-  font-weight: 600;
-  margin-left: 1rem;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(239,68,68,0.08);
-  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    background: linear-gradient(90deg, #f87171 0%, #ef4444 100%);
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-left: 1rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.08);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
 }
 
 .logout-btn:focus {
-  outline: 2px solid #f87171;
-  outline-offset: 2px;
+    outline: 2px solid #f87171;
+    outline-offset: 2px;
 }
 
-.logout-btn:hover, .logout-btn:active {
-  background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%);
-  box-shadow: 0 4px 16px rgba(239,68,68,0.16);
-  transform: translateY(-2px) scale(1.03);
+.logout-btn:hover,
+.logout-btn:active {
+    background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%);
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.16);
+    transform: translateY(-2px) scale(1.03);
 }

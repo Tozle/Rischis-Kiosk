@@ -65,11 +65,11 @@
       <button class="btn-main px-4 py-2 text-sm" data-tab="balance">Guthaben</button>
       <button class="btn-main px-4 py-2 text-sm" data-tab="buy-for-user">Kauf für Nutzer</button>
     </nav>
-  <section id="section-products" class="mb-8 tab-content" style="display:none;">
+    <section id="section-products" class="mb-8 tab-content" style="display:none;">
       <h2 class="text-lg sm:text-xl font-semibold mb-4">Produkte verwalten</h2>
       <ul id="product-list" class="space-y-4"></ul>
     </section>
-  <section id="section-purchases" class="mb-8 tab-content" style="display:none;">
+    <section id="section-purchases" class="mb-8 tab-content" style="display:none;">
       <h2 class="text-lg sm:text-xl font-semibold mb-4">Käufe verwalten</h2>
       <div class="flex flex-col sm:flex-row gap-2 mb-4">
         <div class="flex flex-col w-full sm:w-64">
@@ -85,7 +85,7 @@
       <button onclick="loadMorePurchases()" class="mt-4 text-blue-600 hover:underline text-sm">Weitere
         anzeigen</button>
     </section>
-  <section id="section-users" class="mb-8 tab-content" style="display:none;">
+    <section id="section-users" class="mb-8 tab-content" style="display:none;">
       <h2 class="text-lg sm:text-xl font-semibold mb-4">Benutzernamen und Passwörter verwalten</h2>
       <div class="flex flex-col sm:flex-row gap-2 mb-4">
         <input id="user-search" type="text" placeholder="Benutzer suchen..."
@@ -95,11 +95,11 @@
       </div>
       <ul id="user-manage-list" class="space-y-4"></ul>
     </section>
-  <section id="section-balance" class="mb-8 tab-content" style="display:none;">
+    <section id="section-balance" class="mb-8 tab-content" style="display:none;">
       <h2 class="text-lg sm:text-xl font-semibold mb-4">Guthaben verwalten</h2>
       <ul id="balance-control-list" class="space-y-2 text-sm"></ul>
     </section>
-  <section id="section-buy-for-user" class="mb-8 tab-content" style="display:none;">
+    <section id="section-buy-for-user" class="mb-8 tab-content" style="display:none;">
       <h2 class="text-lg sm:text-xl font-semibold mb-4">Kauf für Nutzer</h2>
       <div class="flex flex-col sm:flex-row items-center gap-2 mb-4">
         <select id="buy-user" class="p-2 border rounded flex-1" aria-label="Nutzer auswählen"></select>
@@ -150,80 +150,7 @@
       </div>
     </div>
   </div>
-  <script>
-    // FAQ Overlay-Logik
-    const faqBtn = document.getElementById('faq-btn');
-    const faqOverlay = document.getElementById('faq-overlay');
-    const faqClose = document.getElementById('faq-close');
-    faqBtn.addEventListener('click', () => { faqOverlay.classList.remove('hidden'); faqClose.focus(); });
-    faqClose.addEventListener('click', () => { faqOverlay.classList.add('hidden'); faqBtn.focus(); });
-    faqOverlay.addEventListener('click', (e) => { if (e.target === faqOverlay) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
-    document.addEventListener('keydown', (e) => { if (!faqOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
-    // Darkmode logic
-    function toggleDarkMode() {
-      const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-    }
-    if (localStorage.getItem('darkMode') === null) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('darkMode', 'true');
-    } else if (localStorage.getItem('darkMode') !== 'false') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    // Tab-Navigation: Zeige immer nur den gewählten Bereich
-    document.addEventListener('DOMContentLoaded', function () {
-      const tabButtons = document.querySelectorAll('#admin-tabs button[data-tab]');
-      const tabContents = document.querySelectorAll('.tab-content');
-      function showTab(tab) {
-        tabContents.forEach(function (c) {
-          if (c.id === 'section-' + tab) {
-            c.style.display = '';
-          } else {
-            c.style.display = 'none';
-          }
-        });
-        tabButtons.forEach(function (b) {
-          b.classList.toggle('ring-2', b.dataset.tab === tab);
-        });
-      }
-      tabButtons.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          showTab(btn.dataset.tab);
-        });
-      });
-      showTab('products');
-    });
-    // Logout and session timeout logic
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', () => {
-        fetch('/api/logout', { method: 'POST', credentials: 'include' })
-          .finally(() => {
-            sessionStorage.clear();
-            window.location.href = '/index.html';
-          });
-      });
-    }
-    // Session timeout (20 min inactivity)
-    let sessionTimeout;
-    function resetSessionTimeout() {
-      clearTimeout(sessionTimeout);
-      sessionTimeout = setTimeout(() => {
-        alert('Session abgelaufen. Du wirst abgemeldet.');
-        fetch('/api/logout', { method: 'POST', credentials: 'include' })
-          .finally(() => {
-            sessionStorage.clear();
-            window.location.href = '/index.html';
-          });
-      }, 20 * 60 * 1000);
-    }
-    ['click', 'keydown', 'mousemove', 'touchstart'].forEach(evt => {
-      window.addEventListener(evt, resetSessionTimeout);
-    });
-    resetSessionTimeout();
-  </script>
+  <!-- Logik ausgelagert nach admin.js für CSP-Konformität -->
 </body>
 
 </html>

@@ -52,7 +52,13 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
-
+  const btn = document.querySelector('#login-form button[type="submit"]');
+  const btnText = document.getElementById('login-btn-text');
+  const loader = document.getElementById('login-loader');
+  btn.setAttribute('aria-busy', 'true');
+  btn.disabled = true;
+  btnText.classList.add('opacity-50');
+  loader.classList.remove('hidden');
   try {
     const token = await getCsrfToken();
     const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
@@ -61,16 +67,13 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         'Content-Type': 'application/json',
         'x-csrf-token': token,
       },
-      credentials: 'include', // wichtig für Cookies
+      credentials: 'include',
       body: JSON.stringify({ email, password }),
     });
-
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || 'Login fehlgeschlagen');
-
     showMessage('Login erfolgreich! Weiterleitung...', true);
     sessionStorage.setItem('firstLogin', 'true');
-
     const waitForSession = async (retries = 10) => {
       for (let i = 0; i < retries; i++) {
         try {
@@ -82,18 +85,20 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
             window.location.href = 'dashboard.html';
             return;
           }
-        } catch {
-          // ignore errors and retry
-        }
+        } catch { }
         await new Promise((r) => setTimeout(r, 500));
       }
       window.location.href = 'dashboard.html';
     };
-
-    waitForSession();
+    await waitForSession();
   } catch (err) {
     console.error(err);
     showMessage(err.message || 'Fehler beim Login');
+  } finally {
+    btn.removeAttribute('aria-busy');
+    btn.disabled = false;
+    btnText.classList.remove('opacity-50');
+    loader.classList.add('hidden');
   }
 });
 

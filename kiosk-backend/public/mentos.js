@@ -95,7 +95,7 @@ async function addFeeding(futterart) {
             try {
                 const err = await res.json();
                 if (err && err.error) msg += `\n${err.error}`;
-            } catch {}
+            } catch { }
             throw new Error(msg);
         }
         await loadFeedings();
