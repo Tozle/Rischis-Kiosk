@@ -1,0 +1,1 @@
+(()=>{(function(){let t=window.location.origin,c=300*1e3;async function o(){try{let n=await fetch(`${t}/api/auth/me`,{credentials:"include"}),e=await n.json();(!n.ok||!e.loggedIn)&&(window.location.href="index.html")}catch(n){console.error("Session check failed",n)}}window.startSessionCheck=function(){o(),setInterval(o,c)}})();})();
