@@ -65,11 +65,11 @@
       <button class="btn-main px-4 py-2 text-sm" data-tab="balance">Guthaben</button>
       <button class="btn-main px-4 py-2 text-sm" data-tab="buy-for-user">Kauf für Nutzer</button>
     </nav>
-    <section id="section-products" class="mb-8 tab-content">
+  <section id="section-products" class="mb-8 tab-content" style="display:none;">
       <h2 class="text-lg sm:text-xl font-semibold mb-4">Produkte verwalten</h2>
       <ul id="product-list" class="space-y-4"></ul>
     </section>
-    <section id="section-purchases" class="mb-8 tab-content">
+  <section id="section-purchases" class="mb-8 tab-content" style="display:none;">
       <h2 class="text-lg sm:text-xl font-semibold mb-4">Käufe verwalten</h2>
       <div class="flex flex-col sm:flex-row gap-2 mb-4">
         <div class="flex flex-col w-full sm:w-64">
@@ -85,7 +85,7 @@
       <button onclick="loadMorePurchases()" class="mt-4 text-blue-600 hover:underline text-sm">Weitere
         anzeigen</button>
     </section>
-    <section id="section-users" class="mb-8 tab-content">
+  <section id="section-users" class="mb-8 tab-content" style="display:none;">
       <h2 class="text-lg sm:text-xl font-semibold mb-4">Benutzernamen und Passwörter verwalten</h2>
       <div class="flex flex-col sm:flex-row gap-2 mb-4">
         <input id="user-search" type="text" placeholder="Benutzer suchen..."
@@ -95,11 +95,11 @@
       </div>
       <ul id="user-manage-list" class="space-y-4"></ul>
     </section>
-    <section id="section-balance" class="mb-8 tab-content">
+  <section id="section-balance" class="mb-8 tab-content" style="display:none;">
       <h2 class="text-lg sm:text-xl font-semibold mb-4">Guthaben verwalten</h2>
       <ul id="balance-control-list" class="space-y-2 text-sm"></ul>
     </section>
-    <section id="section-buy-for-user" class="mb-8 tab-content">
+  <section id="section-buy-for-user" class="mb-8 tab-content" style="display:none;">
       <h2 class="text-lg sm:text-xl font-semibold mb-4">Kauf für Nutzer</h2>
       <div class="flex flex-col sm:flex-row items-center gap-2 mb-4">
         <select id="buy-user" class="p-2 border rounded flex-1" aria-label="Nutzer auswählen"></select>

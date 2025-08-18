@@ -1,3 +1,22 @@
+// Tab-Logik für Adminbereich
+function showTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('#admin-tabs button').forEach(btn => btn.classList.remove('bg-cyan-600', 'text-white'));
+  const section = document.getElementById('section-' + tab);
+  if (section) section.style.display = '';
+  const btn = document.querySelector(`#admin-tabs [data-tab="${tab}"]`);
+  if (btn) btn.classList.add('bg-cyan-600', 'text-white');
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  // ...existing code...
+  // Tabs initialisieren
+  document.querySelectorAll('#admin-tabs button').forEach(btn => {
+    btn.addEventListener('click', () => showTab(btn.getAttribute('data-tab')));
+  });
+  // Standard: Produkte anzeigen
+  showTab('products');
+});
 // Produktbild-Vorschau und Upload-Handling
 
 // Bild-URL Feld
