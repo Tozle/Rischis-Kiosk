@@ -1,3 +1,17 @@
+// CSP-konformes Event-Binding für Darkmode-Button
+function toggleDarkMode() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+}
+if (localStorage.getItem('darkMode') !== 'false') {
+  document.documentElement.classList.add('dark');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const darkBtn = document.getElementById('darkmode-toggle-btn');
+  if (darkBtn) {
+    darkBtn.addEventListener('click', toggleDarkMode);
+  }
+});
 // shop.js – ersetzt Supabase-Zugriffe durch sichere API-Aufrufe an dein Backend
 
 // Backend und Frontend laufen auf derselben Domain

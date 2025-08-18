@@ -1,3 +1,17 @@
+// CSP-konformes Event-Binding für Darkmode-Button
+function toggleDarkMode() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+}
+if (localStorage.getItem('darkMode') !== 'false') {
+  document.documentElement.classList.add('dark');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const darkBtn = document.getElementById('darkmode-toggle-btn');
+  if (darkBtn) {
+    darkBtn.addEventListener('click', toggleDarkMode);
+  }
+});
 // buzzer.js – einfache Steuerung der Buzzer-Seite
 
 const BACKEND_URL = window.location.origin;
@@ -200,7 +214,7 @@ async function init() {
   });
   evt.addEventListener('buzz', () => {
     buzzerSound.currentTime = 0;
-    buzzerSound.play().catch(() => {});
+    buzzerSound.play().catch(() => { });
   });
   evt.addEventListener('unlock', () => {
     document.getElementById('buzz-btn').disabled = false;
