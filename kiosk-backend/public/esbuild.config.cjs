@@ -13,12 +13,6 @@ const jsFiles = [
     'user.js',
 ];
 
-const cssFiles = [
-    'style.css',
-    'components.css',
-    'buttons.css',
-];
-
 // JS bündeln und minifizieren
 esbuild.build({
     entryPoints: jsFiles.map(f => path.join(__dirname, f)),
@@ -32,13 +26,4 @@ esbuild.build({
     logLevel: 'info',
 }).catch(() => process.exit(1));
 
-// CSS bündeln und minifizieren
-esbuild.build({
-    entryPoints: cssFiles.map(f => path.join(__dirname, f)),
-    outdir: path.join(__dirname, 'dist'),
-    bundle: true,
-    minify: true,
-    sourcemap: false,
-    logLevel: 'info',
-    loader: { '.css': 'css' },
-}).catch(() => process.exit(1));
+// CSS wird jetzt ausschließlich von Tailwind CLI gebaut (siehe package.json build:css)
