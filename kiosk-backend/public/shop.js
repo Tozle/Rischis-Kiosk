@@ -39,11 +39,17 @@ function showMessage(text, type = 'info') {
   // Toast-Benachrichtigungssystem wie im Adminbereich
   const toast = document.getElementById('toast');
   if (!toast) return;
-  toast.textContent = text;
-  toast.className = `fixed left-1/2 top-6 z-50 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-center text-sm font-semibold transition-opacity duration-300 pointer-events-none ${type === 'error' ? 'bg-red-600' : 'bg-green-600'} text-white opacity-100`;
+  let icon = '';
+  if (type === 'success') {
+    icon = `<svg class='inline w-5 h-5 mr-2 -mt-1 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7' /></svg>`;
+  } else if (type === 'error') {
+    icon = `<svg class='inline w-5 h-5 mr-2 -mt-1 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12' /></svg>`;
+  }
+  toast.innerHTML = icon + text;
+  toast.className = `fixed left-1/2 top-6 z-50 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-center text-base font-semibold transition-opacity duration-300 pointer-events-none ${type === 'error' ? 'bg-red-600' : 'bg-green-600'} text-white opacity-100`;
   setTimeout(() => {
     toast.classList.add('opacity-0');
-  }, 4000);
+  }, 3500);
 }
 
 async function loadUser() {
@@ -258,6 +264,12 @@ async function buyProduct(productId, qtyInputId, productName, unitPrice) {
   const confirmText = `Möchtest du wirklich ${qty}x ${productName} für ${(unitPrice * qty).toFixed(2)} € kaufen?`;
   if (!confirm(confirmText)) return;
 
+  // Button-Feedback: Kaufen-Button finden und deaktivieren
+  const buyBtn = document.querySelector(`.buy-btn[data-id="${productId}"]`);
+  if (buyBtn) {
+    buyBtn.disabled = true;
+    buyBtn.textContent = '...';
+  }
   try {
     const token = await getCsrfToken();
     const res = await fetch(`${BACKEND_URL}/api/buy`, {
@@ -278,12 +290,29 @@ async function buyProduct(productId, qtyInputId, productName, unitPrice) {
       `Erfolgreich ${qty}x ${productName} für ${totalPrice} € gekauft!`,
       'success',
     );
+    // Button-Animation und Reset
+    if (buyBtn) {
+      buyBtn.textContent = 'Gekauft!';
+      buyBtn.classList.add('bg-green-700');
+      setTimeout(() => {
+        buyBtn.textContent = 'Kaufen';
+        buyBtn.classList.remove('bg-green-700');
+        buyBtn.disabled = false;
+      }, 1200);
+    }
+    // Menge zurücksetzen
+    const qtyDisplay = document.getElementById(qtyInputId);
+    if (qtyDisplay) qtyDisplay.textContent = '1';
     await loadUser();
     await loadProducts();
     await loadPurchaseHistory();
   } catch (err) {
     console.error(err);
-    showMessage('Fehler beim Kauf', 'error');
+    showMessage(err.message || 'Fehler beim Kauf', 'error');
+    if (buyBtn) {
+      buyBtn.textContent = 'Kaufen';
+      buyBtn.disabled = false;
+    }
   }
 }
 
