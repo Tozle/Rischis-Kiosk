@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "build:css": "tailwindcss -i ./public/style.css -o ./public/dist/style.css --minify",
+  "build:css": "npx tailwindcss -i ./public/style.css -o ./public/dist/style.css --minify",
     "build": "npm run build:css && node ./public/esbuild.config.js",
     "test": "node --experimental-vm-modules --require dotenv/config ./node_modules/jest/bin/jest.js",
     "lint": "eslint .",
