@@ -158,11 +158,11 @@ function renderUserList(users) {
         <span class="text-xs text-gray-500 dark:text-gray-400">${u.email}</span>
       </div>
       <div class="flex gap-2 mt-2 sm:mt-0">
-        <button class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 flex items-center gap-1 text-xs" title="Bearbeiten" onclick="editUser('${u.id}', '${u.name}')">
+        <button class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 flex items-center gap-1 text-xs edit-user-btn" data-id="${u.id}" data-name="${u.name}" title="Bearbeiten">
           <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M11 5h2m-1 0v14m-7-7h14' /></svg>
           Bearbeiten
         </button>
-        <button class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 flex items-center gap-1 text-xs" title="Löschen" onclick="deleteUser('${u.id}')">
+        <button class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 flex items-center gap-1 text-xs delete-user-btn" data-id="${u.id}" title="Löschen">
           <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12' /></svg>
           Löschen
         </button>
@@ -170,43 +170,55 @@ function renderUserList(users) {
     `;
     list.appendChild(li);
   });
-  // Undo-fähige Benutzerlöschung
-  let lastDeletedUser = null;
-  async function deleteUser(id) {
-    if (!(await confirmAction('Benutzer wirklich löschen? Alle Käufe bleiben erhalten.'))) return;
+  // Event Delegation für User-Buttons
+  list.onclick = function(e) {
+    const editBtn = e.target.closest('.edit-user-btn');
+    if (editBtn) {
+      editUser(editBtn.dataset.id, editBtn.dataset.name);
+      return;
+    }
+    const delBtn = e.target.closest('.delete-user-btn');
+    if (delBtn) {
+      deleteUser(delBtn.dataset.id);
+      return;
+    }
+  };
+// Undo-fähige Benutzerlöschung (global)
+let lastDeletedUser = null;
+async function deleteUser(id) {
+  if (!(await confirmAction('Benutzer wirklich löschen? Alle Käufe bleiben erhalten.'))) return;
+  showLoader(true);
+  // Hole Userdaten vor dem Löschen
+  const res = await fetch(`${BACKEND_URL}/api/admin/users`, { credentials: 'include' });
+  const users = await res.json();
+  const user = users.find(u => u.id === id);
+  lastDeletedUser = user ? { ...user } : null;
+  const token = await getCsrfToken();
+  await fetch(`${BACKEND_URL}/api/admin/users/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: { 'x-csrf-token': token },
+  });
+  showLoader(false);
+  showToast('Benutzer gelöscht.', 'success', 5000, async () => {
+    if (!lastDeletedUser) return;
     showLoader(true);
-    // Hole Userdaten vor dem Löschen
-    const res = await fetch(`${BACKEND_URL}/api/admin/users`, { credentials: 'include' });
-    const users = await res.json();
-    const user = users.find(u => u.id === id);
-    lastDeletedUser = user ? { ...user } : null;
-    const token = await getCsrfToken();
-    await fetch(`${BACKEND_URL}/api/admin/users/${id}`, {
-      method: 'DELETE',
+    const token2 = await getCsrfToken();
+    await fetch(`${BACKEND_URL}/api/admin/users`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       credentials: 'include',
-      headers: { 'x-csrf-token': token },
+      body: JSON.stringify(lastDeletedUser)
     });
     showLoader(false);
-    showToast('Benutzer gelöscht.', 'success', 5000, async () => {
-      if (!lastDeletedUser) return;
-      showLoader(true);
-      const token2 = await getCsrfToken();
-      await fetch(`${BACKEND_URL}/api/admin/users`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(lastDeletedUser)
-      });
-      showLoader(false);
-      showToast('Löschung rückgängig gemacht!', 'success');
-      loadUserPasswords();
-      lastDeletedUser = null;
-    });
+    showToast('Löschung rückgängig gemacht!', 'success');
     loadUserPasswords();
-  }
-  window.deleteUser = deleteUser;
+    lastDeletedUser = null;
+  });
+  loadUserPasswords();
+}
 }
 
 function exportUsersCSV() {
@@ -347,15 +359,15 @@ async function loadProducts() {
         </div>
       </div>
       <div class="flex flex-row gap-2 mt-3 sm:mt-0 sm:ml-4">
-        <button onclick="toggleAvailability('${p.id}', ${p.available})" class="bg-yellow-500 text-white text-xs px-2 py-1 rounded shadow hover:bg-yellow-600 focus:outline-none flex items-center gap-1" title="${p.available ? 'Verstecken' : 'Anzeigen'}">
+        <button class="bg-yellow-500 text-white text-xs px-2 py-1 rounded shadow hover:bg-yellow-600 focus:outline-none flex items-center gap-1 toggle-availability-btn" data-id="${p.id}" data-available="${p.available}" title="${p.available ? 'Verstecken' : 'Anzeigen'}">
           <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' /></svg>
           ${p.available ? 'Verstecken' : 'Anzeigen'}
         </button>
-        <button onclick="editProduct('${p.id}')" class="bg-blue-600 text-white text-xs px-2 py-1 rounded shadow hover:bg-blue-700 focus:outline-none flex items-center gap-1" title="Bearbeiten">
+        <button class="bg-blue-600 text-white text-xs px-2 py-1 rounded shadow hover:bg-blue-700 focus:outline-none flex items-center gap-1 edit-product-btn" data-id="${p.id}" title="Bearbeiten">
           <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M11 5h2m-1 0v14m-7-7h14' /></svg>
           Bearbeiten
         </button>
-        <button onclick="deleteProduct('${p.id}')" class="bg-red-600 text-white text-xs px-2 py-1 rounded shadow hover:bg-red-700 focus:outline-none flex items-center gap-1" title="Löschen">
+        <button class="bg-red-600 text-white text-xs px-2 py-1 rounded shadow hover:bg-red-700 focus:outline-none flex items-center gap-1 delete-product-btn" data-id="${p.id}" title="Löschen">
           <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12' /></svg>
           Löschen
         </button>
@@ -363,6 +375,24 @@ async function loadProducts() {
     `;
     list.appendChild(li);
   });
+  // Event Delegation für Produkt-Buttons
+  list.onclick = function(e) {
+    const toggleBtn = e.target.closest('.toggle-availability-btn');
+    if (toggleBtn) {
+      toggleAvailability(toggleBtn.dataset.id, toggleBtn.dataset.available === 'true');
+      return;
+    }
+    const editBtn = e.target.closest('.edit-product-btn');
+    if (editBtn) {
+      editProduct(editBtn.dataset.id);
+      return;
+    }
+    const delBtn = e.target.closest('.delete-product-btn');
+    if (delBtn) {
+      deleteProduct(delBtn.dataset.id);
+      return;
+    }
+  };
 }
 
 document.getElementById('category-filter')?.addEventListener('change', loadProducts);
@@ -735,21 +765,59 @@ async function editUser(id, currentName) {
 async function loadUserBalances() {
   const res = await fetch(`${BACKEND_URL}/api/admin/users`, { credentials: 'include' });
   const data = await res.json();
-  document.getElementById('balance-control-list').innerHTML = data.map(u => {
+  const list = document.getElementById('balance-control-list');
+  list.innerHTML = data.map(u => {
     const cls = u.balance < 0 ? 'text-red-600 dark:text-red-400 font-bold' : 'text-green-600 dark:text-green-400 font-bold';
     return `<li class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm mb-2">
       <span class="flex-1 font-semibold">${u.name}: <span class="${cls}">${u.balance.toFixed(2)} €</span></span>
       <div class="flex gap-2 mt-2 sm:mt-0">
         <input type="number" id="bal-${u.id}" class="w-20 border px-2 py-1 rounded" step="0.01" />
-        <button onclick="updateBalance('${u.id}', 'add')" class="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 flex items-center gap-1 text-xs" title="Guthaben erhöhen">
+        <button class="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 flex items-center gap-1 text-xs balance-add-btn" data-id="${u.id}" title="Guthaben erhöhen">
           <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4' /></svg>
         </button>
-        <button onclick="updateBalance('${u.id}', 'subtract')" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 flex items-center gap-1 text-xs" title="Guthaben verringern">
+        <button class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 flex items-center gap-1 text-xs balance-sub-btn" data-id="${u.id}" title="Guthaben verringern">
           <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M20 12H4' /></svg>
         </button>
       </div>
     </li>`;
   }).join('');
+  // Event Delegation für Guthaben-Buttons
+  list.onclick = function(e) {
+    const addBtn = e.target.closest('.balance-add-btn');
+    if (addBtn) {
+      updateBalance(addBtn.dataset.id, 'add');
+      return;
+    }
+    const subBtn = e.target.closest('.balance-sub-btn');
+    if (subBtn) {
+      updateBalance(subBtn.dataset.id, 'subtract');
+      return;
+    }
+  };
+// updateBalance muss global sein
+async function updateBalance(id, action) {
+  const val = parseFloat(document.getElementById('bal-' + id).value);
+  if (isNaN(val)) return showToast('Ungültiger Betrag.', 'error');
+  showLoader(true);
+  const res = await fetch(`${BACKEND_URL}/api/admin/users/${id}`, { credentials: 'include' });
+  const user = await res.json();
+  let newBalance = user.balance;
+  if (action === 'add') newBalance += val; else newBalance -= val;
+  const token = await getCsrfToken();
+  await fetch(`${BACKEND_URL}/api/admin/users/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-csrf-token': token,
+    },
+    credentials: 'include',
+    body: JSON.stringify({ balance: newBalance })
+  });
+  showLoader(false);
+  showToast('Guthaben aktualisiert.', 'success');
+  loadUserBalances();
+  loadStats();
+}
 }
 
 async function updateBalance(id, action) {
@@ -824,7 +892,8 @@ function filterAndRenderBuyProducts() {
 }
 
 async function buyForUser(productId, qty) {
-  const userId = document.getElementById('buy-user')?.value;
+  const userSelect = document.getElementById('buy-user');
+  const userId = userSelect?.value;
   if (!userId || !productId || isNaN(qty) || qty <= 0) return;
   const token = await getCsrfToken();
   const res = await fetch(`${BACKEND_URL}/api/admin/buy`, {
@@ -838,12 +907,22 @@ async function buyForUser(productId, qty) {
   });
   const result = await res.json();
   const msgEl = document.getElementById('buy-for-user-result');
-  msgEl.textContent = res.ok ? 'Kauf durchgeführt' : result.error || 'Fehler';
   if (res.ok) {
+    // Nutzername für Feedback holen
+    const userName = userSelect.options[userSelect.selectedIndex]?.textContent || '';
+    msgEl.textContent = '';
+    showToast(`Kauf für ${userName} erfolgreich!`, 'success', 3500);
+    // Felder zurücksetzen
+    document.getElementById('buy-product-search').value = '';
+    // Setze alle Mengenfelder zurück auf 1
+    document.querySelectorAll('.buy-qty-input').forEach(input => input.value = 1);
     loadStats();
     loadProducts();
     loadUserBalances();
     loadBuyProducts();
+  } else {
+    msgEl.textContent = result.error || 'Fehler';
+    showToast(result.error || 'Fehler beim Kauf', 'error', 4000);
   }
 }
 

@@ -1,5 +1,5 @@
 // CSP-konformes Event-Binding für Darkmode-Button
-function toggleDarkMode() {
+function toggleDarkModeShop() {
   const isDark = document.documentElement.classList.toggle('dark');
   localStorage.setItem('darkMode', isDark ? 'true' : 'false');
 }
@@ -9,7 +9,7 @@ if (localStorage.getItem('darkMode') !== 'false') {
 document.addEventListener('DOMContentLoaded', () => {
   const darkBtn = document.getElementById('darkmode-toggle-btn');
   if (darkBtn) {
-    darkBtn.addEventListener('click', toggleDarkMode);
+    darkBtn.addEventListener('click', toggleDarkModeShop);
   }
 });
 // shop.js – ersetzt Supabase-Zugriffe durch sichere API-Aufrufe an dein Backend
@@ -185,11 +185,11 @@ function renderProductList(products) {
             ${product.stock > 0
         ? `<div class="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 mt-2 w-full">
                   <div class='flex flex-row items-center gap-2 justify-center xs:justify-start'>
-                    <button type="button" aria-label="Weniger" class="bg-gray-200 dark:bg-gray-600 text-lg px-3 py-2 rounded-full font-bold focus:ring-2 focus:ring-cyan-400" onclick="changeQty('${product.id}', -1, ${product.stock})">-</button>
+                    <button type="button" aria-label="Weniger" class="bg-gray-200 dark:bg-gray-600 text-lg px-3 py-2 rounded-full font-bold focus:ring-2 focus:ring-cyan-400 qty-minus-btn" data-id="${product.id}" data-max="${product.stock}">-</button>
                     <span id="qty-display-${product.id}" class="inline-block w-10 text-center select-none font-semibold text-lg">1</span>
-                    <button type="button" aria-label="Mehr" class="bg-gray-200 dark:bg-gray-600 text-lg px-3 py-2 rounded-full font-bold focus:ring-2 focus:ring-cyan-400" onclick="changeQty('${product.id}', 1, ${product.stock})">+</button>
+                    <button type="button" aria-label="Mehr" class="bg-gray-200 dark:bg-gray-600 text-lg px-3 py-2 rounded-full font-bold focus:ring-2 focus:ring-cyan-400 qty-plus-btn" data-id="${product.id}" data-max="${product.stock}">+</button>
                   </div>
-                  <button class="btn-main w-full xs:w-auto px-5 py-2 text-base" style="min-width: 100px;" onclick="buyProduct('${product.id}', 'qty-display-${product.id}', '${product.name}', ${product.price})">Kaufen</button>
+                  <button class="btn-main w-full xs:w-auto px-5 py-2 text-base buy-btn" style="min-width: 100px;" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">Kaufen</button>
                 </div>`
         : '<span class="text-red-500 font-semibold">Ausverkauft</span>'
       }
@@ -199,6 +199,24 @@ function renderProductList(products) {
     `;
     list.appendChild(li);
   });
+  // Event Delegation für Kaufen und Menge ändern
+  list.onclick = function(e) {
+    const minusBtn = e.target.closest('.qty-minus-btn');
+    if (minusBtn) {
+      changeQty(minusBtn.dataset.id, -1, parseInt(minusBtn.dataset.max));
+      return;
+    }
+    const plusBtn = e.target.closest('.qty-plus-btn');
+    if (plusBtn) {
+      changeQty(plusBtn.dataset.id, 1, parseInt(plusBtn.dataset.max));
+      return;
+    }
+    const buyBtn = e.target.closest('.buy-btn');
+    if (buyBtn) {
+      buyProduct(buyBtn.dataset.id, `qty-display-${buyBtn.dataset.id}`, buyBtn.dataset.name, parseFloat(buyBtn.dataset.price));
+      return;
+    }
+  };
 }
 
 async function loadPurchaseHistory() {
