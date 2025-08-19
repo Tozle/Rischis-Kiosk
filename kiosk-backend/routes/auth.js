@@ -12,7 +12,7 @@ router.post(
   loginLimiter,
   validateLogin,
   asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
+  const { name, email, password } = req.body;
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -102,7 +102,7 @@ router.post(
 
     await supabase.from('users').insert({
       id: user.id,
-      name: email.split('@')[0],
+      name: name || email.split('@')[0],
       email,
       role: 'buyer',
       balance: 0,

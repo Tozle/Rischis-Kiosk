@@ -68,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
       switchForm('login');
     });
   }
-});
 
 // LOGIN
 document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -95,25 +94,21 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     });
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || 'Login fehlgeschlagen');
-    showMessage('Login erfolgreich! Weiterleitung...', true);
+    // Personalisierte Begrüßung anzeigen (mit echtem Namen)
     sessionStorage.setItem('firstLogin', 'true');
-    const waitForSession = async (retries = 10) => {
-      for (let i = 0; i < retries; i++) {
-        try {
-          const meRes = await fetch(`${BACKEND_URL}/api/auth/me`, {
-            credentials: 'include',
-          });
-          const meData = await meRes.json();
-          if (meRes.ok && meData.loggedIn) {
-            window.location.href = 'dashboard.html';
-            return;
-          }
-        } catch { }
-        await new Promise((r) => setTimeout(r, 500));
-      }
-      window.location.href = 'dashboard.html';
-    };
-    await waitForSession();
+    let name = null;
+    for (let i = 0; i < 10; i++) {
+      try {
+        const meRes = await fetch(`${BACKEND_URL}/api/auth/me`, { credentials: 'include' });
+        const meData = await meRes.json();
+        if (meRes.ok && meData.loggedIn && meData.user && meData.user.name) {
+          name = meData.user.name;
+          break;
+        }
+      } catch {}
+      await new Promise((r) => setTimeout(r, 500));
+    }
+    showLoginGreeting(name || email.split('@')[0]);
   } catch (err) {
     console.error(err);
     showMessage(err.message || 'Fehler beim Login');
@@ -123,16 +118,76 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     btnText.classList.remove('opacity-50');
     loader.classList.add('hidden');
   }
-});
+
+// Lustige Begrüßung mit Animation nach Login
+function showLoginGreeting(email) {
+  const greetings = [
+    'Willkommen zurück, {name}! 😺',
+    'Schön, dass du wieder da bist, {name}! 🎉',
+    'Bereit für Snacks, {name}? 🍫',
+    'Möge der Kiosk mit dir sein, {name}! 🚀',
+    'Let’s Kiosk, {name}! 😎',
+    'Zeit für eine Pause, {name}! ☕',
+    'Du bist der Kiosk-King, {name}! 👑',
+    'Snack-Alarm für {name}! 🛎️',
+    'Miau, {name}! 🐾',
+    'Kiosk-Power aktiviert, {name}! ⚡',
+  ];
+  // Name kann direkt übergeben werden
+  let name = email;
+  if (typeof name === 'string') {
+    name = name.charAt(0).toUpperCase() + name.slice(1);
+  } else {
+    name = 'Gast';
+  }
+  const greeting = greetings[Math.floor(Math.random() * greetings.length)].replace('{name}', name);
+  // Overlay erzeugen
+  let overlay = document.createElement('div');
+  overlay.id = 'login-greeting-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(16,185,129,0.95)';
+  overlay.style.display = 'flex';
+  overlay.style.flexDirection = 'column';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '9999';
+  overlay.style.transition = 'opacity 0.5s';
+  overlay.style.opacity = '0';
+  overlay.innerHTML = `
+    <div style="background:rgba(255,255,255,0.95);color:#134e4a;padding:2.5rem 2rem 2rem 2rem;border-radius:2rem;box-shadow:0 8px 32px 0 rgba(16,185,129,0.18);font-size:2rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:1.2rem;max-width:90vw;text-align:center;animation:bounceIn 0.7s;">
+      <span style="font-size:2.5rem;">🎈</span>
+      <span>${greeting}</span>
+    </div>
+    <style>
+      @keyframes bounceIn {
+        0% { transform: scale(0.7); opacity: 0; }
+        60% { transform: scale(1.1); opacity: 1; }
+        80% { transform: scale(0.95); }
+        100% { transform: scale(1); opacity: 1; }
+      }
+    </style>
+  `;
+  document.body.appendChild(overlay);
+  setTimeout(() => { overlay.style.opacity = '1'; }, 10);
+  // Nach 1.7s ausblenden und weiterleiten
+  setTimeout(() => {
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.remove();
+      window.location.href = 'dashboard.html';
+    }, 500);
+  }, 1700);
 
 // REGISTRIERUNG
 document
   .getElementById('register-form')
   .addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('register-email').value.trim();
-    const password = document.getElementById('register-password').value;
-    const repeat = document.getElementById('register-password-repeat').value;
+  const name = document.getElementById('register-name').value.trim();
+  const email = document.getElementById('register-email').value.trim();
+  const password = document.getElementById('register-password').value;
+  const repeat = document.getElementById('register-password-repeat').value;
 
     if (password !== repeat)
       return showMessage('Passwörter stimmen nicht überein.');
@@ -146,7 +201,7 @@ document
           'x-csrf-token': token,
         },
         credentials: 'include',
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ name, email, password }),
       });
 
       const result = await res.json();

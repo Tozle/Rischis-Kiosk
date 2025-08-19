@@ -74,6 +74,10 @@
     </form>
 
     <form id="register-form" class="space-y-5 hidden" aria-label="Registrierungs-Formular" autocomplete="on">
+      <label for="register-name" class="sr-only">Benutzername</label>
+      <input type="text" id="register-name" aria-label="Benutzername" autocomplete="nickname" required
+        class="w-full px-4 py-3 border-2 rounded-2xl focus:ring-2 focus:ring-cyan-400" placeholder="Benutzername"
+        title="Bitte gib einen Benutzernamen ein" />
       <label for="register-email" class="sr-only">E-Mail</label>
       <input type="email" id="register-email" aria-label="E-Mail" autocomplete="username" required
         class="w-full px-4 py-3 border-2 rounded-2xl focus:ring-2 focus:ring-cyan-400" placeholder="E-Mail"
