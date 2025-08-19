@@ -18,21 +18,21 @@ router.get(
         supabase.from('purchases').select('product_id, price, quantity'),
       ]);
 
-  const totalBalance = users.reduce((sum, u) => sum + (u.balance || 0), 0);
-  const shopValue = products.reduce(
-    (sum, p) => sum + (p.stock || 0) * (p.price || 0),
-    0,
-  );
-  const totalRevenue = purchases.reduce((sum, p) => sum + (p.price || 0), 0);
-  let totalCost = 0;
-  const productMap = new Map(products.map((p) => [p.id, p]));
-  purchases.forEach((purchase) => {
-    const product = productMap.get(purchase.product_id);
-    if (product)
-      totalCost += (product.purchase_price || 0) * (purchase.quantity || 1);
-  });
+    const totalBalance = users.reduce((sum, u) => sum + (u.balance || 0), 0);
+    const shopValue = products.reduce(
+      (sum, p) => sum + (p.stock || 0) * (p.price || 0),
+      0,
+    );
+    const totalRevenue = purchases.reduce((sum, p) => sum + (p.price || 0), 0);
+    let totalCost = 0;
+    const productMap = new Map(products.map((p) => [p.id, p]));
+    purchases.forEach((purchase) => {
+      const product = productMap.get(purchase.product_id);
+      if (product)
+        totalCost += (product.purchase_price || 0) * (purchase.quantity || 1);
+    });
 
-  const profit = totalRevenue - totalCost;
+    const profit = totalRevenue - totalCost;
 
     res.json({
       users,

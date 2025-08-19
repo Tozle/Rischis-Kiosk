@@ -10,13 +10,13 @@ router.get(
   asyncHandler(async (req, res) => {
     const user = req.user;
 
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-  if (error || !data)
-    return res.status(404).json({ error: 'Nutzer nicht gefunden' });
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    if (error || !data)
+      return res.status(404).json({ error: 'Nutzer nicht gefunden' });
 
     const { data: session } = await supabase
       .from('user_sessions')

@@ -106,54 +106,11 @@
         const interval = setInterval(() => { heartbeat(); updateOnlineUI(); }, 10000);
         // Beim Verlassen austragen
         window.addEventListener('beforeunload', () => { removeOnline(); clearInterval(interval); });
-        window.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'hidden') removeOnline();
-            if (document.visibilityState === 'visible') { heartbeat(); updateOnlineUI(); }
-        });
-    })();
-            <img src="${player.image || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(player.name)}" alt="${player.name}" class="w-12 h-12 rounded-full border border-gray-300 object-cover mb-1" style="background:#eee;" />
-            <span class="text-xs font-medium">${player.name}</span>
-          </div > `;
-        });
-        html += '</div></div>';
-      }
+    window.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') removeOnline();
+      if (document.visibilityState === 'visible') { heartbeat(); updateOnlineUI(); }
     });
-    onlineList.innerHTML = html;
-  }
-
-  if (onlineBtn && onlineOverlay && onlineClose) {
-    onlineBtn.addEventListener('click', () => {
-      renderOnlineList();
-      onlineOverlay.classList.remove('hidden');
-      onlineClose.focus();
-    });
-    onlineClose.addEventListener('click', () => {
-      onlineOverlay.classList.add('hidden');
-      onlineBtn.focus();
-    });
-    onlineOverlay.addEventListener('click', (e) => {
-      if (e.target === onlineOverlay) {
-        onlineOverlay.classList.add('hidden');
-        onlineBtn.focus();
-      }
-    });
-    document.addEventListener('keydown', (e) => {
-      if (!onlineOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) {
-        onlineOverlay.classList.add('hidden');
-        onlineBtn.focus();
-      }
-    });
-    updateOnlineCount();
-  }
-});
-// games.js
-// Öffnet und schließt das Modal für neue Lobbys
-
-document.addEventListener('DOMContentLoaded', () => {
-  const createBtn = document.getElementById('create-lobby-btn');
-  const modal = document.getElementById('lobby-modal');
-  const closeBtn = document.getElementById('lobby-modal-close');
-  const form = document.getElementById('lobby-form');
+  })();
 
   if (createBtn && modal && closeBtn) {
     createBtn.addEventListener('click', () => {
@@ -185,6 +142,36 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Es sind aktuell noch keine Spiele verfügbar.');
       modal.classList.add('hidden');
       createBtn.focus();
+    });
+  }
+});
+
+// Online-User-Button und Overlay steuern
+document.addEventListener('DOMContentLoaded', () => {
+  const onlineBtn = document.getElementById('games-online-btn');
+  const onlineOverlay = document.getElementById('games-online-overlay');
+  const onlineClose = document.getElementById('games-online-close');
+
+  if (onlineBtn && onlineOverlay && onlineClose) {
+    onlineBtn.addEventListener('click', () => {
+      onlineOverlay.classList.remove('hidden');
+      onlineClose.focus();
+    });
+    onlineClose.addEventListener('click', () => {
+      onlineOverlay.classList.add('hidden');
+      onlineBtn.focus();
+    });
+    onlineOverlay.addEventListener('click', (e) => {
+      if (e.target === onlineOverlay) {
+        onlineOverlay.classList.add('hidden');
+        onlineBtn.focus();
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (!onlineOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) {
+        onlineOverlay.classList.add('hidden');
+        onlineBtn.focus();
+      }
     });
   }
 });
