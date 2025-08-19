@@ -1,6 +1,6 @@
 
 import express from 'express';
-import supabase from '../utils/supabase.js';
+import { supabase } from '../utils/supabase.js';
 import { setAuthCookies, clearAuthCookies } from '../utils/authCookies.js';
 import { validateLogin, validateRegister } from '../middleware/validate.js';
 import { loginLimiter } from '../middleware/rateLimiter.js';

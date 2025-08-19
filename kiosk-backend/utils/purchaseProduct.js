@@ -1,4 +1,4 @@
-import supabase from './supabase.js';
+import { supabase } from './supabase.js';
 
 export default async function purchaseProduct(user, product, quantity) {
   const total = quantity * product.price;

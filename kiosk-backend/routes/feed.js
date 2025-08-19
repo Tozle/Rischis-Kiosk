@@ -1,6 +1,6 @@
 import express from 'express';
-import supabase from '../utils/supabase.js';
-import getUserFromRequest from '../utils/getUser.js';
+import { supabase } from '../utils/supabase.js';
+import { getUser as getUserFromRequest } from '../utils/getUser.js';
 import getUserName from '../utils/getUserName.js';
 import { requireAdmin } from '../middleware/auth.js';
 import asyncHandler from '../utils/asyncHandler.js';

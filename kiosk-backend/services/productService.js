@@ -1,4 +1,4 @@
-import supabase from '../utils/supabase.js';
+import { supabase } from '../utils/supabase.js';
 
 const SORT_OPTIONS = {
   price_desc: { column: 'price', asc: false },

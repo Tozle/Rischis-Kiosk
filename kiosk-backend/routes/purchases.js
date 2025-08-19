@@ -1,6 +1,6 @@
 // routes/purchases.js
 import express from 'express';
-import supabase from '../utils/supabase.js';
+import { supabase } from '../utils/supabase.js';
 import { requireAuth } from '../middleware/auth.js';
 import asyncHandler from '../utils/asyncHandler.js';
 const router = express.Router();

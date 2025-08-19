@@ -1,6 +1,6 @@
 import express from 'express';
 import getUserRole from '../utils/getUserRole.js';
-import getUserFromRequest from '../utils/getUser.js';
+import { getUser as getUserFromRequest } from '../utils/getUser.js';
 import { listProducts } from '../services/productService.js';
 import asyncHandler from '../utils/asyncHandler.js';
 const router = express.Router();

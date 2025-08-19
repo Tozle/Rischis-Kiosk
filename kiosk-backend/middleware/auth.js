@@ -1,4 +1,4 @@
-import getUserFromRequest from '../utils/getUser.js';
+import { getUser as getUserFromRequest } from '../utils/getUser.js';
 import getUserRole from '../utils/getUserRole.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
