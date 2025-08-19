@@ -6,7 +6,6 @@
     color: #134e4a !important;
     background: #fff !important;
     caret-color: #134e4a !important;
-}
 
 .dark #login-email,
 .dark #register-email {
@@ -57,7 +56,96 @@
     box-shadow: 0 0 0 2px #38bdf833;
 }
 
-/* Animations & Feedback */
+
+/* Verbesserte Inputs */
+input, select, textarea {
+    border-radius: 0.5rem;
+    border: 1.5px solid #bae6fd;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    transition: border 0.15s, box-shadow 0.15s;
+}
+input:focus, select:focus, textarea:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 2px #38bdf833;
+    outline: none;
+}
+
+/* Zebra-Striping für Listen */
+#product-list > li:nth-child(even),
+#purchase-history > li:nth-child(even),
+#user-manage-list > li:nth-child(even),
+#balance-control-list > li:nth-child(even) {
+    background: #f0fdfa;
+}
+.dark #product-list > li:nth-child(even),
+.dark #purchase-history > li:nth-child(even),
+.dark #user-manage-list > li:nth-child(even),
+.dark #balance-control-list > li:nth-child(even) {
+    background: #1e293b;
+}
+
+/* Hover für Listen */
+#product-list > li:hover,
+#purchase-history > li:hover,
+#user-manage-list > li:hover,
+#balance-control-list > li:hover {
+    background: #a7f3d0;
+    cursor: pointer;
+}
+.dark #product-list > li:hover,
+.dark #purchase-history > li:hover,
+.dark #user-manage-list > li:hover,
+.dark #balance-control-list > li:hover {
+    background: #134e4a;
+}
+
+/* Toast & Loader Verbesserungen */
+#toast {
+    background: #f0fdfa;
+    color: #134e4a;
+    border: 1.5px solid #bae6fd;
+    box-shadow: 0 4px 24px 0 rgba(16, 185, 129, 0.18);
+    font-size: 1.1rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.2s;
+    transform: translateY(-10px) scale(0.98);
+    z-index: 1000;
+}
+#toast.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+}
+.dark #toast {
+    background: #0f172a;
+    color: #a7f3d0;
+    border: 1.5px solid #334155;
+}
+
+#loader {
+    background: rgba(16, 185, 129, 0.10);
+    z-index: 1000;
+}
+#loader .animate-spin {
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Skip-Link besser sichtbar */
+.skip-link:focus {
+    background: #bae6fd;
+    color: #0e7490;
+    outline: 2px solid #38bdf8;
+    outline-offset: 2px;
+    z-index: 100;
+}
 .animate-fade-in {
     animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }

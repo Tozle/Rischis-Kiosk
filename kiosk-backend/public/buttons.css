@@ -1,4 +1,5 @@
-/* Button Styles ausgelagert für bessere Modularität */
+
+/* Verbesserte Buttons für modernes, konsistentes UI/UX */
 
 .btn-main {
     background: linear-gradient(90deg, #22d3ee 0%, #10b981 100%);
@@ -22,6 +23,8 @@
     padding: 0.75rem 1.5rem;
     line-height: 1.2;
     -webkit-tap-highlight-color: rgba(16, 185, 129, 0.15);
+    cursor: pointer;
+    position: relative;
 }
 
 .btn-main:hover,
@@ -32,6 +35,7 @@
     filter: brightness(1.08);
     outline: 2px solid #06b6d4;
     outline-offset: 2px;
+    z-index: 2;
 }
 
 .btn-main:active {
@@ -40,16 +44,27 @@
     box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.18);
 }
 
+.btn-main:focus {
+    outline: 2px solid #06b6d4;
+    outline-offset: 2px;
+}
+
 .btn-danger {
     background: linear-gradient(90deg, #ef4444 0%, #f59e42 100%);
+    color: #fff;
+    font-weight: 700;
 }
 
 .btn-info {
     background: linear-gradient(90deg, #38bdf8 0%, #0ea5e9 100%);
+    color: #fff;
+    font-weight: 700;
 }
 
 .btn-secondary {
     background: linear-gradient(90deg, #a78bfa 0%, #f472b6 100%);
+    color: #fff;
+    font-weight: 700;
 }
 
 .logout-btn {
@@ -58,7 +73,19 @@
     border: none;
     border-radius: 0.5rem;
     padding: 0.5rem 1.2rem;
+    font-weight: 700;
+    box-shadow: 0 2px 8px 0 rgba(239, 68, 68, 0.18);
+    transition: background 0.2s, box-shadow 0.15s;
+    cursor: pointer;
     font-size: 1rem;
+
+.logout-btn:hover,
+.logout-btn:focus-visible {
+    background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+    box-shadow: 0 4px 16px 0 rgba(239, 68, 68, 0.25);
+    outline: 2px solid #ef4444;
+    outline-offset: 2px;
+}
     font-weight: 600;
     margin-left: 1rem;
     cursor: pointer;
