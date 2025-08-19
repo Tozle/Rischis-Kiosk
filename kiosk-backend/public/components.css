@@ -7,264 +7,281 @@
     background: #fff !important;
     caret-color: #134e4a !important;
 
-.dark #login-email,
-.dark #register-email {
-    color: #134e4a !important;
-    background: #1e293b !important;
-    caret-color: #134e4a !important;
-}
+    .dark #login-email,
+    .dark #register-email {
+        color: #134e4a !important;
+        background: #1e293b !important;
+        caret-color: #134e4a !important;
+    }
 
-/* Darkmode-Feinschliff */
-.dark .btn-main {
-    background: linear-gradient(90deg, #0ea5e9 0%, #10b981 100%);
-    color: #e0f2fe;
-    box-shadow: 0 4px 16px 0 rgba(16, 185, 129, 0.18);
-}
+    /* Darkmode-Feinschliff */
+    .dark .btn-main {
+        background: linear-gradient(90deg, #0ea5e9 0%, #10b981 100%);
+        color: #e0f2fe;
+        box-shadow: 0 4px 16px 0 rgba(16, 185, 129, 0.18);
+    }
 
-.dark .btn-main:hover,
-.dark .btn-main:focus-visible {
-    background: linear-gradient(90deg, #10b981 0%, #0ea5e9 100%);
-    color: #fff;
-    box-shadow: 0 8px 32px 0 rgba(16, 185, 129, 0.25);
-}
+    .dark .btn-main:hover,
+    .dark .btn-main:focus-visible {
+        background: linear-gradient(90deg, #10b981 0%, #0ea5e9 100%);
+        color: #fff;
+        box-shadow: 0 8px 32px 0 rgba(16, 185, 129, 0.25);
+    }
 
-.dark .panel-shadow,
-.dark .glass-effect {
-    background: rgba(31, 41, 55, 0.97);
-    border-color: #334155;
-    color: #e0f2fe;
-}
+    .dark .panel-shadow,
+    .dark .glass-effect {
+        background: rgba(31, 41, 55, 0.97);
+        border-color: #334155;
+        color: #e0f2fe;
+    }
 
-.dark #toast {
-    background: #0f172a;
-    color: #a7f3d0;
-    border: 1.5px solid #334155;
-}
+    .dark #toast {
+        background: #0f172a;
+        color: #a7f3d0;
+        border: 1.5px solid #334155;
+    }
 
-.dark input,
-.dark select,
-.dark textarea {
-    background: #1e293b;
-    color: #e0f2fe;
-    border-color: #334155;
-}
+    .dark input,
+    .dark select,
+    .dark textarea {
+        background: #1e293b;
+        color: #e0f2fe;
+        border-color: #334155;
+    }
 
-.dark input:focus,
-.dark select:focus,
-.dark textarea:focus {
-    border-color: #38bdf8;
-    box-shadow: 0 0 0 2px #38bdf833;
-}
+    .dark input:focus,
+    .dark select:focus,
+    .dark textarea:focus {
+        border-color: #38bdf8;
+        box-shadow: 0 0 0 2px #38bdf833;
+    }
 
 
-/* Verbesserte Inputs */
-input, select, textarea {
-    border-radius: 0.5rem;
-    border: 1.5px solid #bae6fd;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    transition: border 0.15s, box-shadow 0.15s;
-}
-input:focus, select:focus, textarea:focus {
-    border-color: #38bdf8;
-    box-shadow: 0 0 0 2px #38bdf833;
-    outline: none;
-}
+    /* Verbesserte Inputs */
+    input,
+    select,
+    textarea {
+        border-radius: 0.5rem;
+        border: 1.5px solid #bae6fd;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        transition: border 0.15s, box-shadow 0.15s;
+    }
 
-/* Zebra-Striping für Listen */
-#product-list > li:nth-child(even),
-#purchase-history > li:nth-child(even),
-#user-manage-list > li:nth-child(even),
-#balance-control-list > li:nth-child(even) {
-    background: #f0fdfa;
-}
-.dark #product-list > li:nth-child(even),
-.dark #purchase-history > li:nth-child(even),
-.dark #user-manage-list > li:nth-child(even),
-.dark #balance-control-list > li:nth-child(even) {
-    background: #1e293b;
-}
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #38bdf8;
+        box-shadow: 0 0 0 2px #38bdf833;
+        outline: none;
+    }
 
-/* Hover für Listen */
-#product-list > li:hover,
-#purchase-history > li:hover,
-#user-manage-list > li:hover,
-#balance-control-list > li:hover {
-    background: #a7f3d0;
-    cursor: pointer;
-}
-.dark #product-list > li:hover,
-.dark #purchase-history > li:hover,
-.dark #user-manage-list > li:hover,
-.dark #balance-control-list > li:hover {
-    background: #134e4a;
-}
+    /* Zebra-Striping für Listen */
+    #product-list>li:nth-child(even),
+    #purchase-history>li:nth-child(even),
+    #user-manage-list>li:nth-child(even),
+    #balance-control-list>li:nth-child(even) {
+        background: #f0fdfa;
+    }
 
-/* Toast & Loader Verbesserungen */
-#toast {
-    background: #f0fdfa;
-    color: #134e4a;
-    border: 1.5px solid #bae6fd;
-    box-shadow: 0 4px 24px 0 rgba(16, 185, 129, 0.18);
-    font-size: 1.1rem;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s, transform 0.2s;
-    transform: translateY(-10px) scale(0.98);
-    z-index: 1000;
-}
-#toast.show {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0) scale(1);
-}
-.dark #toast {
-    background: #0f172a;
-    color: #a7f3d0;
-    border: 1.5px solid #334155;
-}
+    .dark #product-list>li:nth-child(even),
+    .dark #purchase-history>li:nth-child(even),
+    .dark #user-manage-list>li:nth-child(even),
+    .dark #balance-control-list>li:nth-child(even) {
+        background: #1e293b;
+    }
 
-#loader {
-    background: rgba(16, 185, 129, 0.10);
-    z-index: 1000;
-}
-#loader .animate-spin {
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+    /* Hover für Listen */
+    #product-list>li:hover,
+    #purchase-history>li:hover,
+    #user-manage-list>li:hover,
+    #balance-control-list>li:hover {
+        background: #a7f3d0;
+        cursor: pointer;
+    }
 
-/* Skip-Link besser sichtbar */
-.skip-link:focus {
-    background: #bae6fd;
-    color: #0e7490;
-    outline: 2px solid #38bdf8;
-    outline-offset: 2px;
-    z-index: 100;
-}
-.animate-fade-in {
-    animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-}
+    .dark #product-list>li:hover,
+    .dark #purchase-history>li:hover,
+    .dark #user-manage-list>li:hover,
+    .dark #balance-control-list>li:hover {
+        background: #134e4a;
+    }
 
-@keyframes fadeIn {
-    from {
+    /* Toast & Loader Verbesserungen */
+    #toast {
+        background: #f0fdfa;
+        color: #134e4a;
+        border: 1.5px solid #bae6fd;
+        box-shadow: 0 4px 24px 0 rgba(16, 185, 129, 0.18);
+        font-size: 1.1rem;
         opacity: 0;
-        transform: translateY(24px) scale(0.98);
+        pointer-events: none;
+        transition: opacity 0.3s, transform 0.2s;
+        transform: translateY(-10px) scale(0.98);
+        z-index: 1000;
     }
 
-    to {
+    #toast.show {
         opacity: 1;
-        transform: none;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
     }
-}
 
-.panel-shadow,
-.glass-effect {
-    transition: box-shadow 0.2s, background 0.2s;
-}
+    .dark #toast {
+        background: #0f172a;
+        color: #a7f3d0;
+        border: 1.5px solid #334155;
+    }
 
-#toast {
-    transition: opacity 0.3s, transform 0.3s;
-    will-change: opacity, transform;
-    pointer-events: none;
-    z-index: 9999;
-}
+    #loader {
+        background: rgba(16, 185, 129, 0.10);
+        z-index: 1000;
+    }
 
-/* Visuelles Feedback für Inputs */
-input:focus,
-select:focus,
-textarea:focus {
-    outline: 2px solid #06b6d4;
-    outline-offset: 2px;
-    box-shadow: 0 0 0 2px #a7f3d0;
-}
+    #loader .animate-spin {
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
 
-/* Gemeinsame Komponenten-Styles für Rischis Kiosk */
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
 
-.logout-btn {
-    background: linear-gradient(90deg, #f87171 0%, #ef4444 100%);
-    color: #fff;
-    border: none;
-    border-radius: 0.5rem;
-    padding: 0.5rem 1.2rem;
-    font-size: 1rem;
-    font-weight: 600;
-    margin-left: 1rem;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.08);
-    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
-}
+        100% {
+            transform: rotate(360deg);
+        }
+    }
 
-.logout-btn:focus {
-    outline: 2px solid #f87171;
-    outline-offset: 2px;
-}
+    /* Skip-Link besser sichtbar */
+    .skip-link:focus {
+        background: #bae6fd;
+        color: #0e7490;
+        outline: 2px solid #38bdf8;
+        outline-offset: 2px;
+        z-index: 100;
+    }
 
-.logout-btn:hover,
-.logout-btn:active {
-    background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%);
-    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.16);
-    transform: translateY(-2px) scale(1.03);
-}
+    .animate-fade-in {
+        animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-.panel-shadow,
-.glass-effect {
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-}
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(24px) scale(0.98);
+        }
 
-/* Skip-Link sichtbar bei Fokus */
-.skip-link {
-    position: absolute;
-    left: 0.5rem;
-    top: 0.5rem;
-    z-index: 1000;
-    background: #cffafe;
-    color: #0e7490;
-    padding: 0.5rem 1.2rem;
-    border-radius: 0.5rem;
-    font-weight: 600;
-    transform: translateY(-3rem);
-    transition: transform 0.2s;
-    outline: none;
-}
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
 
-.skip-link:focus {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.18);
-}
+    .panel-shadow,
+    .glass-effect {
+        transition: box-shadow 0.2s, background 0.2s;
+    }
 
-/* Inputs & focus */
-input,
-select,
-textarea {
-    border-radius: 0.75rem;
-    border: 1.5px solid #a7f3d0;
-    padding: 0.7em 1em;
-    font-size: 1rem;
-    background: #fff;
-    color: #134e4a;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-    margin-bottom: 0.5em;
-}
+    #toast {
+        transition: opacity 0.3s, transform 0.3s;
+        will-change: opacity, transform;
+        pointer-events: none;
+        z-index: 9999;
+    }
 
-/* E-Mail-Input immer gut sichtbar */
-#login-email,
-#register-email {
-    color: #134e4a !important;
-    background: #fff !important;
-}
+    /* Visuelles Feedback für Inputs */
+    input:focus,
+    select:focus,
+    textarea:focus {
+        outline: 2px solid #06b6d4;
+        outline-offset: 2px;
+        box-shadow: 0 0 0 2px #a7f3d0;
+    }
 
-.dark #login-email,
-.dark #register-email {
-    color: #e0f2fe !important;
-    background: #1e293b !important;
-}
+    /* Gemeinsame Komponenten-Styles für Rischis Kiosk */
+
+    .logout-btn {
+        background: linear-gradient(90deg, #f87171 0%, #ef4444 100%);
+        color: #fff;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1.2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-left: 1rem;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.08);
+        transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    }
+
+    .logout-btn:focus {
+        outline: 2px solid #f87171;
+        outline-offset: 2px;
+    }
+
+    .logout-btn:hover,
+    .logout-btn:active {
+        background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%);
+        box-shadow: 0 4px 16px rgba(239, 68, 68, 0.16);
+        transform: translateY(-2px) scale(1.03);
+    }
+
+    .panel-shadow,
+    .glass-effect {
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Skip-Link sichtbar bei Fokus */
+    .skip-link {
+        position: absolute;
+        left: 0.5rem;
+        top: 0.5rem;
+        z-index: 1000;
+        background: #cffafe;
+        color: #0e7490;
+        padding: 0.5rem 1.2rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transform: translateY(-3rem);
+        transition: transform 0.2s;
+        outline: none;
+    }
+
+    .skip-link:focus {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.18);
+    }
+
+    /* Inputs & focus */
+    input,
+    select,
+    textarea {
+        border-radius: 0.75rem;
+        border: 1.5px solid #a7f3d0;
+        padding: 0.7em 1em;
+        font-size: 1rem;
+        background: #fff;
+        color: #134e4a;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        outline: none;
+        margin-bottom: 0.5em;
+    }
+
+    /* E-Mail-Input immer gut sichtbar */
+    #login-email,
+    #register-email {
+        color: #134e4a !important;
+        background: #fff !important;
+    }
+
+    .dark #login-email,
+    .dark #register-email {
+        color: #e0f2fe !important;
+        background: #1e293b !important;
+    }
 }
 
 input:focus,

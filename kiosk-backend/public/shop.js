@@ -353,7 +353,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     faqOverlay.addEventListener('click', (e) => { if (e.target === faqOverlay) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
     document.addEventListener('keydown', (e) => { if (!faqOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
   } else {
-  // ...
+    // ...
   }
 
   // Darkmode logic

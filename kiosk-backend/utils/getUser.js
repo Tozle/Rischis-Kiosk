@@ -2,7 +2,7 @@
 import supabase from './supabase.js';
 import { setAuthCookies } from './authCookies.js';
 
-export default async function getUserFromRequest(req, res) {
+export async function getUser(req, res) {
   const access =
     req.headers.authorization?.replace('Bearer ', '') ||
     req.cookies?.['sb-access-token'];

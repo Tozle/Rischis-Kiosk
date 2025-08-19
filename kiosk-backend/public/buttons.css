@@ -1,4 +1,3 @@
-
 /* Verbesserte Buttons für modernes, konsistentes UI/UX */
 
 .btn-main {
@@ -79,18 +78,21 @@
     cursor: pointer;
     font-size: 1rem;
 
-.logout-btn:hover,
-.logout-btn:focus-visible {
-    background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
-    box-shadow: 0 4px 16px 0 rgba(239, 68, 68, 0.25);
-    outline: 2px solid #ef4444;
-    outline-offset: 2px;
-}
+    .logout-btn:hover,
+    .logout-btn:focus-visible {
+        background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+        box-shadow: 0 4px 16px 0 rgba(239, 68, 68, 0.25);
+        outline: 2px solid #ef4444;
+        outline-offset: 2px;
+    }
+
     font-weight: 600;
     margin-left: 1rem;
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(239, 68, 68, 0.08);
-    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    transition: background 0.2s,
+    box-shadow 0.2s,
+    transform 0.1s;
 }
 
 .logout-btn:focus {
