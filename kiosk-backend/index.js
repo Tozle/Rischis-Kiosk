@@ -1,3 +1,4 @@
+
 import env from './utils/env.js';
 
 import express from 'express';
@@ -107,7 +108,7 @@ app.get('/api/csrf-token', (req, res) => {
   res.json({ csrfToken: req.csrfToken() });
 });
 
-// API-Routen
+// API-Routen (Buzzer/Kolo entfernt)
 app.use('/api/feedings', feed);
 app.use('/api/products', products);
 app.use('/api/buy', buy);
