@@ -216,4 +216,5 @@ function showLoginGreeting(email) {
       window.location.href = 'dashboard.html';
     }, 500);
   }, 1700);
+}
 
