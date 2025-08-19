@@ -4,12 +4,21 @@ window.addEventListener('DOMContentLoaded', async () => {
   const profileBtn = document.getElementById('profile-btn');
   const profileModal = document.getElementById('profile-modal');
   const profileClose = document.getElementById('profile-close');
-  const profileForm = document.getElementById('profile-form');
-  const profileMessage = document.getElementById('profile-message');
-  const usernameInput = document.getElementById('profile-username');
+  // Bild
+  const imageForm = document.getElementById('profile-image-form');
   const imageUrlInput = document.getElementById('profile-image-url');
   const imagePreview = document.getElementById('profile-image-preview');
   const imageError = document.getElementById('profile-image-error');
+  const imageMessage = document.getElementById('profile-image-message');
+  // Name
+  const nameForm = document.getElementById('profile-name-form');
+  const usernameInput = document.getElementById('profile-username');
+  const nameMessage = document.getElementById('profile-name-message');
+  // Passwort
+  const passwordForm = document.getElementById('profile-password-form');
+  const passwordInput = document.getElementById('profile-password');
+  const passwordRepeatInput = document.getElementById('profile-password-repeat');
+  const passwordMessage = document.getElementById('profile-password-message');
 
   if (!profileBtn) {
     console.warn('Profileinstellungen-Button (profile-btn) nicht im DOM gefunden!');
@@ -71,14 +80,27 @@ window.addEventListener('DOMContentLoaded', async () => {
           }
         }
         if (imageError) imageError.textContent = '';
+        if (imageMessage) imageMessage.textContent = '';
+        if (nameMessage) nameMessage.textContent = '';
+        if (passwordMessage) passwordMessage.textContent = '';
+        passwordInput.value = '';
+        passwordRepeatInput.value = '';
       } catch {
         usernameInput.value = '';
         imageUrlInput.value = '';
         if (imagePreview) imagePreview.classList.add('hidden');
         if (imageError) imageError.textContent = '';
+        if (imageMessage) imageMessage.textContent = '';
+        if (nameMessage) nameMessage.textContent = '';
+        if (passwordMessage) passwordMessage.textContent = '';
+        passwordInput.value = '';
+        passwordRepeatInput.value = '';
       }
       profileModal.classList.remove('hidden');
       usernameInput.focus();
+    });
+  }
+
   // Live-Bildvorschau und Fehleranzeige
   if (imageUrlInput && imagePreview && imageError) {
     imageUrlInput.addEventListener('input', () => {
@@ -102,6 +124,101 @@ window.addEventListener('DOMContentLoaded', async () => {
       imagePreview.classList.remove('hidden');
     };
   }
+
+  // Profilbild speichern
+  if (imageForm) {
+    imageForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const imageUrl = imageUrlInput.value.trim();
+      if (!imageUrl) {
+        imageError.textContent = 'Bitte gib eine Bild-URL ein.';
+        return;
+      }
+      try {
+        const res = await fetch('/api/auth/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ profile_image_url: imageUrl }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Fehler beim Speichern');
+        imageMessage.textContent = 'Profilbild gespeichert!';
+        imageMessage.className = 'text-green-600';
+        if (profileBtn) {
+          profileBtn.innerHTML = `<img src="${imageUrl}" alt="Profilbild" style="width:100%;height:100%;object-fit:cover;border-radius:9999px;" />`;
+        }
+        setTimeout(() => { imageMessage.textContent = ''; }, 2000);
+      } catch (err) {
+        imageMessage.textContent = err.message || 'Fehler beim Speichern';
+        imageMessage.className = 'text-red-500';
+      }
+    });
+  }
+
+  // Name speichern
+  if (nameForm) {
+    nameForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = usernameInput.value.trim();
+      if (!username) {
+        nameMessage.textContent = 'Bitte gib einen Benutzernamen ein.';
+        nameMessage.className = 'text-red-500';
+        return;
+      }
+      try {
+        const res = await fetch('/api/auth/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ name: username }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Fehler beim Speichern');
+        nameMessage.textContent = 'Name gespeichert!';
+        nameMessage.className = 'text-green-600';
+        setTimeout(() => { nameMessage.textContent = ''; }, 2000);
+      } catch (err) {
+        nameMessage.textContent = err.message || 'Fehler beim Speichern';
+        nameMessage.className = 'text-red-500';
+      }
+    });
+  }
+
+  // Passwort speichern
+  if (passwordForm) {
+    passwordForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const password = passwordInput.value;
+      const repeat = passwordRepeatInput.value;
+      if (!password) {
+        passwordMessage.textContent = 'Bitte gib ein Passwort ein.';
+        passwordMessage.className = 'text-red-500';
+        return;
+      }
+      if (password !== repeat) {
+        passwordMessage.textContent = 'Passwörter stimmen nicht überein.';
+        passwordMessage.className = 'text-red-500';
+        return;
+      }
+      try {
+        const res = await fetch('/api/auth/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ password }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Fehler beim Speichern');
+        passwordMessage.textContent = 'Passwort gespeichert!';
+        passwordMessage.className = 'text-green-600';
+        passwordInput.value = '';
+        passwordRepeatInput.value = '';
+        setTimeout(() => { passwordMessage.textContent = ''; }, 2000);
+      } catch (err) {
+        passwordMessage.textContent = err.message || 'Fehler beim Speichern';
+        passwordMessage.className = 'text-red-500';
+      }
     });
   }
   // Modal schließen
