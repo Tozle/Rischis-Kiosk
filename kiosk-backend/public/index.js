@@ -40,19 +40,6 @@ function switchForm(mode) {
 
 
 // Darkmode
-function toggleDarkModeIndex() {
-  const isDark = document.documentElement.classList.toggle('dark');
-  localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-}
-if (localStorage.getItem('darkMode') !== 'false') {
-  document.documentElement.classList.add('dark');
-}
-// CSP: Event-Binding für Darkmode-Button
-document.addEventListener('DOMContentLoaded', () => {
-  const darkBtn = document.getElementById('darkmode-toggle-btn');
-  if (darkBtn) {
-    darkBtn.addEventListener('click', toggleDarkModeIndex);
-  }
   // CSP: Event-Binding für Formular-Umschaltung
   const showRegister = document.getElementById('show-register-link');
   if (showRegister) {
@@ -105,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showMessage(err.message || 'Fehler bei Registrierung');
       }
   });
-});
 
 // LOGIN
 document.getElementById('login-form').addEventListener('submit', async (e) => {

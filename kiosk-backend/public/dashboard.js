@@ -10,13 +10,6 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     });
   }
-  const darkModeBtn = document.getElementById('darkModeBtn');
-  if (darkModeBtn) {
-    darkModeBtn.addEventListener('click', () => {
-      const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-    });
-  }
   // FAQ Overlay-Logik nur im Dashboard
   const faqBtn = document.getElementById('faq-btn');
   const faqOverlay = document.getElementById('faq-overlay');
