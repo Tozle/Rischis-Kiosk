@@ -50,12 +50,12 @@ router.get(
     }
 
 
-    // Helper: Holt User-Objekt inkl. Rolle aus DB
+    // Helper: Holt User-Objekt inkl. Rolle und Profilbild aus DB
     async function getUserWithRole(user) {
       // user.id = Supabase-UUID
       const { data, error } = await supabase
         .from('users')
-        .select('id, email, name, role, balance')
+        .select('id, email, name, role, balance, profile_image_url')
         .eq('id', user.id)
         .single();
       if (!error && data) {
