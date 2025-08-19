@@ -6,7 +6,13 @@ const router = express.Router();
 
 // POST /api/online-users
 router.post('/', async (req, res) => {
+    console.log('POST /api/online-users', {
+        body: req.body,
+        cookies: req.cookies,
+        auth: req.headers.authorization
+    });
     const user = await getUser(req);
+    console.log('getUser result:', user);
     if (!user) return res.status(401).json({ error: 'Nicht eingeloggt' });
     const { session_id, page, username, profile_image_url } = req.body;
     if (!session_id || !page) return res.status(400).json({ error: 'session_id und page erforderlich' });

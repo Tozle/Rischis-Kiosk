@@ -51,19 +51,22 @@
         const name = profile.name || 'Gast-' + SESSION_ID.slice(-4);
         const image = profile.image || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name);
 
-        async function heartbeat() {
-            await fetch('/api/online-users', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({
-                    session_id: SESSION_ID,
-                    page: 'games',
-                    username: name,
-                    profile_image_url: image
-                })
-            });
-        }
+    async function heartbeat() {
+      console.log('Sende Heartbeat...');
+      const res = await fetch('/api/online-users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          session_id: SESSION_ID,
+          page: 'games',
+          username: name,
+          profile_image_url: image
+        })
+      });
+      const text = await res.text();
+      console.log('Heartbeat Response:', res.status, text);
+    }
         async function removeOnline() {
             await fetch('/api/online-users', {
                 method: 'DELETE',
@@ -72,12 +75,19 @@
                 body: JSON.stringify({ session_id: SESSION_ID })
             });
         }
-        async function fetchOnlineUsers() {
-            const res = await fetch('/api/online-users?page=games', { credentials: 'include' });
-            if (!res.ok) return [];
-            const data = await res.json();
-            return data.users || [];
-        }
+    async function fetchOnlineUsers() {
+      const res = await fetch('/api/online-users?page=games', { credentials: 'include' });
+      const text = await res.text();
+      console.log('Fetch Online Users Response:', res.status, text);
+      if (!res.ok) return [];
+      try {
+        const data = JSON.parse(text);
+        return data.users || [];
+      } catch (e) {
+        console.error('Fehler beim Parsen der Online-User-Antwort:', e);
+        return [];
+      }
+    }
         async function updateOnlineUI() {
             const users = await fetchOnlineUsers();
             const unique = users.filter((u, i, arr) => arr.findIndex(x => x.session_id === u.session_id) === i);
