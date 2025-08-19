@@ -119,4 +119,42 @@ router.post('/logout', (req, res) => {
   res.json({ message: 'Logout erfolgreich' });
 });
 
+
+// 📝 PROFIL AKTUALISIEREN
+router.post(
+  '/profile',
+  asyncHandler(async (req, res) => {
+    const token = req.cookies?.['sb-access-token'];
+    if (!token) return res.status(401).json({ error: 'Nicht eingeloggt' });
+    const { data: userData, error: userError } = await supabase.auth.getUser(token);
+    if (userError || !userData?.user) return res.status(401).json({ error: 'Nicht eingeloggt' });
+    const user = userData.user;
+
+    const { name, password, profile_image_url } = req.body;
+    let changed = {};
+    // Name ändern
+    if (typeof name === 'string' && name.trim() && name !== user.user_metadata?.name) {
+      const { error } = await supabase.from('users').update({ name }).eq('id', user.id);
+      if (error) return res.status(400).json({ error: 'Name konnte nicht geändert werden' });
+      changed.name = true;
+    }
+    // Profilbild ändern
+    if (typeof profile_image_url === 'string' && profile_image_url.trim()) {
+      const { error } = await supabase.from('users').update({ profile_image_url }).eq('id', user.id);
+      if (error) return res.status(400).json({ error: 'Profilbild konnte nicht geändert werden' });
+      changed.profile_image_url = true;
+    }
+    // Passwort ändern
+    if (typeof password === 'string' && password.length >= 6) {
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) return res.status(400).json({ error: 'Passwort konnte nicht geändert werden' });
+      changed.password = true;
+    }
+    if (Object.keys(changed).length === 0) {
+      return res.status(400).json({ error: 'Keine Änderungen übergeben' });
+    }
+    res.json({ message: 'Profil aktualisiert', changed });
+  })
+);
+
 export default router;
