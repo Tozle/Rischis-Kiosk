@@ -17,6 +17,32 @@ window.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('darkMode', isDark ? 'true' : 'false');
     });
   }
+  // FAQ Overlay-Logik nur im Dashboard
+  const faqBtn = document.getElementById('faq-btn');
+  const faqOverlay = document.getElementById('faq-overlay');
+  const faqClose = document.getElementById('faq-close');
+  if (faqBtn && faqOverlay && faqClose) {
+    faqBtn.addEventListener('click', () => {
+      faqOverlay.classList.remove('hidden');
+      faqClose.focus();
+    });
+    faqClose.addEventListener('click', () => {
+      faqOverlay.classList.add('hidden');
+      faqBtn.focus();
+    });
+    faqOverlay.addEventListener('click', (e) => {
+      if (e.target === faqOverlay) {
+        faqOverlay.classList.add('hidden');
+        faqBtn.focus();
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (!faqOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) {
+        faqOverlay.classList.add('hidden');
+        faqBtn.focus();
+      }
+    });
+  }
 });
 // dashboard.js – Admin-Zugriff und Session-Check
 
