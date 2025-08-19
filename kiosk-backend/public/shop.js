@@ -53,7 +53,6 @@ function showMessage(text, type = 'info') {
 }
 
 async function loadUser() {
-  // Loader removed
   try {
     const res = await fetch(`${BACKEND_URL}/api/user`, {
       credentials: 'include',
@@ -75,12 +74,10 @@ async function loadUser() {
     console.error(err);
     showMessage('Fehler beim Laden des Nutzers', 'error');
   } finally {
-    // Loader removed
   }
 }
 
 async function loadProducts() {
-  // Loader removed
   try {
     const sortOption =
       document.getElementById('sort-products')?.value || 'price_asc';
@@ -132,7 +129,6 @@ async function loadProducts() {
     console.error(err);
     showMessage('Fehler beim Laden der Produkte', 'error');
   } finally {
-    // Loader removed
   }
 }
 
@@ -226,7 +222,6 @@ function renderProductList(products) {
 }
 
 async function loadPurchaseHistory() {
-  // Loader removed
   try {
     const sortOption = document.getElementById('sort-history')?.value || 'desc';
 
@@ -252,7 +247,6 @@ async function loadPurchaseHistory() {
     console.error(err);
     showMessage('Fehler beim Laden des Kaufverlaufs', 'error');
   } finally {
-    // Loader removed
   }
 }
 
