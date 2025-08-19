@@ -9,6 +9,15 @@ window.addEventListener('DOMContentLoaded', async () => {
   const usernameInput = document.getElementById('profile-username');
   const imageUrlInput = document.getElementById('profile-image-url');
 
+  if (!profileBtn) {
+    console.warn('Profileinstellungen-Button (profile-btn) nicht im DOM gefunden!');
+    return;
+  }
+  if (!profileModal) {
+    console.warn('Profileinstellungen-Modal (profile-modal) nicht im DOM gefunden!');
+    return;
+  }
+
   // Profileinstellungen-Button und Modal standardmäßig ausblenden
   if (profileBtn) profileBtn.style.display = 'none';
   if (profileModal) profileModal.style.display = 'none';
