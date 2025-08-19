@@ -8,6 +8,7 @@ import Tokens from 'csrf';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import logoutRoute from './routes/logout.js';
+import onlineUsersRoute from './routes/online/users.mjs';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import helmet from 'helmet';
@@ -122,6 +123,7 @@ app.use('/api/admin/stats', adminStats);
 app.use('/api/admin/users', adminUsers);
 app.use('/api/admin/buy', adminBuyForUser);
 app.use('/api/logout', logoutRoute);
+app.use('/api/online-users', onlineUsersRoute);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // 404-Handler
