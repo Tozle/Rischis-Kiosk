@@ -28,14 +28,12 @@ router.post(
     try {
       const user = await getUserFromRequest(req, res);
       const { type } = req.body;
-      console.log('POST /api/feedings', { user, body: req.body });
       const name = user ? (await getUserName(user.id)) || user.email : null;
       const insertObj = {
         futterart: type,
         gefuettert_von: name,
         zeitstempel: new Date().toISOString(),
       };
-      console.log('Insert:', insertObj);
       const { error } = await supabase.from('mentos_feedings').insert(insertObj);
       if (error) {
         console.error('Supabase Insert Error:', error);
