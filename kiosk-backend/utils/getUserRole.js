@@ -1,4 +1,4 @@
-import supabase from './supabase.js';
+import { supabase } from './supabase.js';
 
 export default async function getUserRole(userId) {
   const { data, error } = await supabase
