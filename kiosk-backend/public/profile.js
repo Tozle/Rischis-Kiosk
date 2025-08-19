@@ -1,5 +1,14 @@
 // Profileinstellungen-Logik für dashboard.html
 window.addEventListener('DOMContentLoaded', async () => {
+  // Button und Modal referenzieren
+  const profileBtn = document.getElementById('profile-btn');
+  const profileModal = document.getElementById('profile-modal');
+  const profileClose = document.getElementById('profile-close');
+  const profileForm = document.getElementById('profile-form');
+  const profileMessage = document.getElementById('profile-message');
+  const usernameInput = document.getElementById('profile-username');
+  const imageUrlInput = document.getElementById('profile-image-url');
+
   // Profileinstellungen-Button und Modal standardmäßig ausblenden
   if (profileBtn) profileBtn.style.display = 'none';
   if (profileModal) profileModal.style.display = 'none';
@@ -31,14 +40,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
     }
   } catch {}
-  // Button und Modal referenzieren
-  const profileBtn = document.getElementById('profile-btn');
-  const profileModal = document.getElementById('profile-modal');
-  const profileClose = document.getElementById('profile-close');
-  const profileForm = document.getElementById('profile-form');
-  const profileMessage = document.getElementById('profile-message');
-  const usernameInput = document.getElementById('profile-username');
-  const imageUrlInput = document.getElementById('profile-image-url');
 
   // Modal öffnen
   if (profileBtn && profileModal) {
