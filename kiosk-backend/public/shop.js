@@ -350,11 +350,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   const faqBtn = document.getElementById('faq-btn');
   const faqOverlay = document.getElementById('faq-overlay');
   const faqClose = document.getElementById('faq-close');
+  console.log('[FAQ-DEBUG] FAQ-Button:', faqBtn, 'Overlay:', faqOverlay, 'Close:', faqClose);
   if (faqBtn && faqOverlay && faqClose) {
-    faqBtn.addEventListener('click', () => { faqOverlay.classList.remove('hidden'); faqClose.focus(); });
+    faqBtn.addEventListener('click', () => {
+      console.log('[FAQ-DEBUG] FAQ-Button clicked');
+      faqOverlay.classList.remove('hidden');
+      faqClose.focus();
+    });
     faqClose.addEventListener('click', () => { faqOverlay.classList.add('hidden'); faqBtn.focus(); });
     faqOverlay.addEventListener('click', (e) => { if (e.target === faqOverlay) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
     document.addEventListener('keydown', (e) => { if (!faqOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
+  } else {
+    console.warn('[FAQ-DEBUG] FAQ-Elemente nicht gefunden!');
   }
 
   // Darkmode logic
