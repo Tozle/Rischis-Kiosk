@@ -27,6 +27,7 @@ router.post(
     res.json({ message: 'Profil gespeichert' });
   })
 );
+
 import express from 'express';
 import supabase from '../utils/supabase.js';
 import { setAuthCookies, clearAuthCookies } from '../utils/authCookies.js';
