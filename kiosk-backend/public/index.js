@@ -69,6 +69,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // REGISTRIERUNG
+  document
+    .getElementById('register-form')
+    .addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('register-name').value.trim();
+      const email = document.getElementById('register-email').value.trim();
+      const password = document.getElementById('register-password').value;
+      const repeat = document.getElementById('register-password-repeat').value;
+
+      if (password !== repeat)
+        return showMessage('Passwörter stimmen nicht überein.');
+
+      try {
+        const token = await getCsrfToken();
+        const res = await fetch(`${BACKEND_URL}/api/auth/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': token,
+          },
+          credentials: 'include',
+          body: JSON.stringify({ name, email, password }),
+        });
+
+        const result = await res.json();
+        if (!res.ok)
+          throw new Error(result.error || 'Registrierung fehlgeschlagen');
+
+        showMessage('Registrierung erfolgreich! Bitte jetzt einloggen.', true);
+        switchForm('login');
+      } catch (err) {
+        console.error(err);
+        showMessage(err.message || 'Fehler bei Registrierung');
+      }
+    });
+
 // LOGIN
 document.getElementById('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -118,6 +155,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     btnText.classList.remove('opacity-50');
     loader.classList.add('hidden');
   }
+});
 
 // Lustige Begrüßung mit Animation nach Login
 function showLoginGreeting(email) {
@@ -179,39 +217,3 @@ function showLoginGreeting(email) {
     }, 500);
   }, 1700);
 
-// REGISTRIERUNG
-document
-  .getElementById('register-form')
-  .addEventListener('submit', async (e) => {
-    e.preventDefault();
-  const name = document.getElementById('register-name').value.trim();
-  const email = document.getElementById('register-email').value.trim();
-  const password = document.getElementById('register-password').value;
-  const repeat = document.getElementById('register-password-repeat').value;
-
-    if (password !== repeat)
-      return showMessage('Passwörter stimmen nicht überein.');
-
-    try {
-      const token = await getCsrfToken();
-      const res = await fetch(`${BACKEND_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-csrf-token': token,
-        },
-        credentials: 'include',
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      const result = await res.json();
-      if (!res.ok)
-        throw new Error(result.error || 'Registrierung fehlgeschlagen');
-
-      showMessage('Registrierung erfolgreich! Bitte jetzt einloggen.', true);
-      switchForm('login');
-    } catch (err) {
-      console.error(err);
-      showMessage(err.message || 'Fehler bei Registrierung');
-    }
-  });
