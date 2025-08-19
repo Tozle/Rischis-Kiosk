@@ -8,6 +8,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   const profileMessage = document.getElementById('profile-message');
   const usernameInput = document.getElementById('profile-username');
   const imageUrlInput = document.getElementById('profile-image-url');
+  const imagePreview = document.getElementById('profile-image-preview');
+  const imageError = document.getElementById('profile-image-error');
 
   if (!profileBtn) {
     console.warn('Profileinstellungen-Button (profile-btn) nicht im DOM gefunden!');
@@ -59,12 +61,47 @@ window.addEventListener('DOMContentLoaded', async () => {
         const data = await res.json();
         usernameInput.value = data?.user?.name || '';
         imageUrlInput.value = data?.user?.profile_image_url || '';
+        if (imagePreview) {
+          if (data?.user?.profile_image_url) {
+            imagePreview.src = data.user.profile_image_url;
+            imagePreview.classList.remove('hidden');
+          } else {
+            imagePreview.src = '';
+            imagePreview.classList.add('hidden');
+          }
+        }
+        if (imageError) imageError.textContent = '';
       } catch {
         usernameInput.value = '';
         imageUrlInput.value = '';
+        if (imagePreview) imagePreview.classList.add('hidden');
+        if (imageError) imageError.textContent = '';
       }
       profileModal.classList.remove('hidden');
       usernameInput.focus();
+  // Live-Bildvorschau und Fehleranzeige
+  if (imageUrlInput && imagePreview && imageError) {
+    imageUrlInput.addEventListener('input', () => {
+      const url = imageUrlInput.value.trim();
+      if (!url) {
+        imagePreview.src = '';
+        imagePreview.classList.add('hidden');
+        imageError.textContent = '';
+        return;
+      }
+      imagePreview.src = url;
+      imagePreview.classList.remove('hidden');
+      imageError.textContent = '';
+    });
+    imagePreview.onerror = () => {
+      imagePreview.classList.add('hidden');
+      imageError.textContent = 'Bild konnte nicht geladen werden.';
+    };
+    imagePreview.onload = () => {
+      imageError.textContent = '';
+      imagePreview.classList.remove('hidden');
+    };
+  }
     });
   }
   // Modal schließen
@@ -96,9 +133,26 @@ window.addEventListener('DOMContentLoaded', async () => {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Fehler beim Speichern');
-        profileMessage.textContent = 'Profil erfolgreich gespeichert!';
+        // Feedback, was geändert wurde
+        let changed = [];
+        if (data.changed) {
+          if (data.changed.name) changed.push('Name');
+          if (data.changed.profile_image_url) changed.push('Profilbild');
+          if (data.changed.password) changed.push('Passwort');
+        }
+        profileMessage.textContent = changed.length
+          ? `Geändert: ${changed.join(', ')}`
+          : 'Profil erfolgreich gespeichert!';
         profileMessage.className = 'text-green-600';
-        setTimeout(() => profileModal.classList.add('hidden'), 1200);
+        setTimeout(() => profileModal.classList.add('hidden'), 1500);
+        // Profilbild-Button ggf. aktualisieren
+        if (profileBtn && changed.includes('Profilbild')) {
+          if (imageUrl) {
+            profileBtn.innerHTML = `<img src="${imageUrl}" alt="Profilbild" style="width:100%;height:100%;object-fit:cover;border-radius:9999px;" />`;
+          } else {
+            profileBtn.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' class='w-7 h-7' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z' /></svg>`;
+          }
+        }
       } catch (err) {
         profileMessage.textContent = err.message || 'Fehler beim Speichern';
         profileMessage.className = 'text-red-500';
