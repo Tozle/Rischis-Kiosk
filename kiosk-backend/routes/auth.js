@@ -1,3 +1,32 @@
+// 👤 PROFIL AKTUALISIEREN
+router.post(
+  '/profile',
+  asyncHandler(async (req, res) => {
+    const token = req.cookies?.['sb-access-token'];
+    if (!token) return res.status(401).json({ error: 'Nicht eingeloggt' });
+    const { name, password, profile_image_url } = req.body;
+    const { data, error } = await supabase.auth.getUser(token);
+    if (error || !data?.user) return res.status(401).json({ error: 'Ungültiger Token' });
+    const userId = data.user.id;
+    // Name und Profilbild aktualisieren
+    if (name || profile_image_url) {
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({
+          ...(name && { name }),
+          ...(profile_image_url && { profile_image_url }),
+        })
+        .eq('id', userId);
+      if (updateError) return res.status(400).json({ error: updateError.message });
+    }
+    // Passwort ändern
+    if (password) {
+      const { error: pwError } = await supabase.auth.admin.updateUserById(userId, { password });
+      if (pwError) return res.status(400).json({ error: pwError.message });
+    }
+    res.json({ message: 'Profil gespeichert' });
+  })
+);
 import express from 'express';
 import supabase from '../utils/supabase.js';
 import { setAuthCookies, clearAuthCookies } from '../utils/authCookies.js';
