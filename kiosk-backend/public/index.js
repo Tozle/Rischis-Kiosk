@@ -104,7 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error(err);
         showMessage(err.message || 'Fehler bei Registrierung');
       }
-    });
+  });
+});
 
 // LOGIN
 document.getElementById('login-form').addEventListener('submit', async (e) => {
