@@ -5,4 +5,4 @@ const { SUPABASE_URL, SUPABASE_SERVICE_ROLE } = env;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE);
 
-export default supabase;
+export { supabase };
