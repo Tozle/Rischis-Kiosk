@@ -122,7 +122,7 @@
       <a id="admin-btn" href="admin.html"
         class="hidden btn-main flex items-center gap-2 text-base py-2 px-4 focus:ring-2 focus:ring-cyan-400 justify-center"
         aria-label="Adminbereich (nur für Admins sichtbar)" title="Adminbereich"
-        style="background:linear-gradient(90deg,#ef4444 0%,#f59e42 100%);" role="button" tabindex="0">
+        style="background:linear-gradient(90deg,#ef4444 0%,#f59e42 100%);display:none;" role="button" tabindex="0">
         <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
           <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8v4l3 3'></path>
         </svg>Adminbereich
@@ -135,8 +135,8 @@
   <!-- Logout- und Session-Timeout-Logik ausgelagert nach dashboard.js -->
 
   <!-- Profileinstellungen Button & Modal (aus dem Head verschoben) -->
-  <div id="profile-modal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="profile-title">
-    <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl relative animate-fade-in">
+  <div id="profile-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+    <div class="bg-gray-900 text-white rounded-2xl p-6 max-w-md w-full shadow-xl relative animate-fade-in border border-cyan-900">
       <button id="profile-close" class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
       <h2 id="profile-title" class="text-xl font-bold mb-4 text-cyan-700 flex items-center gap-2">
         <svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
@@ -147,10 +147,10 @@
       <div class="space-y-6">
         <!-- Profilbild ändern -->
         <form id="profile-image-form" class="space-y-2">
-          <label for="profile-image-url" class="block text-sm font-medium text-gray-700">Profilbild-URL</label>
+          <label for="profile-image-url" class="block text-sm font-medium text-cyan-200">Profilbild-URL</label>
           <div class="flex items-center gap-3 mt-1">
-            <input type="url" id="profile-image-url" name="profile_image_url" class="block w-full rounded-md border-gray-300 shadow-sm focus:ring-cyan-500 focus:border-cyan-500" placeholder="https://..." />
-            <img id="profile-image-preview" src="" alt="Vorschau" class="w-12 h-12 rounded-full border border-gray-300 object-cover hidden" style="background:#eee;" />
+            <input type="url" id="profile-image-url" name="profile_image_url" class="block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:ring-cyan-400 focus:border-cyan-400 placeholder-gray-400" placeholder="https://..." />
+            <img id="profile-image-preview" src="" alt="Vorschau" class="w-12 h-12 rounded-full border border-gray-700 object-cover hidden" style="background:#222;" />
           </div>
           <div id="profile-image-error" class="text-xs text-red-500 mt-1"></div>
           <button type="submit" class="btn-main w-full">Profilbild speichern</button>
@@ -158,17 +158,17 @@
         </form>
         <!-- Name ändern -->
         <form id="profile-name-form" class="space-y-2">
-          <label for="profile-username" class="block text-sm font-medium text-gray-700">Benutzername</label>
-          <input type="text" id="profile-username" name="username" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-cyan-500 focus:border-cyan-500" required />
+          <label for="profile-username" class="block text-sm font-medium text-cyan-200">Benutzername</label>
+          <input type="text" id="profile-username" name="username" class="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:ring-cyan-400 focus:border-cyan-400 placeholder-gray-400" required />
           <button type="submit" class="btn-main w-full">Name speichern</button>
           <div id="profile-name-message" class="mt-1 text-center text-sm"></div>
         </form>
         <!-- Passwort ändern -->
         <form id="profile-password-form" class="space-y-2">
-          <label for="profile-password" class="block text-sm font-medium text-gray-700">Neues Passwort</label>
-          <input type="password" id="profile-password" name="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-cyan-500 focus:border-cyan-500" autocomplete="new-password" />
-          <label for="profile-password-repeat" class="block text-sm font-medium text-gray-700">Passwort wiederholen</label>
-          <input type="password" id="profile-password-repeat" name="password-repeat" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-cyan-500 focus:border-cyan-500" autocomplete="new-password" />
+          <label for="profile-password" class="block text-sm font-medium text-cyan-200">Neues Passwort</label>
+          <input type="password" id="profile-password" name="password" class="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:ring-cyan-400 focus:border-cyan-400 placeholder-gray-400" autocomplete="new-password" />
+          <label for="profile-password-repeat" class="block text-sm font-medium text-cyan-200">Passwort wiederholen</label>
+          <input type="password" id="profile-password-repeat" name="password-repeat" class="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:ring-cyan-400 focus:border-cyan-400 placeholder-gray-400" autocomplete="new-password" />
           <button type="submit" class="btn-main w-full">Passwort speichern</button>
           <div id="profile-password-message" class="mt-1 text-center text-sm"></div>
         </form>

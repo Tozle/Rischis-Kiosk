@@ -47,6 +47,13 @@ window.addEventListener('DOMContentLoaded', async () => {
         } else {
           profileBtn.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' class='w-7 h-7' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z' /></svg>`;
         }
+        // Speichere Userdaten für Games-Seite
+        try {
+          localStorage.setItem('user_profile', JSON.stringify({
+            name: data.user?.name || '',
+            image: data.user?.profile_image_url || ''
+          }));
+        } catch {}
       }
       if (profileModal) profileModal.style.display = '';
       // Adminbereich-Button nur für Admins einblenden
@@ -148,6 +155,12 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (profileBtn) {
           profileBtn.innerHTML = `<img src="${imageUrl}" alt="Profilbild" style="width:100%;height:100%;object-fit:cover;border-radius:9999px;" />`;
         }
+        // Speichere neues Bild im LocalStorage für Games-Seite
+        try {
+          const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+          profile.image = imageUrl;
+          localStorage.setItem('user_profile', JSON.stringify(profile));
+        } catch {}
         setTimeout(() => { imageMessage.textContent = ''; }, 2000);
       } catch (err) {
         imageMessage.textContent = err.message || 'Fehler beim Speichern';
@@ -177,6 +190,12 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (!res.ok) throw new Error(data.error || 'Fehler beim Speichern');
         nameMessage.textContent = 'Name gespeichert!';
         nameMessage.className = 'text-green-600';
+        // Speichere neuen Namen im LocalStorage für Games-Seite
+        try {
+          const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+          profile.name = username;
+          localStorage.setItem('user_profile', JSON.stringify(profile));
+        } catch {}
         setTimeout(() => { nameMessage.textContent = ''; }, 2000);
       } catch (err) {
         nameMessage.textContent = err.message || 'Fehler beim Speichern';
@@ -269,6 +288,12 @@ window.addEventListener('DOMContentLoaded', async () => {
           } else {
             profileBtn.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' class='w-7 h-7' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z' /></svg>`;
           }
+          // Speichere neues Bild im LocalStorage für Games-Seite
+          try {
+            const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+            profile.image = imageUrl;
+            localStorage.setItem('user_profile', JSON.stringify(profile));
+          } catch {}
         }
       } catch (err) {
         profileMessage.textContent = err.message || 'Fehler beim Speichern';
