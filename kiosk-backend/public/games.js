@@ -3,7 +3,12 @@
   // Einfache Demo: Jeder, der die Seite lädt, wird als "online" gezählt (nur im LocalStorage, kein echtes Backend)
   const STORAGE_KEY = 'games_online_users';
   const PROFILE_KEY = 'user_profile'; // Annahme: { name, image }
-  const SESSION_ID = Math.random().toString(36).slice(2);
+  // Session-ID pro Tab, bleibt für die Dauer des Tabs gleich
+  let SESSION_ID = sessionStorage.getItem('games_session_id');
+  if (!SESSION_ID) {
+    SESSION_ID = Math.random().toString(36).slice(2);
+    sessionStorage.setItem('games_session_id', SESSION_ID);
+  }
   const profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
   if (!profile.name) {
     // Dummy-Name, falls nicht gesetzt
@@ -33,20 +38,22 @@
     let users = getUsers().filter(u => u.session !== SESSION_ID);
     setUsers(users);
   }
-  // Beim Laden hinzufügen
+  // Beim Laden hinzufügen und UI sofort aktualisieren
   addUser();
-  // Beim Verlassen entfernen
+  updateGamesOnlineUI(getUsers());
+  // Beim Verlassen/Tab-Wechsel sofort entfernen
   window.addEventListener('beforeunload', removeUser);
-  // Alle 20s aktualisieren (und alte Einträge entfernen)
+  window.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') removeUser();
+    if (document.visibilityState === 'visible') { addUser(); updateGamesOnlineUI(getUsers()); }
+  });
+  // Alle 5s aktualisieren (und alte Einträge entfernen)
   setInterval(() => {
-    let users = getUsers().filter(u => Date.now() - u.ts < 60000);
+    let users = getUsers().filter(u => Date.now() - u.ts < 30000);
     setUsers(users);
     addUser();
-    // Update UI
     updateGamesOnlineUI(users);
-  }, 20000);
-  // Initial UI-Update
-  updateGamesOnlineUI(getUsers());
+  }, 5000);
 
   // UI-Update für Online-Anzeige und Overlay
   function updateGamesOnlineUI(users) {
