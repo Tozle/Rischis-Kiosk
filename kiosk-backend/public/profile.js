@@ -6,6 +6,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const profileClose = document.getElementById('profile-close');
     // Bild
     const imageForm = document.getElementById('profile-image-form');
+    const profileForm = document.getElementById('profile-form');
     const imageUrlInput = document.getElementById('profile-image-url');
     const imagePreview = document.getElementById('profile-image-preview');
     const imageError = document.getElementById('profile-image-error');
