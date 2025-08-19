@@ -1,5 +1,5 @@
 // kiosk-backend/utils/getUser.js
-import supabase from './supabase.js';
+import { supabase } from './supabase.js';
 import { setAuthCookies } from './authCookies.js';
 
 export async function getUser(req, res) {
