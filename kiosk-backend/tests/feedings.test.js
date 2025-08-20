@@ -1,5 +1,8 @@
 import dotenv from 'dotenv';
-dotenv.config({ path: '.env.test' });
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, '../.env.test') });
 import request from 'supertest';
 import express from 'express';
 import feedingsRoute from '../routes/feed.js';

@@ -22,7 +22,7 @@
   </style>
 </head>
 
-  <body
+<body
   class="flex items-center justify-center min-h-screen text-gray-100 bg-gradient-to-br from-gray-900 via-cyan-950 to-gray-900 relative font-sans">
   <a href="#main-content"
     class="skip-link absolute left-2 top-2 bg-cyan-100 text-cyan-900 px-3 py-1 rounded z-50 focus:translate-y-0 -translate-y-12 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all"
@@ -39,27 +39,27 @@
     </a>
   </div>
   <div id="main-content"
-  class="w-full px-3 py-2 max-w-2xl mx-auto mt-14 sm:mt-24 p-6 sm:p-10 rounded-3xl shadow-2xl animate-fade-in border border-cyan-900 bg-gray-800/90 backdrop-blur-md overflow-y-auto max-h-[90vh]">
+    class="w-full px-3 py-2 max-w-2xl mx-auto mt-14 sm:mt-24 p-6 sm:p-10 rounded-3xl shadow-2xl animate-fade-in border border-cyan-900 bg-gray-800/90 backdrop-blur-md overflow-y-auto max-h-[90vh]">
     <h1
       class="text-4xl sm:text-5xl font-extrabold mb-8 text-center text-cyan-400 flex items-center justify-center gap-2 drop-shadow">
-      <svg xmlns='http://www.w3.org/2000/svg' class='inline w-9 h-9 text-cyan-500 drop-shadow' fill='none' viewBox='0 0 24 24'
-        stroke='currentColor'>
+      <svg xmlns='http://www.w3.org/2000/svg' class='inline w-9 h-9 text-cyan-500 drop-shadow' fill='none'
+        viewBox='0 0 24 24' stroke='currentColor'>
         <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2'
           d='M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z' />
       </svg>
       Rischis Kiosk
     </h1>
-  <label for="category-filter" class="block mb-2 font-semibold text-cyan-200">Kategorie auswählen:</label>
-  <select id="category-filter" aria-label="Kategorie auswählen" title="Kategorie auswählen"
-  class="mb-6 border rounded-lg p-2 w-full bg-gray-900 border-cyan-800 text-cyan-100 focus:ring-2 focus:ring-cyan-400">
+    <label for="category-filter" class="block mb-2 font-semibold text-cyan-200">Kategorie auswählen:</label>
+    <select id="category-filter" aria-label="Kategorie auswählen" title="Kategorie auswählen"
+      class="mb-6 border rounded-lg p-2 w-full bg-gray-900 border-cyan-800 text-cyan-100 focus:ring-2 focus:ring-cyan-400">
       <option value="">Alle Kategorien</option>
     </select>
     <label for="search" class="sr-only">Produkt suchen</label>
-  <input type="text" id="search" placeholder="Produkt suchen..." aria-label="Produkt suchen" title="Produkt suchen"
-  class="mb-6 p-2 border rounded-lg border-cyan-800 bg-gray-900 placeholder-cyan-300 w-full text-cyan-100 focus:ring-2 focus:ring-cyan-400">
-  <label for="sort-products" class="block mb-2 font-semibold text-cyan-200">Produkte sortieren:</label>
+    <input type="text" id="search" placeholder="Produkt suchen..." aria-label="Produkt suchen" title="Produkt suchen"
+      class="mb-6 p-2 border rounded-lg border-cyan-800 bg-gray-900 placeholder-cyan-300 w-full text-cyan-100 focus:ring-2 focus:ring-cyan-400">
+    <label for="sort-products" class="block mb-2 font-semibold text-cyan-200">Produkte sortieren:</label>
     <select id="sort-products" aria-label="Produkte sortieren" title="Produkte sortieren"
-  class="mb-6 border rounded-lg p-2 w-full bg-gray-900 border-cyan-800 text-cyan-100 focus:ring-2 focus:ring-cyan-400">
+      class="mb-6 border rounded-lg p-2 w-full bg-gray-900 border-cyan-800 text-cyan-100 focus:ring-2 focus:ring-cyan-400">
       <option value="price_asc">Preis aufsteigend</option>
       <option value="price_desc">Preis absteigend</option>
       <option value="recent">Zuletzt gekauft</option>
@@ -71,26 +71,27 @@
     <div class="mt-8" aria-labelledby="products-section">
       <h2 class="text-lg sm:text-xl font-bold tracking-wide text-cyan-200 uppercase mb-4">Produkte</h2>
       <div id="product-list-loading" class="flex justify-center items-center py-8 hidden">
-        <svg class="animate-spin h-8 w-8 text-cyan-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <svg class="animate-spin h-8 w-8 text-cyan-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
         </svg>
         <span class="ml-3 text-cyan-700 text-lg">Produkte werden geladen...</span>
       </div>
-  <ul id="product-list" class="overflow-x-auto block space-y-6" aria-live="polite"></ul>
+      <ul id="product-list" class="overflow-x-auto block space-y-6" aria-live="polite"></ul>
     </div>
-  <p id="message" class="mt-4 text-sm text-center"></p>
+    <p id="message" class="mt-4 text-sm text-center"></p>
     <div class="mt-12">
       <h2 class="text-lg sm:text-xl font-bold tracking-wide text-cyan-200 uppercase mb-4">Kaufverlauf</h2>
       <label for="sort-history" class="block mb-2 font-semibold text-cyan-200">Kaufverlauf sortieren:</label>
       <select id="sort-history" aria-label="Kaufverlauf sortieren" title="Kaufverlauf sortieren"
-  class="mb-6 border rounded-lg p-2 w-full bg-gray-900 border-cyan-800 text-cyan-100 focus:ring-2 focus:ring-cyan-400">
+        class="mb-6 border rounded-lg p-2 w-full bg-gray-900 border-cyan-800 text-cyan-100 focus:ring-2 focus:ring-cyan-400">
         <option value="desc">Neuste zuerst</option>
         <option value="asc">Älteste zuerst</option>
         <option value="price_desc">Preis absteigend</option>
         <option value="price_asc">Preis aufsteigend</option>
       </select>
-  <ul id="purchase-history" class="overflow-x-auto block space-y-2 text-sm" aria-live="polite"></ul>
+      <ul id="purchase-history" class="overflow-x-auto block space-y-2 text-sm" aria-live="polite"></ul>
     </div>
   </div>
   <!-- FAQ/Hilfe entfernt: Nur noch auf dem Dashboard sichtbar -->

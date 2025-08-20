@@ -42,7 +42,7 @@ function filterAndRenderUsers() {
     list.appendChild(li);
   });
   // Event Delegation für Bearbeiten/Löschen
-  list.onclick = function(e) {
+  list.onclick = function (e) {
     const editBtn = e.target.closest('.edit-user-btn');
     if (editBtn) {
       const id = editBtn.dataset.id;

@@ -2,25 +2,5 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom shop design utilities */
-.backdrop-blur-md {
-	backdrop-filter: blur(8px);
-}
-.drop-shadow {
-	filter: drop-shadow(0 2px 8px rgba(16, 185, 129, 0.15));
-}
-.bg-cyan-950 {
-	background-color: #083344;
-}
-.border-cyan-900 {
-	border-color: #164e63;
-}
-.text-cyan-200 {
-	color: #a5f3fc;
-}
-.text-cyan-100 {
-	color: #cffafe;
-}
-.bg-gray-800\/90 {
-	background-color: rgba(31,41,55,0.90);
-}
+
+/* Custom shop design utilities (nur falls wirklich benötigt, sonst alles über Tailwind!) */

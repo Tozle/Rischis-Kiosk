@@ -1,7 +1,7 @@
 // Darkmode-Logik entfernt
 // mentos.js – jetzt wie shop.js: alle Datenzugriffe über das Backend
 
-import { $, getCsrfToken } from './utils/frontend.js';
+import { $, getCsrfToken, formatTimeDiff, showToast } from './utils/frontend.js';
 const BACKEND_URL = window.location.origin;
 
 const feedingsBody = $('feedings-body');
@@ -36,34 +36,9 @@ async function loadFeedings() {
 
 
 
-function formatTimeDiff(seconds) {
-    // Immer in Stunden anzeigen, auch wenn >24h
-    return `${Math.floor(seconds / 3600)} Std.`;
-}
 
-function showToast(msg, type = 'success') {
-    let toast = document.getElementById('mentos-toast');
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'mentos-toast';
-        toast.style.position = 'fixed';
-        toast.style.top = '2rem';
-        toast.style.left = '50%';
-        toast.style.transform = 'translateX(-50%)';
-        toast.style.zIndex = '9999';
-        toast.style.padding = '1rem 2rem';
-        toast.style.borderRadius = '1rem';
-        toast.style.fontWeight = 'bold';
-        toast.style.fontSize = '1.1rem';
-        toast.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-        document.body.appendChild(toast);
-    }
-    toast.textContent = msg;
-    toast.style.background = type === 'success' ? '#22c55e' : '#ef4444';
-    toast.style.color = 'white';
-    toast.style.opacity = '1';
-    setTimeout(() => { toast.style.opacity = '0'; }, 2500);
-}
+
+// Use centralized showToast from utils/frontend.js
 
 async function addFeeding(futterart) {
     const btn = futterart === 'Nassfutter' ? btnNass : btnTrocken;

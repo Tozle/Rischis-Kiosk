@@ -54,15 +54,24 @@
     </h1>
     <div id="stats" class="mb-6"></div>
     <nav id="admin-tabs" class="flex flex-wrap gap-2 justify-center mb-6" aria-label="Admin Tabs" role="tablist">
-      <button class="btn-main px-4 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400" data-tab="products" role="tab" aria-selected="true" aria-controls="section-products" tabindex="0">Produkte</button>
-      <button class="btn-main px-4 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400" data-tab="purchases" role="tab" aria-selected="false" aria-controls="section-purchases" tabindex="-1">Käufe</button>
-      <button class="btn-main px-4 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400" data-tab="users" role="tab" aria-selected="false" aria-controls="section-users" tabindex="-1">Nutzer</button>
-      <button class="btn-main px-4 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400" data-tab="balance" role="tab" aria-selected="false" aria-controls="section-balance" tabindex="-1">Guthaben</button>
-      <button class="btn-main px-4 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400" data-tab="buy-for-user" role="tab" aria-selected="false" aria-controls="section-buy-for-user" tabindex="-1">Kauf für Nutzer</button>
+      <button class="btn-main px-4 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+        data-tab="products" role="tab" aria-selected="true" aria-controls="section-products"
+        tabindex="0">Produkte</button>
+      <button class="btn-main px-4 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+        data-tab="purchases" role="tab" aria-selected="false" aria-controls="section-purchases"
+        tabindex="-1">Käufe</button>
+      <button class="btn-main px-4 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+        data-tab="users" role="tab" aria-selected="false" aria-controls="section-users" tabindex="-1">Nutzer</button>
+      <button class="btn-main px-4 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+        data-tab="balance" role="tab" aria-selected="false" aria-controls="section-balance"
+        tabindex="-1">Guthaben</button>
+      <button class="btn-main px-4 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+        data-tab="buy-for-user" role="tab" aria-selected="false" aria-controls="section-buy-for-user" tabindex="-1">Kauf
+        für Nutzer</button>
     </nav>
     <section id="section-products" class="mb-8 tab-content" style="display:none;">
       <h2 class="text-lg sm:text-xl font-semibold mb-4">Produkte verwalten</h2>
-  <ul id="product-list" class="space-y-4" aria-live="polite"></ul>
+      <ul id="product-list" class="space-y-4" aria-live="polite"></ul>
     </section>
     <section id="section-purchases" class="mb-8 tab-content" style="display:none;">
       <h2 class="text-lg sm:text-xl font-semibold mb-4">Käufe verwalten</h2>
@@ -76,7 +85,7 @@
         <button id="export-purchases"
           class="bg-cyan-600 text-white px-3 py-1 rounded shadow hover:bg-cyan-700 text-xs">Export (CSV)</button>
       </div>
-  <ul id="purchase-history" class="space-y-2 text-sm" aria-live="polite"></ul>
+      <ul id="purchase-history" class="space-y-2 text-sm" aria-live="polite"></ul>
       <button id="load-more-purchases" class="mt-4 text-blue-600 hover:underline text-sm">Weitere anzeigen</button>
     </section>
     <section id="section-users" class="mb-8 tab-content" style="display:none;">
@@ -87,11 +96,11 @@
         <button id="export-users"
           class="bg-cyan-600 text-white px-3 py-1 rounded shadow hover:bg-cyan-700 text-xs">Export (CSV)</button>
       </div>
-  <ul id="user-manage-list" class="space-y-4" aria-live="polite"></ul>
+      <ul id="user-manage-list" class="space-y-4" aria-live="polite"></ul>
     </section>
     <section id="section-balance" class="mb-8 tab-content" style="display:none;">
       <h2 class="text-lg sm:text-xl font-semibold mb-4">Guthaben verwalten</h2>
-  <ul id="balance-control-list" class="space-y-2 text-sm" aria-live="polite"></ul>
+      <ul id="balance-control-list" class="space-y-2 text-sm" aria-live="polite"></ul>
     </section>
     <section id="section-buy-for-user" class="mb-8 tab-content" style="display:none;">
       <h2 class="text-lg sm:text-xl font-semibold mb-4">Kauf für Nutzer</h2>
@@ -100,16 +109,18 @@
         <input type="text" id="buy-product-search" placeholder="Produkt suchen..." class="p-2 border rounded flex-1"
           aria-label="Produkt suchen" />
       </div>
-  <div id="buy-product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" aria-live="polite"></div>
-  <p id="buy-for-user-result" class="mt-2 text-sm" aria-live="polite"></p>
+      <div id="buy-product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" aria-live="polite"></div>
+      <p id="buy-for-user-result" class="mt-2 text-sm" aria-live="polite"></p>
     </section>
   </main>
   <!-- Loader and Toast for feedback -->
-  <div id="loader" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden" aria-live="polite" aria-busy="true">
+  <div id="loader" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden" aria-live="polite"
+    aria-busy="true">
     <div class="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
   </div>
   <div id="toast"
-    class="fixed left-1/2 top-6 z-50 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-center text-sm font-semibold transition-opacity duration-300 pointer-events-none opacity-0" aria-live="polite" role="status">
+    class="fixed left-1/2 top-6 z-50 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-center text-sm font-semibold transition-opacity duration-300 pointer-events-none opacity-0"
+    aria-live="polite" role="status">
   </div>
 </body>
 

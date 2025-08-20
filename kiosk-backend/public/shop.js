@@ -28,7 +28,7 @@ async function loadProducts() {
   const loading = document.getElementById('product-list-loading');
   const list = document.getElementById('product-list');
   if (loading) loading.classList.remove('hidden');
-  if (list) list.classList.add('opacity-30','pointer-events-none');
+  if (list) list.classList.add('opacity-30', 'pointer-events-none');
   try {
     const sortOption =
       document.getElementById('sort-products')?.value || 'price_asc';
@@ -73,15 +73,15 @@ async function loadProducts() {
       });
     }
 
-  allProducts = products;
-  populateCategories(products);
-  filterAndRenderProducts();
+    allProducts = products;
+    populateCategories(products);
+    filterAndRenderProducts();
   } catch (err) {
     console.error(err);
     showMessage('Fehler beim Laden der Produkte', 'error');
   } finally {
     if (loading) loading.classList.add('hidden');
-    if (list) list.classList.remove('opacity-30','pointer-events-none');
+    if (list) list.classList.remove('opacity-30', 'pointer-events-none');
   }
 }
 
@@ -149,7 +149,7 @@ function renderProductList(products) {
           </div>
           <div class="mt-2 w-full">
             ${product.stock > 0
-      ? `<div class="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 mt-2 w-full">
+        ? `<div class="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 mt-2 w-full">
                   <div class='flex flex-row items-center gap-2 justify-center xs:justify-start'>
                     <button type="button" aria-label="Weniger" class="bg-cyan-100 text-cyan-900 text-lg px-3 py-2 rounded-full font-bold focus:ring-2 focus:ring-cyan-400 qty-minus-btn" data-id="${product.id}" data-max="${product.stock}">-</button>
                     <span id="qty-display-${product.id}" class="inline-block w-10 text-center select-none font-semibold text-lg">1</span>
@@ -157,8 +157,8 @@ function renderProductList(products) {
                   </div>
                   <button class="btn-main w-full xs:w-auto px-5 py-2 text-base buy-btn" style="min-width: 100px;" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">Kaufen</button>
                 </div>`
-      : '<span class="text-red-400 font-semibold">Ausverkauft</span>'
-    }
+        : '<span class="text-red-400 font-semibold">Ausverkauft</span>'
+      }
           </div>
         </div>
       </div>
