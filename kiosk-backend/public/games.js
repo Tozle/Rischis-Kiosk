@@ -440,6 +440,27 @@ document.addEventListener('DOMContentLoaded', () => {
             // Listener für Lobby-Updates
             socket.on('lobbyUpdated', async () => {
                 await loadLobbies();
+                // Wenn ein Lobby-Detail-Popup offen ist, neu rendern
+                const openLobbyModal = document.querySelector('.lobby-detail-modal');
+                if (openLobbyModal && window.lastLobbies) {
+                    const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+                    const myLobby = window.lastLobbies.find(l => l.players.some(p => p.user_id === profile.id));
+                    if (myLobby) {
+                        // Modal neu bauen
+                        openLobbyModal.innerHTML = `
+                            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-xl relative flex flex-col items-center">
+                                <button class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none" id="close-lobby-detail">&times;</button>
+                                <h2 class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300">${myLobby.game_type === 'brain9' ? 'Brain9' : myLobby.game_type} Lobby #${myLobby.id.slice(-4)}</h2>
+                                <div class="mb-2 text-gray-700 dark:text-gray-200">Einsatz: <b>€${Number(myLobby.bet).toFixed(2)}</b></div>
+                                <div class="mb-2 text-gray-700 dark:text-gray-200">Spieler:</div>
+                                <div class="flex gap-2 mb-4 flex-wrap justify-center">
+                                    ${myLobby.players.map(p => `<div class='flex flex-col items-center'><img src='${p.profile_image_url}' class='w-10 h-10 rounded-full border mb-1' /><span class='text-xs'>${p.name}</span></div>`).join('')}
+                                </div>
+                            </div>
+                        `;
+                        openLobbyModal.querySelector('#close-lobby-detail').onclick = () => openLobbyModal.remove();
+                    }
+                }
             });
             // Listener für Spielstart
             socket.on('gameStarted', (game) => {
