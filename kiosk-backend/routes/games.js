@@ -1,3 +1,10 @@
+
+import express from 'express';
+import { requireAuth } from '../middleware/auth.js';
+import { supabase } from '../utils/supabase.js';
+
+const router = express.Router();
+
 // Offene Lobbys abrufen
 router.get('/lobby', async (req, res) => {
     // Hole alle nicht gestarteten und nicht beendeten Lobbys
@@ -10,12 +17,6 @@ router.get('/lobby', async (req, res) => {
     if (error) return res.status(500).json({ error: error.message });
     res.json({ lobbies: data });
 });
-
-import express from 'express';
-import { requireAuth } from '../middleware/auth.js';
-import { supabase } from '../utils/supabase.js';
-
-const router = express.Router();
 
 // Brain9 Highscore/Statistik
 router.get('/brain9/stats', async (req, res) => {
