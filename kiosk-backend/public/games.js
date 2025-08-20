@@ -326,9 +326,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (res.ok && data.gameId) {
                         window.joinLobbyRoom(data.lobbyId); // Socket-Raum beitreten
                         showToast('Lobby beigetreten!');
-                        await loadLobbies();
-                        // Lobby-Detail-Ansicht direkt öffnen
-                        setTimeout(() => {
+                        // Warten, damit der Client sicher im Raum ist
+                        setTimeout(async () => {
+                            await loadLobbies();
+                            // Lobby-Detail-Ansicht direkt öffnen
                             const lobby = (window.lastLobbies || []).find(l => l.players.some(p => p.user_id === profile.id));
                             if (lobby) {
                                 const modal = document.createElement('div');
@@ -347,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 document.body.appendChild(modal);
                                 modal.querySelector('#close-lobby-detail').onclick = () => modal.remove();
                             }
-                        }, 300);
+                        }, 200);
                     } else if (res.ok) {
                         showToast('Lobby beigetreten!');
                         await loadLobbies();
@@ -356,7 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             const lobby = (window.lastLobbies || []).find(l => l.players.some(p => p.user_id === profile.id));
                             if (lobby) {
                                 const modal = document.createElement('div');
-                                modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-50';
+                                modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-50 lobby-detail-modal';
                                 modal.innerHTML = `
                                                                             <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-xl relative flex flex-col items-center">
                                                                                 <button class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none" id="close-lobby-detail">&times;</button>
@@ -393,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!lobby) { showToast('Lobby nicht gefunden', 'error'); return; }
                 // Einfaches Modal anzeigen (kann erweitert werden)
                 const modal = document.createElement('div');
-                modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-50';
+                modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-50 lobby-detail-modal';
                 modal.innerHTML = `
                   <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-xl relative flex flex-col items-center">
                     <button class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none" id="close-lobby-detail">&times;</button>
