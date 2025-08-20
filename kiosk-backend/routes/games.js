@@ -33,12 +33,23 @@ router.post('/game/:id/ready', requireAuth, async (req, res) => {
     const playerIds = (game.lobby.players || []).map(p => p.user_id);
     const allReady = playerIds.every(id => readyList.some(r => r.user_id === id && r.ready));
 
-    // Wenn alle bereit, Event senden
+    // Wenn alle bereit, Spiel starten und Event senden
     if (allReady) {
+        // Setze das Spiel als gestartet (falls noch nicht)
+        await supabase
+            .from('game_lobbies')
+            .update({ started: true })
+            .eq('id', game.lobby_id);
+        // Hole das vollständige Spielobjekt für das Event
+        const { data: fullGame } = await supabase
+            .from('brain9_games')
+            .select('*, lobby:game_lobbies(*, players:game_lobby_players(user_id, user:users(id, name, profile_image_url)))')
+            .eq('id', gameId)
+            .single();
         let io;
         try { io = getIO(); } catch { io = null; }
         if (io) {
-            io.to(game.lobby_id).emit('allReady', { gameId });
+            io.to(game.lobby_id).emit('gameStarted', fullGame);
         }
     }
     res.json({ ready: true, allReady });
