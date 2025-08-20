@@ -379,13 +379,13 @@ router.post('/lobbies/cleanup', async (req, res) => {
 
     console.log('Cleaning up lobbies. Time threshold:', tenMinutesAgo);
 
-    // Aktualisiere alle Lobbys, die seit 10 Minuten nicht gestartet oder beendet wurden
+    // Aktualisiere alle Lobbys, die seit 10 Minuten keine Aktivität hatten und nicht gestartet oder beendet wurden
     const { data, error } = await supabase
         .from('game_lobbies')
         .update({ finished: true })
         .eq('started', false)
         .eq('finished', false)
-        .lt('created_at', tenMinutesAgo)
+        .lt('last_activity', tenMinutesAgo)
         .select();
 
     if (error) {
