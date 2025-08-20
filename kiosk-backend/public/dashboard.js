@@ -83,11 +83,14 @@ window.addEventListener('DOMContentLoaded', async () => {
       const data = await res.json();
       if (data?.loggedIn && data.user?.role === 'admin') {
         adminBtn.classList.remove('hidden');
+        adminBtn.setAttribute('aria-hidden', 'false');
+        adminBtn.setAttribute('tabindex', '0');
       } else {
-        adminBtn.classList.add('hidden');
+        // Button komplett entfernen für Nicht-Admins
+        adminBtn.parentNode && adminBtn.parentNode.removeChild(adminBtn);
       }
     } catch {
-      adminBtn.classList.add('hidden');
+      adminBtn.parentNode && adminBtn.parentNode.removeChild(adminBtn);
     }
   }
 });
