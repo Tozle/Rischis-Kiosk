@@ -35,12 +35,42 @@ function renderBrain9Game(game) {
     const status = $("game-status");
     const grid = $("simon-grid");
     const players = $("game-players");
-    if (!status || !grid || !players) return;
-    // Spieler anzeigen
-    players.innerHTML = game.players.map(p => `<div class="flex flex-col items-center ${game.activePlayers.includes(p.id) ? '' : 'opacity-40'}">
-        <img src="${p.profile_image_url}" alt="${p.name}" class="w-8 h-8 rounded-full border mb-1" />
-        <span class="text-xs">${p.name}</span>
-    </div>`).join('');
+    const readyStatus = $("game-ready-status");
+    if (!status || !grid || !players || !readyStatus) return;
+    // Spieler und Ready-Status anzeigen
+    players.innerHTML = game.players.map(p => {
+        const isReady = (game.readyPlayers || []).includes(p.id);
+        return `<div class="flex flex-col items-center ${game.activePlayers.includes(p.id) ? '' : 'opacity-40'}">
+            <img src="${p.profile_image_url}" alt="${p.name}" class="w-8 h-8 rounded-full border mb-1" />
+            <span class="text-xs">${p.name}</span>
+            <span class="text-xs ${isReady ? 'text-green-600' : 'text-gray-400'}">${isReady ? 'Bereit' : 'Nicht bereit'}</span>
+        </div>`;
+    }).join('');
+    // Ready-Button für eigenen Spieler anzeigen, falls nicht bereit
+    const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+    const isMeReady = (game.readyPlayers || []).includes(profile.id);
+    if (!isMeReady && !game.finished && game.waitingForReady) {
+        readyStatus.innerHTML = `<button id="ready-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 transition">Bereit</button>`;
+        const btn = document.getElementById('ready-btn');
+        if (btn) btn.onclick = () => sendReady(game.id);
+    } else if (game.waitingForReady && !game.finished) {
+        readyStatus.innerHTML = `<span class="text-cyan-600 font-semibold">Warte auf andere Spieler...</span>`;
+    } else {
+        readyStatus.innerHTML = '';
+    }
+// Sendet Ready-Status an Backend
+async function sendReady(gameId) {
+    try {
+        const res = await fetch(`/api/games/${gameId}/ready`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include'
+        });
+        if (!res.ok) showToast('Fehler beim Bereit-Melden', 'error');
+    } catch {
+        showToast('Fehler beim Bereit-Melden', 'error');
+    }
+}
     // Status
     if (game.finished) {
         const winner = game.players.find(p => p.id === game.winner);
@@ -466,6 +496,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (game && game.id) {
                     window.location.href = "/games.html?gameId=" + game.id;
                 }
+            });
+            // Listener für Ready-Status-Update (optional, falls Backend Event sendet)
+            socket.on('lobbyReadyUpdate', (data) => {
+                // Optional: Sofort neu laden, falls Backend Event sendet
+                if (data && data.gameId) pollAndRenderGame(data.gameId);
             });
         }
     });

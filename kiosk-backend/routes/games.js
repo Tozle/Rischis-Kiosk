@@ -1,3 +1,40 @@
+// Spieler ist bereit für das Spiel
+router.post('/game/:id/ready', requireAuth, async (req, res) => {
+    const gameId = req.params.id;
+    const user = req.user;
+    // Eintrag in game_ready-Tabelle (ggf. anlegen)
+    const { data, error } = await supabase
+        .from('game_ready')
+        .upsert({ game_id: gameId, user_id: user.id, ready: true }, { onConflict: ['game_id', 'user_id'] });
+    if (error) return res.status(500).json({ error: error.message });
+
+    // Prüfen, ob alle Spieler bereit sind
+    const { data: readyList, error: readyError } = await supabase
+        .from('game_ready')
+        .select('*')
+        .eq('game_id', gameId);
+    if (readyError) return res.status(500).json({ error: readyError.message });
+
+    // Spieler im Spiel zählen
+    const { data: game, error: gameError } = await supabase
+        .from('brain9_games')
+        .select('*, lobby:game_lobbies(*, players:game_lobby_players(user_id))')
+        .eq('id', gameId)
+        .single();
+    if (gameError || !game) return res.status(400).json({ error: 'Spiel nicht gefunden' });
+    const playerIds = (game.lobby.players || []).map(p => p.user_id);
+    const allReady = playerIds.every(id => readyList.some(r => r.user_id === id && r.ready));
+
+    // Wenn alle bereit, Event senden
+    if (allReady) {
+        let io;
+        try { io = getIO(); } catch { io = null; }
+        if (io) {
+            io.to(game.lobby_id).emit('allReady', { gameId });
+        }
+    }
+    res.json({ ready: true, allReady });
+});
 import express from 'express';
 import { requireAuth } from '../middleware/auth.js';
 import { supabase } from '../utils/supabase.js';
