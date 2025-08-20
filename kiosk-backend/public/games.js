@@ -1,11 +1,11 @@
 // Hilfsfunktionen für Browser-Kompatibilität
 function $(id) {
-  return document.getElementById(id);
+    return document.getElementById(id);
 }
 if (typeof window.showToast !== 'function') {
-  window.showToast = function(msg, type) {
-    alert(msg); // Fallback: Einfaches Alert
-  };
+    window.showToast = function (msg, type) {
+        alert(msg); // Fallback: Einfaches Alert
+    };
 }
 
 // Brain9 Game-UI anzeigen und Spiellogik
@@ -324,37 +324,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     let errorMsg = '';
                     try { data = await res.json(); } catch { }
                     if (res.ok && data.gameId) {
-                        showToast('Lobby voll – Brain9 startet!');
-                        // 3-Sekunden-Countdown als Overlay
-                        const countdownOverlay = document.createElement('div');
-                        countdownOverlay.style.position = 'fixed';
-                        countdownOverlay.style.inset = '0';
-                        countdownOverlay.style.background = 'rgba(0,0,0,0.7)';
-                        countdownOverlay.style.zIndex = '9999';
-                        countdownOverlay.style.display = 'flex';
-                        countdownOverlay.style.alignItems = 'center';
-                        countdownOverlay.style.justifyContent = 'center';
-                        countdownOverlay.innerHTML = `
-                                                                    <div style="background:white;padding:2.5rem 2.5rem;border-radius:1.5rem;box-shadow:0 4px 32px #0002;text-align:center;min-width:220px;">
-                                                                        <div style="font-size:2.5rem;font-weight:bold;color:#0891b2;" id="lobby-countdown">3</div>
-                                                                        <div style="font-size:1.2rem;color:#333;margin-top:0.5rem;">Das Spiel startet ...</div>
-                                                                    </div>
-                                                                `;
-                        document.body.appendChild(countdownOverlay);
-                        let seconds = 3;
-                        const updateCountdown = () => {
-                            seconds--;
-                            const el = document.getElementById('lobby-countdown');
-                            if (el) el.textContent = seconds;
-                            if (seconds > 0) {
-                                setTimeout(updateCountdown, 1000);
-                            } else {
-                                countdownOverlay.remove();
-                                showGameModal(data.gameId);
+                        window.joinLobbyRoom(data.lobbyId); // Socket-Raum beitreten
+                        showToast('Lobby beigetreten!');
+                        await loadLobbies();
+                        // Lobby-Detail-Ansicht direkt öffnen
+                        setTimeout(() => {
+                            const lobby = (window.lastLobbies || []).find(l => l.players.some(p => p.user_id === profile.id));
+                            if (lobby) {
+                                const modal = document.createElement('div');
+                                modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-50 lobby-detail-modal';
+                                modal.innerHTML = `
+                                    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-xl relative flex flex-col items-center">
+                                        <button class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none" id="close-lobby-detail">&times;</button>
+                                        <h2 class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300">${lobby.game_type === 'brain9' ? 'Brain9' : lobby.game_type} Lobby #${lobby.id.slice(-4)}</h2>
+                                        <div class="mb-2 text-gray-700 dark:text-gray-200">Einsatz: <b>€${Number(lobby.bet).toFixed(2)}</b></div>
+                                        <div class="mb-2 text-gray-700 dark:text-gray-200">Spieler:</div>
+                                        <div class="flex gap-2 mb-4 flex-wrap justify-center">
+                                            ${lobby.players.map(p => `<div class='flex flex-col items-center'><img src='${p.profile_image_url}' class='w-10 h-10 rounded-full border mb-1' /><span class='text-xs'>${p.name}</span></div>`).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                                document.body.appendChild(modal);
+                                modal.querySelector('#close-lobby-detail').onclick = () => modal.remove();
                             }
-                        };
-                        setTimeout(updateCountdown, 1000);
-                        // Die Lobby bleibt sichtbar, Modal öffnet sich nach Countdown
+                        }, 300);
                     } else if (res.ok) {
                         showToast('Lobby beigetreten!');
                         await loadLobbies();
@@ -434,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Eigene User-ID auslesen
             let profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
             // Nach Lobby-Join automatisch dem Lobby-Raum beitreten
-            window.joinLobbyRoom = function(lobbyId) {
+            window.joinLobbyRoom = function (lobbyId) {
                 if (socket && lobbyId) socket.emit('joinLobby', lobbyId);
             };
             // Listener für Lobby-Updates
