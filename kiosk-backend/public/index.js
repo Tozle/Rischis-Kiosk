@@ -58,6 +58,7 @@ if (showLogin) {
 
 // REGISTRIERUNG
 
+
 document
   .getElementById('register-form')
   .addEventListener('submit', async (e) => {
@@ -100,8 +101,42 @@ document
       if (!res.ok)
         throw new Error(result.error || 'Registrierung fehlgeschlagen');
 
-      showMessage('Registrierung erfolgreich! Bitte jetzt einloggen.', true);
-      switchForm('login');
+      // Modernes Overlay anzeigen
+      let overlay = document.createElement('div');
+      overlay.id = 'register-success-overlay';
+      overlay.style.position = 'fixed';
+      overlay.style.inset = '0';
+      overlay.style.background = 'rgba(16,185,129,0.95)';
+      overlay.style.display = 'flex';
+      overlay.style.flexDirection = 'column';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.style.zIndex = '9999';
+      overlay.style.transition = 'opacity 0.5s';
+      overlay.style.opacity = '0';
+      overlay.innerHTML = `
+        <div style="background:rgba(255,255,255,0.95);color:#134e4a;padding:2.5rem 2rem 2rem 2rem;border-radius:2rem;box-shadow:0 8px 32px 0 rgba(16,185,129,0.18);font-size:2rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:1.2rem;max-width:90vw;text-align:center;animation:bounceIn 0.7s;">
+          <span style="font-size:2.5rem;">🎉</span>
+          <span>Registrierung erfolgreich!<br><span style='font-size:1.1rem;font-weight:400;'>Du kannst dich jetzt einloggen.</span></span>
+        </div>
+        <style>
+          @keyframes bounceIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            60% { transform: scale(1.1); opacity: 1; }
+            80% { transform: scale(0.95); }
+            100% { transform: scale(1); opacity: 1; }
+          }
+        </style>
+      `;
+      document.body.appendChild(overlay);
+      setTimeout(() => { overlay.style.opacity = '1'; }, 10);
+      setTimeout(() => {
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+          overlay.remove();
+          switchForm('login');
+        }, 500);
+      }, 1700);
     } catch (err) {
       console.error(err);
       showMessage(err.message || 'Fehler bei Registrierung');
