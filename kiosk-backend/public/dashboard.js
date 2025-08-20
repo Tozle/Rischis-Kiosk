@@ -1,4 +1,3 @@
-window.addEventListener('DOMContentLoaded', () => {
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
@@ -35,7 +34,8 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-});
+// ...
+// Entfernt: Doppelte DOMContentLoaded-Logik. Siehe unten für die kombinierte Version.
 // CSP-konforme Event-Handler für Logout, Darkmode und Admin-Button
 window.addEventListener('DOMContentLoaded', async () => {
   const logoutBtn = document.getElementById('logoutBtn');
