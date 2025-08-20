@@ -13,7 +13,7 @@ router.post(
   loginLimiter,
   validateLogin,
   asyncHandler(async (req, res) => {
-  const { name, email, password, rememberMe } = req.body;
+    const { name, email, password, rememberMe } = req.body;
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -36,7 +36,7 @@ router.post(
       return res.status(401).json({ error: msg });
     }
 
-  setAuthCookies(res, data.session, !!rememberMe);
+    setAuthCookies(res, data.session, !!rememberMe);
 
     res.json({
       message: 'Login erfolgreich',

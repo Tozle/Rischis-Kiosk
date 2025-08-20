@@ -102,18 +102,27 @@ window.addEventListener('DOMContentLoaded', async () => {
             profileModal.classList.remove('hidden');
         });
         // Auswahl-Buttons
-        document.getElementById('profile-edit-image-btn').onclick = () => {
-            document.getElementById('profile-choice').classList.add('hidden');
-            document.getElementById('profile-image-form').classList.remove('hidden');
-        };
-        document.getElementById('profile-edit-name-btn').onclick = () => {
-            document.getElementById('profile-choice').classList.add('hidden');
-            document.getElementById('profile-name-form').classList.remove('hidden');
-        };
-        document.getElementById('profile-edit-password-btn').onclick = () => {
-            document.getElementById('profile-choice').classList.add('hidden');
-            document.getElementById('profile-password-form').classList.remove('hidden');
-        };
+        const editImageBtn = document.getElementById('profile-edit-image-btn');
+        const editNameBtn = document.getElementById('profile-edit-name-btn');
+        const editPasswordBtn = document.getElementById('profile-edit-password-btn');
+        if (editImageBtn) {
+            editImageBtn.onclick = () => {
+                document.getElementById('profile-choice').classList.add('hidden');
+                document.getElementById('profile-image-form').classList.remove('hidden');
+            };
+        }
+        if (editNameBtn) {
+            editNameBtn.onclick = () => {
+                document.getElementById('profile-choice').classList.add('hidden');
+                document.getElementById('profile-name-form').classList.remove('hidden');
+            };
+        }
+        if (editPasswordBtn) {
+            editPasswordBtn.onclick = () => {
+                document.getElementById('profile-choice').classList.add('hidden');
+                document.getElementById('profile-password-form').classList.remove('hidden');
+            };
+        }
         // Abbrechen-Buttons
         document.getElementById('profile-cancel-image').onclick = () => {
             document.getElementById('profile-image-form').classList.add('hidden');

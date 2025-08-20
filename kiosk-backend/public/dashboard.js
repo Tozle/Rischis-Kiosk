@@ -1,39 +1,39 @@
-  const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      fetch('/api/logout', { method: 'POST', credentials: 'include' })
-        .finally(() => {
-          sessionStorage.clear();
-          window.location.href = '/index.html';
-        });
-    });
-  }
-  // FAQ Overlay-Logik nur im Dashboard
-  const faqBtn = document.getElementById('faq-btn');
-  const faqOverlay = document.getElementById('faq-overlay');
-  const faqClose = document.getElementById('faq-close');
-  if (faqBtn && faqOverlay && faqClose) {
-    faqBtn.addEventListener('click', () => {
-      faqOverlay.classList.remove('hidden');
-      faqClose.focus();
-    });
-    faqClose.addEventListener('click', () => {
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', () => {
+    fetch('/api/logout', { method: 'POST', credentials: 'include' })
+      .finally(() => {
+        sessionStorage.clear();
+        window.location.href = '/index.html';
+      });
+  });
+}
+// FAQ Overlay-Logik nur im Dashboard
+const faqBtn = document.getElementById('faq-btn');
+const faqOverlay = document.getElementById('faq-overlay');
+const faqClose = document.getElementById('faq-close');
+if (faqBtn && faqOverlay && faqClose) {
+  faqBtn.addEventListener('click', () => {
+    faqOverlay.classList.remove('hidden');
+    faqClose.focus();
+  });
+  faqClose.addEventListener('click', () => {
+    faqOverlay.classList.add('hidden');
+    faqBtn.focus();
+  });
+  faqOverlay.addEventListener('click', (e) => {
+    if (e.target === faqOverlay) {
       faqOverlay.classList.add('hidden');
       faqBtn.focus();
-    });
-    faqOverlay.addEventListener('click', (e) => {
-      if (e.target === faqOverlay) {
-        faqOverlay.classList.add('hidden');
-        faqBtn.focus();
-      }
-    });
-    document.addEventListener('keydown', (e) => {
-      if (!faqOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) {
-        faqOverlay.classList.add('hidden');
-        faqBtn.focus();
-      }
-    });
-  }
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (!faqOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) {
+      faqOverlay.classList.add('hidden');
+      faqBtn.focus();
+    }
+  });
+}
 // ...
 // Entfernt: Doppelte DOMContentLoaded-Logik. Siehe unten für die kombinierte Version.
 // CSP-konforme Event-Handler für Logout, Darkmode und Admin-Button
