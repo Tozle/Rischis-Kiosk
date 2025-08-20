@@ -1,3 +1,10 @@
+
+import express from 'express';
+import { requireAuth } from '../middleware/auth.js';
+import { supabase } from '../utils/supabase.js';
+
+const router = express.Router();
+
 // Brain9 Highscore/Statistik
 router.get('/brain9/stats', async (req, res) => {
   // Top 10 Spieler nach Siegen
@@ -14,18 +21,6 @@ router.get('/brain9/stats', async (req, res) => {
   }
   res.json({ wins, plays, payouts });
 });
-// Lobbys auflisten (für Frontend)
-router.get('/lobby', (req, res) => {
-  // Nur offene Lobbys zurückgeben
-  const openLobbies = Object.values(lobbies).filter(lobby => !lobby.started);
-  res.json({ lobbies: openLobbies });
-});
-// games.js – Multiplayer Lobby & Game API
-import express from 'express';
-import { requireAuth } from '../middleware/auth.js';
-import { supabase } from '../utils/supabase.js';
-
-const router = express.Router();
 
 // Lobby erstellen
 router.post('/lobby', requireAuth, (req, res) => {
