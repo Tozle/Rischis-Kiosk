@@ -126,6 +126,12 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
         return res.status(500).json({ error: 'Fehler beim Beitreten der Lobby' });
     }
 
+    // last_activity aktualisieren
+    await supabase
+        .from('game_lobbies')
+        .update({ last_activity: new Date().toISOString() })
+        .eq('id', lobbyId);
+
     console.log('Player added to lobby:', { lobbyId, userId: user.id });
 
     // WebSocket-Update senden
@@ -136,6 +142,12 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
         io = null;
     }
     if (io) {
+        // Debug: Zeige alle Sockets im Raum vor dem Emit
+        if (io.sockets && io.sockets.adapter && io.sockets.adapter.rooms) {
+            const room = io.sockets.adapter.rooms.get(lobbyId);
+            console.log(`[lobbyUpdated] Sockets im Raum ${lobbyId}:`, room ? Array.from(room) : []);
+        }
+        console.log(`[lobbyUpdated] Sende Event an Raum ${lobbyId}`);
         io.to(lobbyId).emit('lobbyUpdated');
     } else {
         console.warn('WebSocket server (io) is not defined. Skipping lobbyUpdated event.');
@@ -164,6 +176,11 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
 
         console.log('Game started:', game);
         if (io) {
+            if (io.sockets && io.sockets.adapter && io.sockets.adapter.rooms) {
+                const room = io.sockets.adapter.rooms.get(lobbyId);
+                console.log(`[gameStarted] Sockets im Raum ${lobbyId}:`, room ? Array.from(room) : []);
+            }
+            console.log(`[gameStarted] Sende Event an Raum ${lobbyId} mit game:`, game);
             io.to(lobbyId).emit('gameStarted', game);
         } else {
             console.warn('WebSocket server (io) is not defined. Skipping gameStarted event.');
@@ -253,10 +270,50 @@ router.post('/game/:id/move', requireAuth, async (req, res) => {
     await supabase.from('brain9_moves').insert({
         game_id: gameId,
         user_id: user.id,
-        move_index: turn,
-        button_index,
+        button_index: buttonIndex,
         correct
     });
+    // last_activity aktualisieren
+    await supabase
+        .from('game_lobbies')
+        .update({ last_activity: new Date().toISOString() })
+        .eq('id', game.lobby_id || game.lobby.id);
+
+    // Gewinnerermittlung: Wenn alle anderen Spieler eliminiert sind, den aktuellen Spieler als Gewinner setzen
+    if (correct) {
+        const allEliminated = activePlayers.length === 1;
+        let winnerId = null;
+        if (allEliminated) {
+            winnerId = activePlayers[0];
+            await supabase
+                .from('brain9_games')
+                .update({ finished: true, winner_id: winnerId })
+                .eq('id', gameId);
+        }
+
+        // Broadcast an alle Spieler im Raum
+        let io;
+        try {
+            io = getIO();
+        } catch (e) {
+            io = null;
+        }
+        if (io) {
+            const room = io.sockets.adapter.rooms.get(gameId);
+            console.log(`[move] Sende Event an Raum ${gameId} mit winnerId:`, winnerId);
+            io.to(gameId).emit('move', {
+                gameId,
+                winnerId,
+                playerId: user.id,
+                correct,
+                allEliminated
+            });
+        } else {
+            console.warn('WebSocket server (io) is not defined. Skipping move event.');
+        }
+    }
+
+    res.json({ message: 'Zug erfolgreich', correct });
 });
 
 // Spiel starten
