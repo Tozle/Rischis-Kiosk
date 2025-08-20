@@ -89,19 +89,28 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
     if (lobby.players.length >= lobby.lobby_size) return res.status(400).json({ error: 'Lobby voll' });
     // Spieler eintragen
     const { error: joinError } = await supabase.from('game_lobby_players').insert({ lobby_id: lobbyId, user_id: user.id });
-    if (joinError) return res.status(500).json({ error: 'Fehler beim Beitreten: ' + joinError.message });
+    if (joinError) {
+        console.error('Fehler beim Beitreten:', joinError);
+        return res.status(500).json({ error: 'Fehler beim Beitreten: ' + joinError.message });
+    }
     // Wenn Lobby voll, Spiel starten
     let gameId = null;
     if (lobby.players.length + 1 === lobby.lobby_size) {
         const { error: updateError } = await supabase.from('game_lobbies').update({ started: true }).eq('id', lobbyId);
-        if (updateError) return res.status(500).json({ error: 'Fehler beim Starten der Lobby: ' + updateError.message });
+        if (updateError) {
+            console.error('Fehler beim Starten der Lobby:', updateError);
+            return res.status(500).json({ error: 'Fehler beim Starten der Lobby: ' + updateError.message });
+        }
         // Spiel initialisieren
         const { data: game, error: gameError } = await supabase
             .from('brain9_games')
             .insert({ lobby_id: lobbyId })
             .select()
             .single();
-        if (gameError) return res.status(500).json({ error: 'Fehler beim Erstellen des Spiels: ' + gameError.message });
+        if (gameError) {
+            console.error('Fehler beim Erstellen des Spiels:', gameError);
+            return res.status(500).json({ error: 'Fehler beim Erstellen des Spiels: ' + gameError.message });
+        }
         gameId = game.id;
     }
     res.json({ success: true, gameId });
