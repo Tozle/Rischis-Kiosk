@@ -72,7 +72,8 @@ router.post('/lobby', requireAuth, async (req, res) => {
         game_type: game || 'brain9',
         lobby_size: lobbySize,
         bet,
-        created_by: user.id
+        created_by: user.id,
+        last_activity: new Date().toISOString()
     }).select().single();
 
     if (error) {
