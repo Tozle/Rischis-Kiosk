@@ -1,3 +1,19 @@
+// Brain9 Highscore/Statistik
+router.get('/brain9/stats', async (req, res) => {
+  // Top 10 Spieler nach Siegen
+  const { data: wins, error: winErr } = await supabase.rpc('brain9_top_winners');
+  // Top 10 nach Teilnahmen
+  const { data: plays, error: playErr } = await supabase
+    .from('brain9_games')
+    .select('*, players:brain9_moves!inner(user_id)')
+    .order('created_at', { ascending: false });
+  // Gewinnsumme pro User
+  const { data: payouts, error: payoutErr } = await supabase.rpc('brain9_total_payouts');
+  if (winErr || playErr || payoutErr) {
+    return res.status(500).json({ error: winErr?.message || playErr?.message || payoutErr?.message });
+  }
+  res.json({ wins, plays, payouts });
+});
 // Lobbys auflisten (für Frontend)
 router.get('/lobby', (req, res) => {
   // Nur offene Lobbys zurückgeben
@@ -6,14 +22,10 @@ router.get('/lobby', (req, res) => {
 });
 // games.js – Multiplayer Lobby & Game API
 import express from 'express';
-import { v4 as uuidv4 } from 'uuid';
 import { requireAuth } from '../middleware/auth.js';
+import { supabase } from '../utils/supabase.js';
 
 const router = express.Router();
-
-// In-memory store (for MVP, replace with DB for production)
-const lobbies = {};
-const games = {};
 
 // Lobby erstellen
 router.post('/lobby', requireAuth, (req, res) => {
@@ -33,7 +45,7 @@ router.post('/lobby', requireAuth, (req, res) => {
 });
 
 // Lobby beitreten
-router.post('/lobby/:id/join', requireAuth, (req, res) => {
+router.post('/lobby/:id/join', requireAuth, async (req, res) => {
   const lobby = lobbies[req.params.id];
   const user = req.user;
   if (!lobby) return res.status(404).json({ error: 'Lobby nicht gefunden' });
@@ -42,22 +54,15 @@ router.post('/lobby/:id/join', requireAuth, (req, res) => {
   lobby.players.push({ id: user.id, name: user.name, balance: user.balance, profile_image_url: user.profile_image_url });
   // Wenn Lobby voll, Spiel automatisch starten
   if (lobby.players.length === lobby.lobbySize) {
-    // Einsatz abziehen (hier nur im Speicher, TODO: DB!)
-    lobby.players.forEach(p => { p.balance -= lobby.bet; });
-    const gameId = lobby.id;
-    games[gameId] = {
-      id: gameId,
-      players: [...lobby.players],
-      sequence: [],
-      turn: 0,
-      activePlayers: lobby.players.map(p => p.id),
-      timeouts: {},
-      startedAt: Date.now(),
-      finished: false,
-      winner: null,
-    };
-    lobby.started = true;
-    return res.json({ success: true, gameId });
+    await supabase.from('game_lobbies').update({ started: true }).eq('id', lobby.id);
+    // Spiel initialisieren
+    const { data: game, error: gameError } = await supabase
+      .from('brain9_games')
+      .insert({ lobby_id: lobby.id })
+      .select()
+      .single();
+    if (gameError) return res.status(500).json({ error: gameError.message });
+    return res.json({ success: true, gameId: game.id });
   }
   res.json({ success: true });
 });
@@ -66,44 +71,87 @@ router.post('/lobby/:id/join', requireAuth, (req, res) => {
 // Manuelles Starten nicht mehr nötig (wird automatisch gemacht)
 
 // Spielstatus abfragen
-router.get('/game/:id', requireAuth, (req, res) => {
-  const game = games[req.params.id];
-  if (!game) return res.status(404).json({ error: 'Spiel nicht gefunden' });
-  res.json(game);
+// Spielstatus abfragen (aus DB)
+router.get('/game/:id', requireAuth, async (req, res) => {
+  const gameId = req.params.id;
+  // Spiel holen
+  const { data: game, error } = await supabase
+    .from('brain9_games')
+    .select('*, lobby:game_lobbies(*, players:game_lobby_players(user_id, eliminated))')
+    .eq('id', gameId)
+    .single();
+  if (error || !game) return res.status(404).json({ error: 'Spiel nicht gefunden' });
+  // Moves holen
+  const { data: moves } = await supabase
+    .from('brain9_moves')
+    .select('*')
+    .eq('game_id', gameId)
+    .order('move_index', { ascending: true });
+  res.json({ ...game, moves });
 });
 
 // Spielzug machen
-router.post('/game/:id/move', requireAuth, (req, res) => {
-  const game = games[req.params.id];
+router.post('/game/:id/move', requireAuth, async (req, res) => {
+  const gameId = req.params.id;
   const user = req.user;
   const { buttonIndex } = req.body;
-  if (!game || game.finished) return res.status(400).json({ error: 'Spiel nicht gefunden oder beendet' });
-  const currentPlayerId = game.activePlayers[game.turn % game.activePlayers.length];
+  // Spiel und Moves holen
+  const { data: game, error: gameError } = await supabase
+    .from('brain9_games')
+    .select('*, lobby:game_lobbies(*, players:game_lobby_players(user_id, eliminated))')
+    .eq('id', gameId)
+    .single();
+  if (gameError || !game) return res.status(400).json({ error: 'Spiel nicht gefunden oder beendet' });
+  const { data: moves } = await supabase
+    .from('brain9_moves')
+    .select('*')
+    .eq('game_id', gameId)
+    .order('move_index', { ascending: true });
+  // Aktive Spieler bestimmen
+  let eliminated = {};
+  moves.forEach(m => { if (!m.correct) eliminated[m.user_id] = true; });
+  const allPlayers = game.lobby.players.map(p => p.user_id);
+  const activePlayers = allPlayers.filter(id => !eliminated[id]);
+  // Wer ist am Zug?
+  const turn = moves.length;
+  const currentPlayerId = activePlayers[turn % activePlayers.length];
   if (user.id !== currentPlayerId) return res.status(403).json({ error: 'Nicht dein Zug' });
-  // Prüfe Zug
-  const expected = game.sequence[game.turn];
-  if (expected !== undefined && buttonIndex !== expected) {
-    // Fehler: Spieler raus
-    game.activePlayers = game.activePlayers.filter(id => id !== user.id);
-    if (game.activePlayers.length === 1) {
-      game.finished = true;
-      game.winner = game.activePlayers[0];
-      // TODO: Einsatz auszahlen
+  // Sequence bestimmen
+  const sequence = moves.filter(m => m.correct).map(m => m.button_index);
+  const expected = sequence[turn];
+  let correct = true;
+  if (expected !== undefined && buttonIndex !== expected) correct = false;
+  // Move speichern
+  await supabase.from('brain9_moves').insert({
+    game_id: gameId,
+    user_id: user.id,
+    move_index: turn,
+    button_index,
+    correct
+  });
+  // Prüfen ob jemand eliminiert wurde
+  let winner = null;
+  let finished = false;
+  if (!correct) {
+    if (activePlayers.length - 1 === 1) {
+      finished = true;
+      winner = activePlayers.find(id => id !== user.id);
+      await supabase.from('brain9_games').update({ finished_at: new Date().toISOString(), winner_id: winner }).eq('id', gameId);
+      // Auszahlung an Gewinner
+      const einsatz = game.lobby.bet;
+      const payout = einsatz * allPlayers.length;
+      await supabase.from('users').update({ balance: supabase.rpc('add_balance', { user_id: winner, amount: payout }) }).eq('id', winner);
     }
-    return res.json({ error: 'Falscher Button', eliminated: true, winner: game.winner });
+  } else if (activePlayers.length === 1) {
+    finished = true;
+    winner = activePlayers[0];
+    await supabase.from('brain9_games').update({ finished_at: new Date().toISOString(), winner_id: winner }).eq('id', gameId);
+    // Auszahlung an Gewinner
+    const einsatz = game.lobby.bet;
+    const payout = einsatz * allPlayers.length;
+    await supabase.from('users').update({ balance: supabase.rpc('add_balance', { user_id: winner, amount: payout }) }).eq('id', winner);
   }
-  // Richtiger Zug, ggf. neuen Button ergänzen
-  if (game.turn === game.sequence.length) {
-    game.sequence.push(buttonIndex);
-  }
-  game.turn++;
-  // Nächster Spieler
-  if (game.activePlayers.length === 1) {
-    game.finished = true;
-    game.winner = game.activePlayers[0];
-    // TODO: Einsatz auszahlen
-  }
-  res.json({ success: true, next: game.activePlayers[game.turn % game.activePlayers.length], sequence: game.sequence, winner: game.winner });
+  res.json({ success: true, next: activePlayers[(turn + 1) % activePlayers.length], sequence: correct ? [...sequence, buttonIndex] : sequence, winner });
 });
 
 export default router;
