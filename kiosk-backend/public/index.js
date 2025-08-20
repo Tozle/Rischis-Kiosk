@@ -6,25 +6,20 @@
 // Einheitliche Definition für alle Frontend-Skripte
 const BACKEND_URL = window.location.origin;
 
+
+// Hilfsfunktion für DOM-Zugriff
+const $ = (id) => document.getElementById(id);
+
 async function getCsrfToken() {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/csrf-token`, {
-      credentials: 'include',
-    });
-    // index.js – Best Practice Refactor
-    const $ = (id) => document.getElementById(id);
-    const BACKEND_URL = window.location.origin;
-
-    async function getCsrfToken() {
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/csrf-token`, { credentials: 'include' });
-        const data = await res.json();
-        return data.csrfToken;
-      } catch (err) {
-        console.error('CSRF-Token konnte nicht geladen werden', err);
-        return null;
-      }
-    }
+    const res = await fetch(`${BACKEND_URL}/api/csrf-token`, { credentials: 'include' });
+    const data = await res.json();
+    return data.csrfToken;
+  } catch (err) {
+    console.error('CSRF-Token konnte nicht geladen werden', err);
+    return null;
+  }
+}
 
     function showMessage(text, success = false) {
       const message = $('message');
