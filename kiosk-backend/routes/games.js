@@ -21,16 +21,22 @@ router.get('/lobby', async (req, res) => {
         .eq('finished', false)
         .order('created_at', { ascending: false });
     if (error) return res.status(500).json({ error: error.message });
-    // Spieler-Infos für Frontend aufbereiten
-    const lobbies = (data || []).map(lobby => ({
-        ...lobby,
-        players: (lobby.players || []).map(p => ({
-            user_id: p.user_id,
-            eliminated: p.eliminated,
-            name: p.user?.name || '',
-            profile_image_url: p.user?.profile_image_url || ''
-        }))
-    }));
+
+    // Spieler-Infos für Frontend aufbereiten und Alter der Lobby berechnen
+    const lobbies = (data || []).map(lobby => {
+        const ageInMinutes = Math.floor((Date.now() - new Date(lobby.created_at).getTime()) / 60000);
+        return {
+            ...lobby,
+            age: `${ageInMinutes} Minuten`,
+            players: (lobby.players || []).map(p => ({
+                user_id: p.user_id,
+                eliminated: p.eliminated,
+                name: p.user?.name || '',
+                profile_image_url: p.user?.profile_image_url || ''
+            }))
+        };
+    });
+
     res.json({ lobbies });
 });
 
@@ -53,9 +59,16 @@ router.get('/brain9/stats', async (req, res) => {
 
 // Lobby erstellen
 router.post('/lobby', requireAuth, async (req, res) => {
-    const { lobbySize, bet, game } = req.body;
+    const { lobbySize, betInEuros, game } = req.body;
     const user = req.user;
-    if (!lobbySize || !bet || lobbySize < 2 || bet < 0) return res.status(400).json({ error: 'Ungültige Lobbydaten' });
+
+    if (!lobbySize || !betInEuros || lobbySize < 2 || betInEuros < 0) {
+        return res.status(400).json({ error: 'Ungültige Lobbydaten' });
+    }
+
+    // Betrag in Coins umrechnen (1 Euro = 100 Coins)
+    const bet = betInEuros * 100;
+
     // Persistente Lobby in Supabase anlegen
     const { data, error } = await supabase.from('game_lobbies').insert({
         game_type: game || 'brain9',
@@ -63,12 +76,17 @@ router.post('/lobby', requireAuth, async (req, res) => {
         bet,
         created_by: user.id
     }).select().single();
-    if (error) return res.status(500).json({ error: error.message });
+
+    if (error) {
+        return res.status(500).json({ error: error.message });
+    }
+
     // Spieler direkt als ersten Teilnehmer eintragen
     await supabase.from('game_lobby_players').insert({
         lobby_id: data.id,
         user_id: user.id
     });
+
     res.json({ lobbyId: data.id });
 });
 
@@ -80,7 +98,7 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
     // Hole die Lobby inkl. Spieler
     const { data: lobby, error } = await supabase
         .from('game_lobbies')
-        .select('*, players:game_lobby_players(user_id, eliminated, user:users(id, name, profile_image_url))')
+        .select('*, players:game_lobby_players(user_id)')
         .eq('id', lobbyId)
         .single();
     if (error || !lobby) return res.status(404).json({ error: 'Lobby nicht gefunden' });
@@ -99,14 +117,30 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
         });
     if (insertError) return res.status(500).json({ error: 'Fehler beim Beitreten der Lobby' });
 
-    // Spieler-Objekte extrahieren
-    const allPlayers = (lobby.players || []).map(p => ({
-        id: p.user_id,
-        name: p.user?.name || '',
-        profile_image_url: p.user?.profile_image_url || ''
-    }));
+    // WebSocket-Update senden
+    io.to(lobbyId).emit('lobbyUpdated');
 
-    res.json({ lobby: { ...lobby, players: allPlayers } });
+    // Spiel starten, wenn die Lobby voll ist
+    const updatedLobby = await supabase
+        .from('game_lobby_players')
+        .select('*')
+        .eq('lobby_id', lobbyId);
+
+    if (updatedLobby.data.length === lobby.lobby_size) {
+        const { data: game, error: gameError } = await supabase
+            .from('brain9_games')
+            .insert({
+                lobby_id: lobbyId,
+                game_type: lobby.game_type
+            })
+            .select()
+            .single();
+        if (gameError) return res.status(500).json({ error: 'Fehler beim Starten des Spiels' });
+
+        io.to(lobbyId).emit('gameStarted', game);
+    }
+
+    res.json({ message: 'Lobby beigetreten', lobbyId });
 });
 
 // Spielstatus abfragen (aus DB) – KORREKTE POSITION

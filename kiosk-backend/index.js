@@ -1,4 +1,3 @@
-
 import env from './utils/env.js';
 
 import express from 'express';
@@ -134,7 +133,31 @@ app.use(notFound);
 // Zentrale Fehlerbehandlung
 app.use(errorHandler);
 
-// Server starten
-app.listen(PORT, () => {
-  logger.info(`✅ Server läuft auf Port ${PORT}`);
+const http = require('http');
+const { Server } = require('socket.io');
+
+const server = http.createServer(app);
+const io = new Server(server);
+
+io.on('connection', (socket) => {
+    console.log('Ein Benutzer hat sich verbunden:', socket.id);
+
+    socket.on('joinLobby', (lobbyId) => {
+        socket.join(lobbyId);
+        console.log(`Benutzer ${socket.id} ist der Lobby ${lobbyId} beigetreten.`);
+    });
+
+    socket.on('updateLobby', (lobbyId) => {
+        io.to(lobbyId).emit('lobbyUpdated');
+        console.log(`Lobby ${lobbyId} wurde aktualisiert.`);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Ein Benutzer hat die Verbindung getrennt:', socket.id);
+    });
+});
+
+// Ändern Sie den Startbefehl, um den HTTP-Server zu verwenden
+server.listen(PORT, () => {
+    logger.info(`✅ Server läuft auf Port ${PORT}`);
 });
