@@ -74,6 +74,43 @@ router.post('/lobby', requireAuth, async (req, res) => {
 
 // Lobby beitreten
 router.post('/lobby/:id/join', requireAuth, async (req, res) => {
+    const lobbyId = req.params.id;
+    const user = req.user;
+
+    // Hole die Lobby inkl. Spieler
+    const { data: lobby, error } = await supabase
+        .from('game_lobbies')
+        .select('*, players:game_lobby_players(user_id, eliminated, user:users(id, name, profile_image_url))')
+        .eq('id', lobbyId)
+        .single();
+    if (error || !lobby) return res.status(404).json({ error: 'Lobby nicht gefunden' });
+
+    // Überprüfen, ob die Lobby voll ist
+    if ((lobby.players || []).length >= lobby.lobby_size) {
+        return res.status(400).json({ error: 'Lobby ist bereits voll' });
+    }
+
+    // Spieler zur Lobby hinzufügen
+    const { error: insertError } = await supabase
+        .from('game_lobby_players')
+        .insert({
+            lobby_id: lobbyId,
+            user_id: user.id
+        });
+    if (insertError) return res.status(500).json({ error: 'Fehler beim Beitreten der Lobby' });
+
+    // Spieler-Objekte extrahieren
+    const allPlayers = (lobby.players || []).map(p => ({
+        id: p.user_id,
+        name: p.user?.name || '',
+        profile_image_url: p.user?.profile_image_url || ''
+    }));
+
+    res.json({ lobby: { ...lobby, players: allPlayers } });
+});
+
+// Spielstatus abfragen (aus DB) – KORREKTE POSITION
+router.get('/game/:id', requireAuth, async (req, res) => {
     const gameId = req.params.id;
     // Spiel holen inkl. Lobby und Spieler
     const { data: game, error } = await supabase
@@ -96,91 +133,65 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
         profile_image_url: p.user?.profile_image_url || ''
     }));
     // Eliminierte Spieler bestimmen
+    let eliminated = {};
+    (moves || []).forEach(m => { if (!m.correct) eliminated[m.user_id] = true; });
+    const activePlayers = allPlayers.filter(p => !eliminated[p.id]).map(p => p.id);
+    // Wer ist am Zug?
+    const turn = (moves || []).length;
+    // Sequence bestimmen
+    const sequence = (moves || []).filter(m => m.correct).map(m => m.button_index);
+    // Winner bestimmen
+    const winner = game.winner_id || null;
 
-    // Spielstatus abfragen (aus DB) – KORREKTE POSITION
-    router.get('/game/:id', requireAuth, async (req, res) => {
-        const gameId = req.params.id;
-        // Spiel holen inkl. Lobby und Spieler
-        const { data: game, error } = await supabase
-            .from('brain9_games')
-            .select('*, lobby:game_lobbies(*, players:game_lobby_players(user_id, eliminated, user:users(id, name, profile_image_url)))')
-            .eq('id', gameId)
-            .single();
-        if (error || !game) return res.status(404).json({ error: 'Spiel nicht gefunden' });
-        // Moves holen
-        const { data: moves } = await supabase
-            .from('brain9_moves')
-            .select('*')
-            .eq('game_id', gameId)
-            .order('move_index', { ascending: true });
-
-        // Spieler-Objekte extrahieren
-        const allPlayers = (game.lobby?.players || []).map(p => ({
-            id: p.user_id,
-            name: p.user?.name || '',
-            profile_image_url: p.user?.profile_image_url || ''
-        }));
-        // Eliminierte Spieler bestimmen
-        let eliminated = {};
-        (moves || []).forEach(m => { if (!m.correct) eliminated[m.user_id] = true; });
-        const activePlayers = allPlayers.filter(p => !eliminated[p.id]).map(p => p.id);
-        // Wer ist am Zug?
-        const turn = (moves || []).length;
-        // Sequence bestimmen
-        const sequence = (moves || []).filter(m => m.correct).map(m => m.button_index);
-        // Winner bestimmen
-        const winner = game.winner_id || null;
-
-        res.json({
-            id: game.id,
-            players: allPlayers,
-            activePlayers,
-            turn,
-            sequence,
-            finished: game.finished,
-            winner
-        });
+    res.json({
+        id: game.id,
+        players: allPlayers,
+        activePlayers,
+        turn,
+        sequence,
+        finished: game.finished,
+        winner
     });
+});
 
-    // Spielzug machen
-    router.post('/game/:id/move', requireAuth, async (req, res) => {
-        const gameId = req.params.id;
-        const user = req.user;
-        const { buttonIndex } = req.body;
-        // Spiel und Moves holen
-        const { data: game, error: gameError } = await supabase
-            .from('brain9_games')
-            .select('*, lobby:game_lobbies(*, players:game_lobby_players(user_id, eliminated))')
-            .eq('id', gameId)
-            .single();
-        if (gameError || !game) return res.status(400).json({ error: 'Spiel nicht gefunden oder beendet' });
-        const { data: moves } = await supabase
-            .from('brain9_moves')
-            .select('*')
-            .eq('game_id', gameId)
-            .order('move_index', { ascending: true });
-        // Aktive Spieler bestimmen
-        let eliminated = {};
-        moves.forEach(m => { if (!m.correct) eliminated[m.user_id] = true; });
-        const allPlayers = game.lobby.players.map(p => p.user_id);
-        const activePlayers = allPlayers.filter(id => !eliminated[id]);
-        // Wer ist am Zug?
-        const turn = moves.length;
-        const currentPlayerId = activePlayers[turn % activePlayers.length];
-        if (user.id !== currentPlayerId) return res.status(403).json({ error: 'Nicht dein Zug' });
-        // Sequence bestimmen
-        const sequence = moves.filter(m => m.correct).map(m => m.button_index);
-        const expected = sequence[turn];
-        let correct = true;
-        if (expected !== undefined && buttonIndex !== expected) correct = false;
-        // Move speichern
-        await supabase.from('brain9_moves').insert({
-            game_id: gameId,
-            user_id: user.id,
-            move_index: turn,
-            button_index,
-            correct
-        });
+// Spielzug machen
+router.post('/game/:id/move', requireAuth, async (req, res) => {
+    const gameId = req.params.id;
+    const user = req.user;
+    const { buttonIndex } = req.body;
+    // Spiel und Moves holen
+    const { data: game, error: gameError } = await supabase
+        .from('brain9_games')
+        .select('*, lobby:game_lobbies(*, players:game_lobby_players(user_id, eliminated))')
+        .eq('id', gameId)
+        .single();
+    if (gameError || !game) return res.status(400).json({ error: 'Spiel nicht gefunden oder beendet' });
+    const { data: moves } = await supabase
+        .from('brain9_moves')
+        .select('*')
+        .eq('game_id', gameId)
+        .order('move_index', { ascending: true });
+    // Aktive Spieler bestimmen
+    let eliminated = {};
+    moves.forEach(m => { if (!m.correct) eliminated[m.user_id] = true; });
+    const allPlayers = game.lobby.players.map(p => p.user_id);
+    const activePlayers = allPlayers.filter(id => !eliminated[id]);
+    // Wer ist am Zug?
+    const turn = moves.length;
+    const currentPlayerId = activePlayers[turn % activePlayers.length];
+    if (user.id !== currentPlayerId) return res.status(403).json({ error: 'Nicht dein Zug' });
+    // Sequence bestimmen
+    const sequence = moves.filter(m => m.correct).map(m => m.button_index);
+    const expected = sequence[turn];
+    let correct = true;
+    if (expected !== undefined && buttonIndex !== expected) correct = false;
+    // Move speichern
+    await supabase.from('brain9_moves').insert({
+        game_id: gameId,
+        user_id: user.id,
+        move_index: turn,
+        button_index,
+        correct
     });
 });
 
