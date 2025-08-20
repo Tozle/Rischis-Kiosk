@@ -59,6 +59,7 @@ if (showLogin) {
 // REGISTRIERUNG
 
 
+
 document
   .getElementById('register-form')
   .addEventListener('submit', async (e) => {
@@ -76,6 +77,31 @@ document
     btnText.classList.add('opacity-50');
     loader.classList.remove('hidden');
 
+    // Frontend-Validierung auf Deutsch
+    if (!name || name.length < 2) {
+      showMessage('Bitte gib einen Namen mit mindestens 2 Zeichen an.');
+      btn.removeAttribute('aria-busy');
+      btn.disabled = false;
+      btnText.classList.remove('opacity-50');
+      loader.classList.add('hidden');
+      return;
+    }
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+      showMessage('Bitte gib eine gültige E-Mail-Adresse ein.');
+      btn.removeAttribute('aria-busy');
+      btn.disabled = false;
+      btnText.classList.remove('opacity-50');
+      loader.classList.add('hidden');
+      return;
+    }
+    if (!password || password.length < 6) {
+      showMessage('Das Passwort muss mindestens 6 Zeichen lang sein.');
+      btn.removeAttribute('aria-busy');
+      btn.disabled = false;
+      btnText.classList.remove('opacity-50');
+      loader.classList.add('hidden');
+      return;
+    }
     if (password !== repeat) {
       showMessage('Passwörter stimmen nicht überein.');
       btn.removeAttribute('aria-busy');
@@ -139,7 +165,16 @@ document
       }, 1700);
     } catch (err) {
       console.error(err);
-      showMessage(err.message || 'Fehler bei Registrierung');
+      // Backend-Fehler auf Deutsch anzeigen, falls möglich
+      let msg = err.message || 'Fehler bei Registrierung';
+      if (/name/i.test(msg) && /zeichen|zeichenlang|zeichen lang|zu kurz|mindestens/i.test(msg)) {
+        msg = 'Bitte gib einen Namen mit mindestens 2 Zeichen an.';
+      } else if (/email/i.test(msg) && /ungültig|invalid/i.test(msg)) {
+        msg = 'Bitte gib eine gültige E-Mail-Adresse ein.';
+      } else if (/passwort|password/i.test(msg) && /ungültig|invalid|mindestens|zu kurz|zeichen/i.test(msg)) {
+        msg = 'Das Passwort muss mindestens 6 Zeichen lang sein.';
+      }
+      showMessage(msg);
     } finally {
       btn.removeAttribute('aria-busy');
       btn.disabled = false;

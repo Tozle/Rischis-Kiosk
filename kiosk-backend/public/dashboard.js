@@ -1,4 +1,3 @@
-// CSP-konforme Event-Handler für Logout und Darkmode
 window.addEventListener('DOMContentLoaded', () => {
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
@@ -35,6 +34,61 @@ window.addEventListener('DOMContentLoaded', () => {
         faqBtn.focus();
       }
     });
+  }
+});
+// CSP-konforme Event-Handler für Logout, Darkmode und Admin-Button
+window.addEventListener('DOMContentLoaded', async () => {
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      fetch('/api/logout', { method: 'POST', credentials: 'include' })
+        .finally(() => {
+          sessionStorage.clear();
+          window.location.href = '/index.html';
+        });
+    });
+  }
+  // FAQ Overlay-Logik nur im Dashboard
+  const faqBtn = document.getElementById('faq-btn');
+  const faqOverlay = document.getElementById('faq-overlay');
+  const faqClose = document.getElementById('faq-close');
+  if (faqBtn && faqOverlay && faqClose) {
+    faqBtn.addEventListener('click', () => {
+      faqOverlay.classList.remove('hidden');
+      faqClose.focus();
+    });
+    faqClose.addEventListener('click', () => {
+      faqOverlay.classList.add('hidden');
+      faqBtn.focus();
+    });
+    faqOverlay.addEventListener('click', (e) => {
+      if (e.target === faqOverlay) {
+        faqOverlay.classList.add('hidden');
+        faqBtn.focus();
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (!faqOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) {
+        faqOverlay.classList.add('hidden');
+        faqBtn.focus();
+      }
+    });
+  }
+
+  // Adminbereich-Button nur für Admins sichtbar
+  const adminBtn = document.getElementById('admin-btn');
+  if (adminBtn) {
+    try {
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      const data = await res.json();
+      if (data?.user?.role === 'admin' || data?.user?.role === 'superadmin') {
+        adminBtn.classList.remove('hidden');
+      } else {
+        adminBtn.classList.add('hidden');
+      }
+    } catch {
+      adminBtn.classList.add('hidden');
+    }
   }
 });
 // dashboard.js – Admin-Zugriff und Session-Check
