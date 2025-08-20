@@ -101,7 +101,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                     const res = await fetch('/api/auth/me', { credentials: 'include' });
                     const data = await res.json();
                     if (data?.loggedIn) user = data.user;
-                } catch {}
+                } catch { }
             }
             if (!user) {
                 alert('Bitte zuerst einloggen, um die Profileinstellungen zu öffnen.');
