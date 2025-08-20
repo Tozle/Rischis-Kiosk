@@ -53,8 +53,10 @@ function renderBrain9Game(game) {
                 <div id="game-actions" class="flex gap-2 justify-center"></div>
                 <div id="game-ready-status" class="flex flex-col items-center mt-2"></div>
             `;
-            // Nach dem Einfügen erneut versuchen
-            return renderBrain9Game(game);
+            // Nach dem Einfügen: DOM-Elemente neu holen und erst dann erneut rendern
+            setTimeout(() => {
+                renderBrain9Game(game);
+            }, 0);
         } else {
             // mainContent fehlt, Fehler anzeigen und abbrechen
             window.showToast && window.showToast('Fehler: Hauptbereich (main-content) nicht gefunden!', 'error');
@@ -62,25 +64,29 @@ function renderBrain9Game(game) {
         return;
     }
     // Spieler und Ready-Status anzeigen
-    players.innerHTML = game.players.map(p => {
-        const isReady = (game.readyPlayers || []).includes(p.id);
-        return `<div class="flex flex-col items-center ${game.activePlayers.includes(p.id) ? '' : 'opacity-40'}">
-            <img src="${p.profile_image_url}" alt="${p.name}" class="w-8 h-8 rounded-full border mb-1" />
-            <span class="text-xs">${p.name}</span>
-            <span class="text-xs ${isReady ? 'text-green-600' : 'text-gray-400'}">${isReady ? 'Bereit' : 'Nicht bereit'}</span>
-        </div>`;
-    }).join('');
+    if (players) {
+        players.innerHTML = game.players.map(p => {
+            const isReady = (game.readyPlayers || []).includes(p.id);
+            return `<div class="flex flex-col items-center ${game.activePlayers.includes(p.id) ? '' : 'opacity-40'}">
+                <img src="${p.profile_image_url}" alt="${p.name}" class="w-8 h-8 rounded-full border mb-1" />
+                <span class="text-xs">${p.name}</span>
+                <span class="text-xs ${isReady ? 'text-green-600' : 'text-gray-400'}">${isReady ? 'Bereit' : 'Nicht bereit'}</span>
+            </div>`;
+        }).join('');
+    }
     // Ready-Button für eigenen Spieler anzeigen, falls nicht bereit
     const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
     const isMeReady = (game.readyPlayers || []).includes(profile.id);
-    if (!isMeReady && !game.finished && game.waitingForReady) {
-        readyStatus.innerHTML = `<button id="ready-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 transition">Bereit</button>`;
-        const btn = document.getElementById('ready-btn');
-        if (btn) btn.onclick = () => sendReady(game.id);
-    } else if (game.waitingForReady && !game.finished) {
-        readyStatus.innerHTML = `<span class="text-cyan-600 font-semibold">Warte auf andere Spieler...</span>`;
-    } else {
-        readyStatus.innerHTML = '';
+    if (readyStatus) {
+        if (!isMeReady && !game.finished && game.waitingForReady) {
+            readyStatus.innerHTML = `<button id="ready-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 transition">Bereit</button>`;
+            const btn = document.getElementById('ready-btn');
+            if (btn) btn.onclick = () => sendReady(game.id);
+        } else if (game.waitingForReady && !game.finished) {
+            readyStatus.innerHTML = `<span class="text-cyan-600 font-semibold">Warte auf andere Spieler...</span>`;
+        } else {
+            readyStatus.innerHTML = '';
+        }
     }
 // Sendet Ready-Status an Backend
 async function sendReady(gameId) {
