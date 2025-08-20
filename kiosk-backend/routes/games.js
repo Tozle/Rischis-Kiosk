@@ -314,6 +314,8 @@ router.post('/lobby/:id/start', requireAuth, async (req, res) => {
 router.post('/lobbies/cleanup', async (req, res) => {
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
 
+    console.log('Cleaning up lobbies. Time threshold:', tenMinutesAgo);
+
     // Aktualisiere alle Lobbys, die seit 10 Minuten nicht gestartet oder beendet wurden
     const { data, error } = await supabase
         .from('game_lobbies')
@@ -324,9 +326,11 @@ router.post('/lobbies/cleanup', async (req, res) => {
         .select();
 
     if (error) {
+        console.error('Error cleaning up lobbies:', error);
         return res.status(500).json({ error: 'Fehler beim Bereinigen der Lobbys' });
     }
 
+    console.log('Cleaned up lobbies:', data);
     res.json({ message: 'Inaktive Lobbys wurden beendet', cleanedLobbies: data });
 });
 
