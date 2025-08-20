@@ -184,4 +184,4 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
     });
 });
 
-module.exports = router;
+export default router;
