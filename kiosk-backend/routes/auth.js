@@ -104,9 +104,13 @@ router.post(
   '/register',
   validateRegister,
   asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
-
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { name, email, password } = req.body;
+    // Name direkt als user_metadata an Supabase übergeben
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name } }
+    });
     const user = data?.user;
     if (error || !user) {
       // Übersetze bekannte Supabase-Fehler ins Deutsche
@@ -125,7 +129,7 @@ router.post(
 
     await supabase.from('users').insert({
       id: user.id,
-      name: name || email.split('@')[0],
+      name: name,
       email,
       role: 'buyer',
       balance: 0,

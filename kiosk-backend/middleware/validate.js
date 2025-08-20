@@ -6,6 +6,7 @@ const loginSchema = z.object({
 });
 
 const registerSchema = z.object({
+  name: z.string().min(2, 'Bitte gib einen Namen mit mindestens 2 Zeichen an.'),
   email: z.string().email(),
   password: z.string().min(6),
 });
