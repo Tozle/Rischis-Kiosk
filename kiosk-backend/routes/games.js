@@ -59,15 +59,12 @@ router.get('/brain9/stats', async (req, res) => {
 
 // Lobby erstellen
 router.post('/lobby', requireAuth, async (req, res) => {
-    const { lobbySize, betInEuros, game } = req.body;
+    const { lobbySize, bet, game } = req.body;
     const user = req.user;
 
-    if (!lobbySize || !betInEuros || lobbySize < 2 || betInEuros < 0) {
-        return res.status(400).json({ error: 'Ungültige Lobbydaten' });
+    if (!lobbySize || !bet || lobbySize < 2 || bet < 0) {
+        return res.status(400).json({ error: 'Ungültige Lobby-Parameter.' });
     }
-
-    // Betrag in Coins umrechnen (1 Euro = 100 Coins)
-    const bet = betInEuros * 100;
 
     // Persistente Lobby in Supabase anlegen
     const { data, error } = await supabase.from('game_lobbies').insert({

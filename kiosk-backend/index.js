@@ -13,6 +13,8 @@ import YAML from 'yamljs';
 import helmet from 'helmet';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
+import http from 'http';
+import { Server } from 'socket.io';
 
 // Routen-Imports (nur funktionsfähige Imports!)
 import feed from './routes/feed.js';
@@ -132,9 +134,6 @@ app.use(notFound);
 
 // Zentrale Fehlerbehandlung
 app.use(errorHandler);
-
-const http = require('http');
-const { Server } = require('socket.io');
 
 const server = http.createServer(app);
 const io = new Server(server);
