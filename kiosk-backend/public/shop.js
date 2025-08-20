@@ -49,6 +49,10 @@ async function loadUser() {
 }
 
 async function loadProducts() {
+  const loading = document.getElementById('product-list-loading');
+  const list = document.getElementById('product-list');
+  if (loading) loading.classList.remove('hidden');
+  if (list) list.classList.add('opacity-30','pointer-events-none');
   try {
     const sortOption =
       document.getElementById('sort-products')?.value || 'price_asc';
@@ -93,13 +97,15 @@ async function loadProducts() {
       });
     }
 
-    allProducts = products;
-    populateCategories(products);
-    filterAndRenderProducts();
+  allProducts = products;
+  populateCategories(products);
+  filterAndRenderProducts();
   } catch (err) {
     console.error(err);
     showMessage('Fehler beim Laden der Produkte', 'error');
   } finally {
+    if (loading) loading.classList.add('hidden');
+    if (list) list.classList.remove('opacity-30','pointer-events-none');
   }
 }
 
@@ -139,14 +145,14 @@ function renderProductList(products) {
   products.forEach((product) => {
     const li = document.createElement('li');
     li.className =
-      'border border-gray-300 bg-white p-4 rounded-xl shadow-md hover:shadow-lg transition text-gray-800';
+      'border border-gray-700 bg-gray-900 p-4 rounded-xl shadow-md hover:shadow-lg transition text-gray-100';
     if (product.recent) {
       li.className += ' border-yellow-400';
     }
     // Bild nur anzeigen, wenn image_url gesetzt und nicht leer
     const hasImage = product.image_url && product.image_url.trim() !== '';
     // Platzhalter-Image (SVG)
-    const placeholder = `<div class=\"w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center rounded-xl bg-gray-100 border border-gray-200 mx-auto sm:mx-0\"><svg width=\"48\" height=\"48\" fill=\"none\" stroke=\"#94a3b8\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"4\"/><path d=\"M3 17l6-6a2 2 0 012.8 0l7.2 7\"/></svg></div>`;
+  const placeholder = `<div class=\"w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center rounded-xl bg-gray-800 border border-gray-700 mx-auto sm:mx-0\"><svg width=\"48\" height=\"48\" fill=\"none\" stroke=\"#64748b\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"4\"/><path d=\"M3 17l6-6a2 2 0 012.8 0l7.2 7\"/></svg></div>`;
     li.innerHTML = `
         <div class="flex flex-col sm:flex-row sm:items-center gap-4">
           <div class="shop-img-container">${hasImage ? placeholder : ''}</div>
@@ -180,7 +186,7 @@ function renderProductList(products) {
       img.alt = product.name;
       img.width = 128;
       img.height = 128;
-      img.className = "w-28 h-28 sm:w-32 sm:h-32 object-contain rounded-xl shadow border border-gray-200 bg-white flex-shrink-0 mx-auto sm:mx-0";
+  img.className = "w-28 h-28 sm:w-32 sm:h-32 object-contain rounded-xl shadow border border-gray-700 bg-gray-900 flex-shrink-0 mx-auto sm:mx-0";
       img.onload = () => {
         const container = li.querySelector('.shop-img-container');
         if (container) container.innerHTML = '';

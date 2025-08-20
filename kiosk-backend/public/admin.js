@@ -1,3 +1,57 @@
+// --- Vollständige Implementierung der fehlenden Funktionen ---
+function exportPurchasesCSV() {
+  const search = document.getElementById('purchase-search')?.value?.toLowerCase() || '';
+  const filtered = (window.allPurchasesCache || []).filter(p =>
+    p.product_name?.toLowerCase().includes(search) ||
+    p.user_name?.toLowerCase().includes(search)
+  );
+  const csv = ['Datum,Produkt,Nutzer,Menge,Preis'];
+  filtered.forEach(p => {
+    csv.push(`"${(p.created_at || '').replace(/"/g, '""')}","${(p.product_name || '').replace(/"/g, '""')}","${(p.user_name || '').replace(/"/g, '""')}",${p.quantity || 1},${p.price ? p.price.toFixed(2) : ''}`);
+  });
+  const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'kaeufe.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function filterAndRenderUsers() {
+  const search = document.getElementById('user-search')?.value?.toLowerCase() || '';
+  const list = document.getElementById('user-list');
+  if (!list) return;
+  const filtered = (window.allUsersCache || []).filter(u =>
+    u.name.toLowerCase().includes(search) || u.email.toLowerCase().includes(search)
+  );
+  list.innerHTML = '';
+  filtered.forEach(u => {
+    const li = document.createElement('li');
+    li.className = 'border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm mb-2 flex flex-col sm:flex-row sm:items-center justify-between';
+    li.innerHTML = `<span class="flex-1 font-semibold">${u.name} (${u.email})</span><span class="font-bold ${u.balance < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">${u.balance.toFixed(2)} €</span>`;
+    list.appendChild(li);
+  });
+}
+
+function filterAndRenderPurchases() {
+  const search = document.getElementById('purchase-search')?.value?.toLowerCase() || '';
+  const list = document.getElementById('purchase-history');
+  if (!list) return;
+  const filtered = (window.allPurchasesCache || []).filter(p =>
+    p.product_name?.toLowerCase().includes(search) ||
+    p.user_name?.toLowerCase().includes(search)
+  );
+  list.innerHTML = '';
+  filtered.forEach(p => {
+    const li = document.createElement('li');
+    const date = new Date(p.created_at).toLocaleString('de-DE', { timeZone: 'Europe/Berlin' });
+    li.textContent = `${date}: ${p.quantity || 1}x ${p.product_name} von ${p.user_name} – ${p.price ? p.price.toFixed(2) : ''} €`;
+    list.appendChild(li);
+  });
+}
 import { getCurrentUser } from './user.js';
 // admin.js – Best Practice Refactor
 const $ = (id) => document.getElementById(id);
