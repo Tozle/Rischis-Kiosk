@@ -88,37 +88,45 @@ window.addEventListener('DOMContentLoaded', async () => {
                         balanceElem.textContent = '–';
                     }
                 }
-                if (imagePreview) {
-                    if (data?.user?.profile_image_url) {
-                        imagePreview.src = data.user.profile_image_url;
-                        imagePreview.classList.remove('hidden');
-                    } else {
-                        imagePreview.src = '';
-                        imagePreview.classList.add('hidden');
-                    }
-                }
-                if (imageError) imageError.textContent = '';
-                if (imageMessage) imageMessage.textContent = '';
-                if (nameMessage) nameMessage.textContent = '';
-                if (passwordMessage) passwordMessage.textContent = '';
-                passwordInput.value = '';
-                passwordRepeatInput.value = '';
             } catch {
                 usernameInput.value = '';
                 imageUrlInput.value = '';
                 const balanceElem = document.getElementById('profile-balance');
                 if (balanceElem) balanceElem.textContent = '–';
-                if (imagePreview) imagePreview.classList.add('hidden');
-                if (imageError) imageError.textContent = '';
-                if (imageMessage) imageMessage.textContent = '';
-                if (nameMessage) nameMessage.textContent = '';
-                if (passwordMessage) passwordMessage.textContent = '';
-                passwordInput.value = '';
-                passwordRepeatInput.value = '';
             }
+            // Nur Auswahl anzeigen, alle Formulare ausblenden
+            document.getElementById('profile-choice').classList.remove('hidden');
+            document.getElementById('profile-image-form').classList.add('hidden');
+            document.getElementById('profile-name-form').classList.add('hidden');
+            document.getElementById('profile-password-form').classList.add('hidden');
             profileModal.classList.remove('hidden');
-            usernameInput.focus();
         });
+        // Auswahl-Buttons
+        document.getElementById('profile-edit-image-btn').onclick = () => {
+            document.getElementById('profile-choice').classList.add('hidden');
+            document.getElementById('profile-image-form').classList.remove('hidden');
+        };
+        document.getElementById('profile-edit-name-btn').onclick = () => {
+            document.getElementById('profile-choice').classList.add('hidden');
+            document.getElementById('profile-name-form').classList.remove('hidden');
+        };
+        document.getElementById('profile-edit-password-btn').onclick = () => {
+            document.getElementById('profile-choice').classList.add('hidden');
+            document.getElementById('profile-password-form').classList.remove('hidden');
+        };
+        // Abbrechen-Buttons
+        document.getElementById('profile-cancel-image').onclick = () => {
+            document.getElementById('profile-image-form').classList.add('hidden');
+            document.getElementById('profile-choice').classList.remove('hidden');
+        };
+        document.getElementById('profile-cancel-name').onclick = () => {
+            document.getElementById('profile-name-form').classList.add('hidden');
+            document.getElementById('profile-choice').classList.remove('hidden');
+        };
+        document.getElementById('profile-cancel-password').onclick = () => {
+            document.getElementById('profile-password-form').classList.add('hidden');
+            document.getElementById('profile-choice').classList.remove('hidden');
+        };
     }
 
     // Live-Bildvorschau und Fehleranzeige

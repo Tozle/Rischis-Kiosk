@@ -22,7 +22,18 @@ router.post(
 
     if (error || !data.session) {
       console.error('Login-Fehler:', error, 'User:', email);
-      return res.status(401).json({ error: error?.message || 'Login fehlgeschlagen' });
+      // Supabase gibt oft englische Fehler zurück, z.B. "Invalid login credentials"
+      let msg = error?.message || 'Login fehlgeschlagen';
+      if (msg && /invalid login credentials/i.test(msg)) {
+        msg = 'E-Mail oder Passwort ist ungültig.';
+      } else if (msg && /email not confirmed/i.test(msg)) {
+        msg = 'E-Mail-Adresse ist noch nicht bestätigt.';
+      } else if (msg && /user not found/i.test(msg)) {
+        msg = 'Benutzer nicht gefunden.';
+      } else if (msg && /password/i.test(msg)) {
+        msg = 'E-Mail oder Passwort ist ungültig.';
+      }
+      return res.status(401).json({ error: msg });
     }
 
   setAuthCookies(res, data.session, !!rememberMe);
@@ -94,11 +105,22 @@ router.post(
   validateRegister,
   asyncHandler(async (req, res) => {
     const { email, password } = req.body;
-    const { data, error } = await supabase.auth.signUp({ email, password });
 
+    const { data, error } = await supabase.auth.signUp({ email, password });
     const user = data?.user;
     if (error || !user) {
-      return res.status(400).json({ error: 'Registrierung fehlgeschlagen' });
+      // Übersetze bekannte Supabase-Fehler ins Deutsche
+      let msg = error?.message || 'Registrierung fehlgeschlagen';
+      if (/user already registered|user already exists|email already registered|email already exists/i.test(msg)) {
+        msg = 'Diese E-Mail-Adresse ist bereits registriert.';
+      } else if (/invalid password/i.test(msg)) {
+        msg = 'Das Passwort ist ungültig (mind. 6 Zeichen, keine Leerzeichen).';
+      } else if (/invalid email/i.test(msg)) {
+        msg = 'Die E-Mail-Adresse ist ungültig.';
+      } else if (/rate limit|too many requests/i.test(msg)) {
+        msg = 'Zu viele Registrierungsversuche. Bitte warte kurz.';
+      }
+      return res.status(400).json({ error: msg });
     }
 
     await supabase.from('users').insert({
