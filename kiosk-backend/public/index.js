@@ -250,5 +250,19 @@ if (registerForm) {
       }, 500);
     }, 1700);
   }
+
+  const loginForm = document.getElementById('login-form');
+  const lobbyCreationSection = document.querySelector('.lobby-creation');
+
+  loginForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    // Simulate successful login (replace with actual login logic)
+    const isLoggedIn = true;
+
+    if (isLoggedIn) {
+      lobbyCreationSection.classList.remove('hidden');
+    }
+  });
 }
 
