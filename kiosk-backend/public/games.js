@@ -1,7 +1,6 @@
 // games.js – Best Practice Refactor
+import { $, showToast } from './utils/frontend.js';
 document.addEventListener('DOMContentLoaded', () => {
-    // Hilfsfunktion für DOM-Zugriff
-    const $ = (id) => document.getElementById(id);
     // --- Online-User-Tracking (Backend) ---
     const PROFILE_KEY = 'user_profile';
     let SESSION_ID = sessionStorage.getItem('games_session_id');
@@ -54,9 +53,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function updateOnlineUI() {
         const users = await fetchOnlineUsers();
         const unique = users.filter((u, i, arr) => arr.findIndex(x => x.session_id === u.session_id) === i);
-        const onlineCount = $('games-online-count');
+        const onlineCount = $("games-online-count");
         if (onlineCount) onlineCount.textContent = unique.length;
-        const onlineList = $('games-online-list');
+        const onlineList = $("games-online-list");
         if (onlineList) {
             if (!unique.length) {
                 onlineList.innerHTML = `<div class="text-center text-gray-500 dark:text-gray-400 py-4">
@@ -86,10 +85,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Modal für Lobby-Erstellung ---
-    const createBtn = $('create-lobby-btn');
-    const modal = $('lobby-modal');
-    const closeBtn = $('lobby-modal-close');
-    const form = $('lobby-form');
+    const createBtn = $("create-lobby-btn");
+    const modal = $("lobby-modal");
+    const closeBtn = $("lobby-modal-close");
+    const form = $("lobby-form");
     if (createBtn && modal && closeBtn) {
         createBtn.addEventListener('click', () => { modal.classList.remove('hidden'); closeBtn.focus(); });
         closeBtn.addEventListener('click', () => { modal.classList.add('hidden'); createBtn.focus(); });
@@ -99,16 +98,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (form) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-            alert('Es sind aktuell noch keine Spiele verfügbar.');
+            showToast('Es sind aktuell noch keine Spiele verfügbar.', 'info');
             modal.classList.add('hidden');
             createBtn.focus();
         });
     }
 
     // --- Online-User-Button und Overlay steuern ---
-    const onlineBtn = $('games-online-btn');
-    const onlineOverlay = $('games-online-overlay');
-    const onlineClose = $('games-online-close');
+    const onlineBtn = $("games-online-btn");
+    const onlineOverlay = $("games-online-overlay");
+    const onlineClose = $("games-online-close");
     if (onlineBtn && onlineOverlay && onlineClose) {
         onlineBtn.addEventListener('click', () => { onlineOverlay.classList.remove('hidden'); onlineClose.focus(); });
         onlineClose.addEventListener('click', () => { onlineOverlay.classList.add('hidden'); onlineBtn.focus(); });

@@ -1,6 +1,6 @@
+
 // dashboard.js – Best Practice Refactor
-// Hilfsfunktion für DOM-Elemente
-const $ = (id) => document.getElementById(id);
+import { $ } from './utils/frontend.js';
 
 // Logout-Button
 const logoutBtn = $('logoutBtn');

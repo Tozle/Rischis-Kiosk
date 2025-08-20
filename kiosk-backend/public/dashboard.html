@@ -51,10 +51,10 @@
       ?
     </button>
     <div id="faq-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden" role="dialog"
-      aria-modal="true" aria-labelledby="faq-title">
-      <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-lg w-full shadow-xl relative animate-fade-in">
+      aria-modal="true" aria-labelledby="faq-title" tabindex="-1">
+      <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-lg w-full shadow-xl relative animate-fade-in" tabindex="0">
         <button id="faq-close" aria-label="Schließen"
-          class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
+          class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400">&times;</button>
         <h2 id="faq-title" class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2"><svg
             xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24'
             stroke='currentColor'>
@@ -94,11 +94,11 @@
       </svg>
       Was willst du tun?
     </h1>
-    <p id="customer-week" class="text-base font-semibold"></p>
+  <p id="customer-week" class="text-base font-semibold" aria-live="polite"></p>
     <div class="flex flex-col gap-4 sm:gap-4 justify-center items-stretch mt-4" role="navigation"
       aria-label="Hauptmenü">
       <a href="shop.html"
-        class="btn-main flex items-center gap-2 text-base py-2 px-4 focus:ring-2 focus:ring-cyan-400 justify-center"
+        class="btn-main flex items-center gap-2 text-base py-2 px-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 justify-center"
         aria-label="Zum Kiosk (Shop-Seite)" title="Zum Kiosk" role="button" tabindex="0">
         <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
           <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2'
@@ -107,7 +107,7 @@
         </svg>Zum Kiosk
       </a>
       <a href="mentos.html"
-        class="btn-main flex items-center gap-2 text-base py-2 px-4 focus:ring-2 focus:ring-cyan-400 justify-center"
+        class="btn-main flex items-center gap-2 text-base py-2 px-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 justify-center"
         aria-label="Mentos (Fütterungstracker)" title="Mentos"
         style="background:linear-gradient(90deg,#a78bfa 0%,#f472b6 100%);" role="button" tabindex="0">
         <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
@@ -115,7 +115,7 @@
         </svg>Mentos
       </a>
       <a id="games-btn" href="games.html"
-        class="btn-main flex items-center gap-2 text-base py-2 px-4 focus:ring-2 focus:ring-cyan-400 justify-center"
+        class="btn-main flex items-center gap-2 text-base py-2 px-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 justify-center"
         aria-label="Games & Lobbys" title="Games & Lobbys"
         style="background:linear-gradient(90deg,#38bdf8 0%,#0ea5e9 100%);" role="button" tabindex="0">
         <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
@@ -123,7 +123,7 @@
         </svg>Games
       </a>
       <a id="admin-btn" href="admin.html"
-        class="hidden btn-main flex items-center gap-2 text-base py-2 px-4 focus:ring-2 focus:ring-cyan-400 justify-center"
+        class="hidden btn-main flex items-center gap-2 text-base py-2 px-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 justify-center"
         aria-label="Adminbereich (nur für Admins sichtbar)" title="Adminbereich"
         style="background:linear-gradient(90deg,#ef4444 0%,#f59e42 100%);display:none;" role="button" tabindex="0">
         <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
@@ -139,11 +139,11 @@
 
   <!-- Profileinstellungen Button & Modal (aus dem Head verschoben) -->
   <div id="profile-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden" role="dialog"
-    aria-modal="true" aria-labelledby="profile-title">
+    aria-modal="true" aria-labelledby="profile-title" tabindex="-1">
     <div
-      class="bg-gray-900 text-white rounded-2xl p-6 max-w-md w-full shadow-xl relative animate-fade-in border border-cyan-900">
+      class="bg-gray-900 text-white rounded-2xl p-6 max-w-md w-full shadow-xl relative animate-fade-in border border-cyan-900" tabindex="0">
       <button id="profile-close"
-        class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
+        class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400">&times;</button>
       <h2 id="profile-title" class="text-xl font-bold mb-4 text-cyan-700 flex items-center gap-2">
         <svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24'
           stroke='currentColor'>

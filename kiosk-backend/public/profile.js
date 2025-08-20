@@ -1,7 +1,7 @@
 // Profileinstellungen-Logik für dashboard.html (Best Practice Refactor)
+
+import { $ } from './utils/frontend.js';
 document.addEventListener('DOMContentLoaded', () => {
-    // Hilfsfunktion: DOM-Element holen
-    const $ = (id) => document.getElementById(id);
 
     // Zentrale Meldung für Auswahl
     let profileMessage = $('profile-message');

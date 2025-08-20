@@ -1,17 +1,17 @@
 </div>
 <!-- Online-Spiele-Anzeige unten links -->
 <button id="games-online-btn"
-    class="fixed bottom-4 left-4 z-50 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg w-14 h-14 flex flex-col items-center justify-center text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
+    class="fixed bottom-4 left-4 z-50 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg w-14 h-14 flex flex-col items-center justify-center text-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 transition"
     aria-label="Online-Spiele anzeigen" title="Online-Spiele">
-    <span id="games-online-count" class="font-bold text-lg">0</span>
+    <span id="games-online-count" class="font-bold text-lg" aria-live="polite">0</span>
     <span class="text-xs">online</span>
 </button>
 <!-- Overlay für Spieler-Avatare und Namen -->
 <div id="games-online-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden"
-    role="dialog" aria-modal="true" aria-labelledby="games-online-title">
-    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-xl relative animate-fade-in">
+    role="dialog" aria-modal="true" aria-labelledby="games-online-title" tabindex="-1">
+    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-xl relative animate-fade-in" tabindex="0">
         <button id="games-online-close"
-            class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
+            class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400">&times;</button>
         <h2 id="games-online-title"
             class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2">
             <svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24'
@@ -21,7 +21,7 @@
             </svg>
             Spieler in allen Lobbys
         </h2>
-        <div id="games-online-list" class="space-y-3">
+    <div id="games-online-list" class="space-y-3" aria-live="polite">
             <div class="text-center text-gray-500 dark:text-gray-400 py-4">
                 <svg xmlns='http://www.w3.org/2000/svg' class='w-10 h-10 mx-auto mb-2 text-cyan-200' fill='none'
                     viewBox='0 0 24 24' stroke='currentColor'>
@@ -52,7 +52,7 @@
 <body
     class="min-h-screen bg-gradient-to-br from-green-50 via-cyan-100 to-green-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-green-900 dark:text-white flex flex-col items-center">
     <a href="dashboard.html"
-        class="fixed top-4 left-4 z-50 flex items-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-full shadow focus:ring-2 focus:ring-cyan-400 transition"
+        class="fixed top-4 left-4 z-50 flex items-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-full shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 transition"
         style="text-decoration:none;">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -70,7 +70,7 @@
                 Games & Lobbys
             </h1>
             <button id="create-lobby-btn"
-                class="btn-main bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-full shadow flex items-center gap-2 focus:ring-2 focus:ring-cyan-400"
+                class="btn-main bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-full shadow flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
                 type="button">
                 <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24'
                     stroke='currentColor'>
@@ -93,10 +93,10 @@
     </div>
     <!-- Modal für neue Lobby -->
     <div id="lobby-modal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden" role="dialog"
-        aria-modal="true" aria-labelledby="lobby-modal-title">
-        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-xl relative animate-fade-in">
+        aria-modal="true" aria-labelledby="lobby-modal-title" tabindex="-1">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-xl relative animate-fade-in" tabindex="0">
             <button id="lobby-modal-close"
-                class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none">&times;</button>
+                class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400">&times;</button>
             <h2 id="lobby-modal-title"
                 class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2">
                 <svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24'

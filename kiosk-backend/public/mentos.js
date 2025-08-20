@@ -1,9 +1,11 @@
 // Darkmode-Logik entfernt
 // mentos.js – jetzt wie shop.js: alle Datenzugriffe über das Backend
+
+import { $, getCsrfToken } from './utils/frontend.js';
 const BACKEND_URL = window.location.origin;
 
-const feedingsBody = document.getElementById('feedings-body');
-const lastFeedDiv = document.getElementById('last-feed');
+const feedingsBody = $('feedings-body');
+const lastFeedDiv = $('last-feed');
 
 
 async function loadFeedings() {
@@ -32,18 +34,7 @@ async function loadFeedings() {
     }
 }
 
-async function getCsrfToken() {
-    try {
-        const res = await fetch(`${BACKEND_URL}/api/csrf-token`, {
-            credentials: 'include',
-        });
-        const data = await res.json();
-        return data.csrfToken;
-    } catch (err) {
-        console.error('CSRF-Token konnte nicht geladen werden', err);
-        return null;
-    }
-}
+
 
 function formatTimeDiff(seconds) {
     // Immer in Stunden anzeigen, auch wenn >24h

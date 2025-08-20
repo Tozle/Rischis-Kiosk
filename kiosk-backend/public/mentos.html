@@ -33,7 +33,7 @@
     <!-- entfernt: FAQ/Hilfe Button/Overlay -->
     <div class="fixed top-4 left-4 z-50" role="navigation">
       <a href="dashboard.html"
-        class="btn-main flex items-center gap-2 py-2 px-4 text-sm shadow focus:ring-2 focus:ring-cyan-400">
+        class="btn-main flex items-center gap-2 py-2 px-4 text-sm shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400">
         <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
           <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' />
         </svg>
@@ -53,14 +53,14 @@
         Mentos 🐱
       </h1>
       <h2 class="text-xl text-center">Letzte Fütterung vor:</h2>
-      <div id="last-feed" class="text-4xl sm:text-5xl font-mono font-semibold text-center mb-4">-</div>
+  <div id="last-feed" class="text-4xl sm:text-5xl font-mono font-semibold text-center mb-4" aria-live="polite">-</div>
       <div class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
         <button id="btn-nass"
-          class="btn-main bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow focus:ring-2 focus:ring-cyan-400"
+          class="btn-main bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
           aria-label="Nassfutter gegeben" title="Nassfutter gegeben"
           style="background:linear-gradient(90deg,#38bdf8 0%,#0ea5e9 100%);">🐟 Nassfutter gegeben</button>
         <button id="btn-trocken"
-          class="btn-main bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full shadow focus:ring-2 focus:ring-cyan-400"
+          class="btn-main bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
           aria-label="Trockenfutter gegeben" title="Trockenfutter gegeben"
           style="background:linear-gradient(90deg,#fbbf24 0%,#f59e42 100%);">🥣 Trockenfutter gegeben</button>
       </div>
@@ -83,7 +83,7 @@
               <th class="px-2 py-1 border-b font-semibold">Gefüttert von</th>
             </tr>
           </thead>
-          <tbody id="feedings-body"></tbody>
+          <tbody id="feedings-body" aria-live="polite"></tbody>
         </table>
       </div>
     </main>

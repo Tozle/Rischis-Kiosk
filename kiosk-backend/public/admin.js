@@ -33,7 +33,7 @@ function filterAndRenderUsers() {
     li.className = 'border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm mb-2 flex flex-col sm:flex-row sm:items-center justify-between';
     li.innerHTML = `
       <span class="flex-1 font-semibold">${u.name} (${u.email})</span>
-      <span class="font-bold ${u.balance < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">${u.balance.toFixed(2)} €</span>
+    <span class="font-bold ${u.balance < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'} mr-4">${u.balance.toFixed(2)} €</span>
       <div class="flex gap-2 mt-2 sm:mt-0">
         <button class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-xs edit-user-btn" data-id="${u.id}" data-name="${u.name}">Bearbeiten</button>
         <button class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 text-xs delete-user-btn" data-id="${u.id}">Löschen</button>
@@ -75,9 +75,10 @@ function filterAndRenderPurchases() {
     list.appendChild(li);
   });
 }
+
 import { getCurrentUser } from './user.js';
+import { $, getCsrfToken, showToast, showLoader, showMessage } from './utils/frontend.js';
 // admin.js – Best Practice Refactor
-const $ = (id) => document.getElementById(id);
 
 // Admin-Check: Nur Admins dürfen diese Seite sehen
 getCurrentUser().then(user => {
