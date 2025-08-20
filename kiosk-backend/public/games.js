@@ -126,6 +126,17 @@ async function makeBrain9Move(gameId, buttonIndex) {
 // Socket.IO-Client-Initialisierung und Listener ganz ans Ende verschoben
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Wenn games.html?gameId=... geladen wird, direkt Spiel-Modal öffnen
+    const urlParams = new URLSearchParams(window.location.search);
+    const gameIdFromUrl = urlParams.get('gameId');
+    if (gameIdFromUrl) {
+        showGameModal(gameIdFromUrl);
+        // Optional: Dem Socket-Raum für das Spiel beitreten (falls nötig)
+        if (window.io) {
+            const socket = window.io();
+            socket.emit('joinLobby', gameIdFromUrl); // oder ggf. joinGame
+        }
+    }
     // --- Online-User-Tracking (Backend) ---
 
     const PROFILE_KEY = 'user_profile';
