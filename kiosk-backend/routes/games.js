@@ -1,6 +1,7 @@
 import express from 'express';
 import { requireAuth } from '../middleware/auth.js';
 import { supabase } from '../utils/supabase.js';
+import { io } from '../utils/socket.js'; // Ensure io is imported from the correct module
 
 const router = express.Router();
 
@@ -98,10 +99,17 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
         .select('*, players:game_lobby_players(user_id)')
         .eq('id', lobbyId)
         .single();
-    if (error || !lobby) return res.status(404).json({ error: 'Lobby nicht gefunden' });
+
+    if (error || !lobby) {
+        console.error('Lobby fetch error:', error);
+        return res.status(404).json({ error: 'Lobby nicht gefunden' });
+    }
+
+    console.log('Lobby data:', lobby);
 
     // Überprüfen, ob die Lobby voll ist
     if ((lobby.players || []).length >= lobby.lobby_size) {
+        console.warn('Lobby is full:', { players: lobby.players, lobbySize: lobby.lobby_size });
         return res.status(400).json({ error: 'Lobby ist bereits voll' });
     }
 
@@ -112,10 +120,20 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
             lobby_id: lobbyId,
             user_id: user.id
         });
-    if (insertError) return res.status(500).json({ error: 'Fehler beim Beitreten der Lobby' });
+
+    if (insertError) {
+        console.error('Player insert error:', insertError);
+        return res.status(500).json({ error: 'Fehler beim Beitreten der Lobby' });
+    }
+
+    console.log('Player added to lobby:', { lobbyId, userId: user.id });
 
     // WebSocket-Update senden
-    io.to(lobbyId).emit('lobbyUpdated');
+    if (io) {
+        io.to(lobbyId).emit('lobbyUpdated');
+    } else {
+        console.warn('WebSocket server (io) is not defined. Skipping lobbyUpdated event.');
+    }
 
     // Spiel starten, wenn die Lobby voll ist
     const updatedLobby = await supabase
@@ -132,9 +150,18 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
             })
             .select()
             .single();
-        if (gameError) return res.status(500).json({ error: 'Fehler beim Starten des Spiels' });
 
-        io.to(lobbyId).emit('gameStarted', game);
+        if (gameError) {
+            console.error('Game creation error:', gameError);
+            return res.status(500).json({ error: 'Fehler beim Starten des Spiels' });
+        }
+
+        console.log('Game started:', game);
+        if (io) {
+            io.to(lobbyId).emit('gameStarted', game);
+        } else {
+            console.warn('WebSocket server (io) is not defined. Skipping gameStarted event.');
+        }
     }
 
     res.json({ message: 'Lobby beigetreten', lobbyId });
