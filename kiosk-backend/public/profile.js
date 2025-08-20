@@ -1,5 +1,17 @@
 // Profileinstellungen-Logik für dashboard.html
 window.addEventListener('DOMContentLoaded', async () => {
+    // Zentrale Meldung für Auswahl
+    let profileMessage = document.getElementById('profile-message');
+    if (!profileMessage) {
+        profileMessage = document.createElement('div');
+        profileMessage.id = 'profile-message';
+        profileMessage.className = 'mb-2 text-center text-sm';
+        // Füge die Meldung direkt nach dem Auswahlbereich ein
+        const choice = document.getElementById('profile-choice');
+        if (choice && choice.parentNode) {
+            choice.parentNode.insertBefore(profileMessage, choice.nextSibling);
+        }
+    }
     // Button und Modal referenzieren
     const profileBtn = document.getElementById('profile-btn');
     const profileModal = document.getElementById('profile-modal');
@@ -117,7 +129,34 @@ window.addEventListener('DOMContentLoaded', async () => {
             if (imageForm) imageForm.classList.add('hidden');
             if (nameForm) nameForm.classList.add('hidden');
             if (passwordForm) passwordForm.classList.add('hidden');
+            if (profileMessage) profileMessage.textContent = '';
             if (profileModal) profileModal.classList.remove('hidden');
+
+            // Auswahl-Buttons aktivieren
+            const btnImage = document.getElementById('profile-choice-image');
+            const btnName = document.getElementById('profile-choice-name');
+            const btnPassword = document.getElementById('profile-choice-password');
+            if (btnImage) btnImage.onclick = () => {
+                if (choice) choice.classList.add('hidden');
+                if (imageForm) imageForm.classList.remove('hidden');
+                if (nameForm) nameForm.classList.add('hidden');
+                if (passwordForm) passwordForm.classList.add('hidden');
+                if (profileMessage) profileMessage.textContent = '';
+            };
+            if (btnName) btnName.onclick = () => {
+                if (choice) choice.classList.add('hidden');
+                if (imageForm) imageForm.classList.add('hidden');
+                if (nameForm) nameForm.classList.remove('hidden');
+                if (passwordForm) passwordForm.classList.add('hidden');
+                if (profileMessage) profileMessage.textContent = '';
+            };
+            if (btnPassword) btnPassword.onclick = () => {
+                if (choice) choice.classList.add('hidden');
+                if (imageForm) imageForm.classList.add('hidden');
+                if (nameForm) nameForm.classList.add('hidden');
+                if (passwordForm) passwordForm.classList.remove('hidden');
+                if (profileMessage) profileMessage.textContent = '';
+            };
         });
         // Auswahl-Buttons
         const editImageBtn = document.getElementById('profile-edit-image-btn');
