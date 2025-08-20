@@ -35,7 +35,8 @@
     "tailwindcss": "^3.4.3",
     "uuid": "^9.0.1",
     "yamljs": "^0.3.0",
-    "zod": "^3.25.56"
+    "zod": "^3.25.56",
+    "socket.io": "^4.7.2"
   },
   "devDependencies": {
     "esbuild": "^0.25.9",
