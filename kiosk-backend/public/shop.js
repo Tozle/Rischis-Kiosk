@@ -136,8 +136,8 @@ function renderProductList(products) {
     ].join(' ');
 
     const hasImage = product.image_url && product.image_url.trim() !== '';
-    // Einheitlicher Bildcontainer, immer sichtbar
-    const placeholder = `<div class="w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center rounded-xl bg-gray-900/80 border border-cyan-900 mx-auto sm:mx-0"><svg width="48" height="48" fill="none" stroke="#38bdf8" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M3 17l6-6a2 2 0 012.8 0l7.2 7"/></svg></div>`;
+    // Einheitlicher Bildcontainer, immer sichtbar, dunkler Hintergrund
+    const placeholder = `<div class="w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center rounded-xl bg-cyan-950 border border-cyan-900 mx-auto sm:mx-0 p-2"><svg width="48" height="48" fill="none" stroke="#38bdf8" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M3 17l6-6a2 2 0 012.8 0l7.2 7"/></svg></div>`;
     li.innerHTML = `
       <div class="flex flex-col sm:flex-row sm:items-center gap-4">
         <div class="shop-img-container">${placeholder}</div>
@@ -171,7 +171,7 @@ function renderProductList(products) {
       img.alt = product.name;
       img.width = 128;
       img.height = 128;
-      img.className = "w-28 h-28 sm:w-32 sm:h-32 object-contain rounded-xl shadow border border-cyan-900 bg-gray-900/80 flex-shrink-0 mx-auto sm:mx-0";
+      img.className = "w-28 h-28 sm:w-32 sm:h-32 object-contain rounded-xl shadow border border-cyan-900 bg-cyan-950 flex-shrink-0 mx-auto sm:mx-0 p-2";
       img.onload = () => {
         const container = li.querySelector('.shop-img-container');
         if (container) container.innerHTML = '';
