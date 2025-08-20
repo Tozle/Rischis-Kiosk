@@ -195,4 +195,62 @@ router.post('/game/:id/move', requireAuth, async (req, res) => {
     });
 });
 
+// Spiel starten
+router.post('/lobby/:id/start', requireAuth, async (req, res) => {
+    const lobbyId = req.params.id;
+
+    // Hole die Lobby inkl. Spieler
+    const { data: lobby, error } = await supabase
+        .from('game_lobbies')
+        .select('*, players:game_lobby_players(user_id)')
+        .eq('id', lobbyId)
+        .single();
+    if (error || !lobby) return res.status(404).json({ error: 'Lobby nicht gefunden' });
+
+    // Überprüfen, ob die Lobby voll ist
+    if ((lobby.players || []).length < lobby.lobby_size) {
+        return res.status(400).json({ error: 'Lobby ist noch nicht voll' });
+    }
+
+    // Spiel erstellen
+    const { data: game, error: gameError } = await supabase
+        .from('brain9_games')
+        .insert({
+            lobby_id: lobbyId,
+            game_type: lobby.game_type
+        })
+        .select()
+        .single();
+    if (gameError) return res.status(500).json({ error: 'Fehler beim Starten des Spiels' });
+
+    // Aktualisiere den Lobby-Status
+    const { error: updateError } = await supabase
+        .from('game_lobbies')
+        .update({ started: true })
+        .eq('id', lobbyId);
+    if (updateError) return res.status(500).json({ error: 'Fehler beim Aktualisieren des Lobby-Status' });
+
+    res.json({ game });
+});
+
+// Inaktive Lobbys beenden
+router.post('/lobbies/cleanup', async (req, res) => {
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+
+    // Aktualisiere alle Lobbys, die seit 10 Minuten nicht gestartet oder beendet wurden
+    const { data, error } = await supabase
+        .from('game_lobbies')
+        .update({ finished: true })
+        .eq('started', false)
+        .eq('finished', false)
+        .lt('created_at', tenMinutesAgo)
+        .select();
+
+    if (error) {
+        return res.status(500).json({ error: 'Fehler beim Bereinigen der Lobbys' });
+    }
+
+    res.json({ message: 'Inaktive Lobbys wurden beendet', cleanedLobbies: data });
+});
+
 export default router;
