@@ -1,3 +1,9 @@
+// Lobbys auflisten (für Frontend)
+router.get('/lobby', (req, res) => {
+  // Nur offene Lobbys zurückgeben
+  const openLobbies = Object.values(lobbies).filter(lobby => !lobby.started);
+  res.json({ lobbies: openLobbies });
+});
 // games.js – Multiplayer Lobby & Game API
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
@@ -34,33 +40,30 @@ router.post('/lobby/:id/join', requireAuth, (req, res) => {
   if (lobby.players.find(p => p.id === user.id)) return res.status(400).json({ error: 'Schon beigetreten' });
   if (lobby.players.length >= lobby.lobbySize) return res.status(400).json({ error: 'Lobby voll' });
   lobby.players.push({ id: user.id, name: user.name, balance: user.balance, profile_image_url: user.profile_image_url });
+  // Wenn Lobby voll, Spiel automatisch starten
+  if (lobby.players.length === lobby.lobbySize) {
+    // Einsatz abziehen (hier nur im Speicher, TODO: DB!)
+    lobby.players.forEach(p => { p.balance -= lobby.bet; });
+    const gameId = lobby.id;
+    games[gameId] = {
+      id: gameId,
+      players: [...lobby.players],
+      sequence: [],
+      turn: 0,
+      activePlayers: lobby.players.map(p => p.id),
+      timeouts: {},
+      startedAt: Date.now(),
+      finished: false,
+      winner: null,
+    };
+    lobby.started = true;
+    return res.json({ success: true, gameId });
+  }
   res.json({ success: true });
 });
 
 // Spiel starten
-router.post('/lobby/:id/start', requireAuth, (req, res) => {
-  const lobby = lobbies[req.params.id];
-  if (!lobby) return res.status(404).json({ error: 'Lobby nicht gefunden' });
-  if (lobby.started) return res.status(400).json({ error: 'Spiel läuft schon' });
-  if (lobby.players.length < 2) return res.status(400).json({ error: 'Zu wenig Spieler' });
-  // Einsatz abziehen (hier nur im Speicher, TODO: DB!)
-  lobby.players.forEach(p => { p.balance -= lobby.bet; });
-  // Spiel initialisieren
-  const gameId = lobby.id;
-  games[gameId] = {
-    id: gameId,
-    players: [...lobby.players],
-    sequence: [],
-    turn: 0,
-    activePlayers: lobby.players.map(p => p.id),
-    timeouts: {},
-    startedAt: Date.now(),
-    finished: false,
-    winner: null,
-  };
-  lobby.started = true;
-  res.json({ gameId });
-});
+// Manuelles Starten nicht mehr nötig (wird automatisch gemacht)
 
 // Spielstatus abfragen
 router.get('/game/:id', requireAuth, (req, res) => {

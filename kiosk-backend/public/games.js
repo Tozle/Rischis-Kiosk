@@ -1,3 +1,84 @@
+// Brain9 Game-UI anzeigen und Spiellogik
+let brain9PollInterval = null;
+function showGameModal(gameId) {
+    const modal = $("game-modal");
+    if (!modal) return;
+    modal.classList.remove("hidden");
+    pollAndRenderGame(gameId);
+    if (brain9PollInterval) clearInterval(brain9PollInterval);
+    brain9PollInterval = setInterval(() => pollAndRenderGame(gameId), 2000);
+    // Close-Button
+    const closeBtn = $("game-modal-close");
+    if (closeBtn) closeBtn.onclick = () => { modal.classList.add("hidden"); clearInterval(brain9PollInterval); };
+}
+
+async function pollAndRenderGame(gameId) {
+    try {
+        const res = await fetch(`/api/games/game/${gameId}`, { credentials: 'include' });
+        if (!res.ok) return;
+        const game = await res.json();
+        renderBrain9Game(game);
+    } catch {}
+}
+
+function renderBrain9Game(game) {
+    const status = $("game-status");
+    const grid = $("simon-grid");
+    const players = $("game-players");
+    if (!status || !grid || !players) return;
+    // Spieler anzeigen
+    players.innerHTML = game.players.map(p => `<div class="flex flex-col items-center ${game.activePlayers.includes(p.id) ? '' : 'opacity-40'}">
+        <img src="${p.profile_image_url}" alt="${p.name}" class="w-8 h-8 rounded-full border mb-1" />
+        <span class="text-xs">${p.name}</span>
+    </div>`).join('');
+    // Status
+    if (game.finished) {
+        const winner = game.players.find(p => p.id === game.winner);
+        status.innerHTML = winner ? `<span class="text-green-600 font-bold">${winner.name} gewinnt Brain9!</span>` : 'Spiel beendet.';
+        grid.innerHTML = '';
+        return;
+    }
+    const currentPlayer = game.players.find(p => p.id === game.activePlayers[game.turn % game.activePlayers.length]);
+    status.innerHTML = `<span class="font-semibold">Am Zug:</span> <span class="text-cyan-600 font-bold">${currentPlayer ? currentPlayer.name : ''}</span> <span class="ml-2 text-xs">(Runde ${game.sequence.length + 1})</span>`;
+    // 3x3 Grid
+    grid.innerHTML = '';
+    for (let i = 0; i < 9; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'w-16 h-16 rounded-lg bg-cyan-200 dark:bg-cyan-800 border-2 border-cyan-400 text-2xl font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 m-1 transition hover:bg-cyan-300';
+        btn.textContent = i + 1;
+        btn.setAttribute('aria-label', `Feld ${i + 1}`);
+        btn.disabled = !isMyTurn(game);
+        btn.onclick = () => makeBrain9Move(game.id, i);
+        grid.appendChild(btn);
+    }
+}
+
+function isMyTurn(game) {
+    // Hole eigene User-ID (aus /api/auth/me)
+    // Annahme: User ist eingeloggt und id ist in localStorage
+    const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+    if (!profile || !profile.id) return false;
+    const currentPlayerId = game.activePlayers[game.turn % game.activePlayers.length];
+    return profile.id === currentPlayerId;
+}
+
+async function makeBrain9Move(gameId, buttonIndex) {
+    try {
+        const res = await fetch(`/api/games/game/${gameId}/move`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ buttonIndex })
+        });
+        const data = await res.json();
+        if (data.error) {
+            showToast(data.error, 'error');
+        }
+        pollAndRenderGame(gameId);
+    } catch {
+        showToast('Fehler beim Zug.', 'error');
+    }
+}
 // games.js – Best Practice Refactor
 import { $, showToast } from './utils/frontend.js';
 document.addEventListener('DOMContentLoaded', () => {
@@ -164,7 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                             <div class="flex gap-2 items-center">
                                 <button class="join-lobby-btn btn-main" data-id="${lobby.id}">Beitreten</button>
-                                ${lobby.players.length >= 2 && !lobby.started ? `<button class="start-lobby-btn btn-main bg-green-600 hover:bg-green-700" data-id="${lobby.id}">Starten</button>` : ''}
                             </div>
                         </div>
                     `).join('');
@@ -186,35 +266,32 @@ document.addEventListener('DOMContentLoaded', () => {
         // Event-Delegation für Join/Start
         lobbyList.addEventListener('click', async (e) => {
             const joinBtn = e.target.closest('.join-lobby-btn');
-            const startBtn = e.target.closest('.start-lobby-btn');
             if (joinBtn) {
                 const id = joinBtn.dataset.id;
                 try {
                     const res = await fetch(`/api/games/lobby/${id}/join`, { method: 'POST', credentials: 'include' });
                     const data = await res.json();
-                    if (res.ok) {
+                    if (res.ok && data.gameId) {
+                        showToast('Lobby voll – Brain9 startet!');
+                        showGameModal(data.gameId);
+                    } else if (res.ok) {
                         showToast('Lobby beigetreten!');
                         await loadLobbies();
                     } else {
                         showToast(data.error || 'Fehler beim Beitreten', 'error');
                     }
+// Brain9 Game-UI anzeigen
+function showGameModal(gameId) {
+    const modal = $("game-modal");
+    if (!modal) return;
+    modal.classList.remove("hidden");
+    // Game-Status laden und UI rendern (Platzhalter)
+    const status = $("game-status");
+    if (status) status.textContent = "Brain9 läuft! (Game-ID: " + gameId + ")";
+    // TODO: Hier die Spiellogik und das Grid rendern
+}
                 } catch {
                     showToast('Fehler beim Beitreten', 'error');
-                }
-            }
-            if (startBtn) {
-                const id = startBtn.dataset.id;
-                try {
-                    const res = await fetch(`/api/games/lobby/${id}/start`, { method: 'POST', credentials: 'include' });
-                    const data = await res.json();
-                    if (res.ok && data.gameId) {
-                        showToast('Spiel gestartet!');
-                        // TODO: Game-UI anzeigen
-                    } else {
-                        showToast(data.error || 'Fehler beim Starten', 'error');
-                    }
-                } catch {
-                    showToast('Fehler beim Starten', 'error');
                 }
             }
         });

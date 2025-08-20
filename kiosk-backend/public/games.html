@@ -61,37 +61,20 @@
         Zurück zum Dashboard
     </a>
     <div class="w-full max-w-2xl mx-auto mt-8 p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-xl animate-fade-in">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-cyan-700 dark:text-cyan-300 flex items-center gap-2">
-                <svg xmlns='http://www.w3.org/2000/svg' class='w-7 h-7 text-cyan-400' fill='none' viewBox='0 0 24 24'
-                    stroke='currentColor'>
-                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2'
-                        d='M9.75 17L6 21h12l-3.75-4M12 3v14' />
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-cyan-700 dark:text-cyan-300 flex items-center gap-2 justify-center">
+                <svg xmlns='http://www.w3.org/2000/svg' class='w-7 h-7 text-cyan-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9.75 17L6 21h12l-3.75-4M12 3v14' />
                 </svg>
-                Brain9 & Lobbys
+                Brain9
             </h1>
-            <div class="text-base text-gray-600 dark:text-gray-400 mt-2 mb-4 max-w-xl">
-                <strong>Brain9</strong> ist ein Multiplayer-Gedächtnisspiel mit 3x3-Feldern. Merke dir die Reihenfolge und wiederhole sie korrekt – Runde für Runde wird es schwieriger! Wer als letzter übrig bleibt, gewinnt den Einsatz.
-            </div>
-            <button id="create-lobby-btn"
-                class="btn-main bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-full shadow flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
-                type="button">
-                <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24'
-                    stroke='currentColor'>
-                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4' />
-                </svg>
-                Neue Lobby erstellen
-            </button>
         </div>
         <div id="lobby-list" class="space-y-4">
             <div class="text-center text-gray-500 dark:text-gray-400 py-8">
-                <svg xmlns='http://www.w3.org/2000/svg' class='w-12 h-12 mx-auto mb-2 text-cyan-200' fill='none'
-                    viewBox='0 0 24 24' stroke='currentColor'>
-                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2'
-                        d='M9.75 17L6 21h12l-3.75-4M12 3v14' />
+                <svg xmlns='http://www.w3.org/2000/svg' class='w-12 h-12 mx-auto mb-2 text-cyan-200' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9.75 17L6 21h12l-3.75-4M12 3v14' />
                 </svg>
-                <div class="font-semibold">Noch keine Lobbys vorhanden.</div>
-                <div>Erstelle die erste Lobby mit dem Button oben!</div>
+                <div class="font-semibold">Aktuell gibt es keine Brain9-Lobby.</div>
             </div>
         </div>
     </div>
@@ -114,45 +97,7 @@
             <div id="game-actions" class="flex gap-2 justify-center"></div>
         </div>
     </div>
-    <div id="lobby-modal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden" role="dialog"
-        aria-modal="true" aria-labelledby="lobby-modal-title" tabindex="-1">
-        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-xl relative animate-fade-in"
-            tabindex="0">
-            <button id="lobby-modal-close"
-                class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400">&times;</button>
-            <h2 id="lobby-modal-title"
-                class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2">
-                <svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24'
-                    stroke='currentColor'>
-                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4' />
-                </svg>
-                Neue Lobby erstellen
-            </h2>
-            <form id="lobby-form" class="space-y-4">
-                <div>
-                    <label for="game-select" class="block text-sm font-medium text-gray-700">Spiel</label>
-                    <select id="game-select" name="game"
-                        class="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:ring-cyan-500 focus:border-cyan-500 placeholder-gray-400"
-                        disabled>
-                        <option value="brain9" selected>Brain9 (3x3 Memory Game)</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="lobby-size" class="block text-sm font-medium text-gray-700">Lobbygröße</label>
-                    <input type="number" id="lobby-size" name="lobby_size" min="2" max="16" value="4"
-                        class="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:ring-cyan-500 focus:border-cyan-500 placeholder-gray-400"
-                        required />
-                </div>
-                <div>
-                    <label for="lobby-bet" class="block text-sm font-medium text-gray-700">Einsatz (€)</label>
-                    <input type="number" id="lobby-bet" name="lobby_bet" min="0" step="0.10" value="0"
-                        class="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:ring-cyan-500 focus:border-cyan-500 placeholder-gray-400"
-                        required />
-                </div>
-                <button type="submit" class="btn-main w-full">Lobby anlegen</button>
-            </form>
-        </div>
-    </div>
+    <!-- Lobby-Erstellung entfernt: Nur Anzeige vorhandener Brain9-Lobbys -->
 </body>
 
 </html>
