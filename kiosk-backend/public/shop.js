@@ -1,22 +1,6 @@
-// CSP-konformes Event-Binding für Darkmode-Button
-function toggleDarkModeShop() {
-  const isDark = document.documentElement.classList.toggle('dark');
-  localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-}
-if (localStorage.getItem('darkMode') !== 'false') {
-  document.documentElement.classList.add('dark');
-}
-document.addEventListener('DOMContentLoaded', () => {
-  const darkBtn = document.getElementById('darkmode-toggle-btn');
-  if (darkBtn) {
-    darkBtn.addEventListener('click', toggleDarkModeShop);
-  }
-});
-// shop.js – ersetzt Supabase-Zugriffe durch sichere API-Aufrufe an dein Backend
-
-// Backend und Frontend laufen auf derselben Domain
+// shop.js – Best Practice Refactor
+const $ = (id) => document.getElementById(id);
 const BACKEND_URL = window.location.origin;
-
 let currentUser = null;
 let userBalance = 0;
 let userSortedProducts = false;
@@ -24,9 +8,7 @@ let allProducts = [];
 
 async function getCsrfToken() {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/csrf-token`, {
-      credentials: 'include',
-    });
+    const res = await fetch(`${BACKEND_URL}/api/csrf-token`, { credentials: 'include' });
     const data = await res.json();
     return data.csrfToken;
   } catch (err) {
@@ -36,8 +18,7 @@ async function getCsrfToken() {
 }
 
 function showMessage(text, type = 'info') {
-  // Toast-Benachrichtigungssystem wie im Adminbereich
-  const toast = document.getElementById('toast');
+  const toast = $('toast');
   if (!toast) return;
   let icon = '';
   if (type === 'success') {
@@ -47,33 +28,23 @@ function showMessage(text, type = 'info') {
   }
   toast.innerHTML = icon + text;
   toast.className = `fixed left-1/2 top-6 z-50 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-center text-base font-semibold transition-opacity duration-300 pointer-events-none ${type === 'error' ? 'bg-red-600' : 'bg-green-600'} text-white opacity-100`;
-  setTimeout(() => {
-    toast.classList.add('opacity-0');
-  }, 3500);
+  setTimeout(() => { toast.classList.add('opacity-0'); }, 3500);
 }
 
 async function loadUser() {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/user`, {
-      credentials: 'include',
-    });
+    const res = await fetch(`${BACKEND_URL}/api/user`, { credentials: 'include' });
     const user = await res.json();
     if (!user?.id) throw new Error('Keine Nutzerdaten erhalten');
-
     currentUser = user;
     userBalance = user.balance || 0;
-
-    document.getElementById('user-email').textContent = user.email;
-    const balanceElement = document.getElementById('user-balance');
+    $('user-email').textContent = user.email;
+    const balanceElement = $('user-balance');
     balanceElement.textContent = `${userBalance.toFixed(2)} €`;
-    balanceElement.className =
-      userBalance < 0
-        ? 'text-red-600 dark:text-red-400 font-bold'
-        : 'text-green-600 dark:text-green-400 font-bold';
+    balanceElement.className = userBalance < 0 ? 'text-red-600 font-bold' : 'text-green-600 font-bold';
   } catch (err) {
     console.error(err);
     showMessage('Fehler beim Laden des Nutzers', 'error');
-  } finally {
   }
 }
 
@@ -165,61 +136,61 @@ function filterAndRenderProducts() {
 function renderProductList(products) {
   const list = document.getElementById('product-list');
   list.innerHTML = '';
-    products.forEach((product) => {
-      const li = document.createElement('li');
-      li.className =
-        'border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 p-4 rounded-xl shadow-md hover:shadow-lg transition text-gray-800 dark:text-white';
-      if (product.recent) {
-        li.className += ' border-yellow-400';
-      }
-      // Bild nur anzeigen, wenn image_url gesetzt und nicht leer
-      const hasImage = product.image_url && product.image_url.trim() !== '';
-      // Platzhalter-Image (SVG)
-      const placeholder = `<div class=\"w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 mx-auto sm:mx-0\"><svg width=\"48\" height=\"48\" fill=\"none\" stroke=\"#94a3b8\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"4\"/><path d=\"M3 17l6-6a2 2 0 012.8 0l7.2 7\"/></svg></div>`;
-      li.innerHTML = `
+  products.forEach((product) => {
+    const li = document.createElement('li');
+    li.className =
+      'border border-gray-300 bg-white p-4 rounded-xl shadow-md hover:shadow-lg transition text-gray-800';
+    if (product.recent) {
+      li.className += ' border-yellow-400';
+    }
+    // Bild nur anzeigen, wenn image_url gesetzt und nicht leer
+    const hasImage = product.image_url && product.image_url.trim() !== '';
+    // Platzhalter-Image (SVG)
+    const placeholder = `<div class=\"w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center rounded-xl bg-gray-100 border border-gray-200 mx-auto sm:mx-0\"><svg width=\"48\" height=\"48\" fill=\"none\" stroke=\"#94a3b8\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"4\"/><path d=\"M3 17l6-6a2 2 0 012.8 0l7.2 7\"/></svg></div>`;
+    li.innerHTML = `
         <div class="flex flex-col sm:flex-row sm:items-center gap-4">
           <div class="shop-img-container">${hasImage ? placeholder : ''}</div>
           <div class="flex-1 flex flex-col justify-between h-full w-full">
             <div>
               <p class="text-lg font-bold mb-1">${product.name}</p>
-              ${product.recent ? '<p class="text-xs text-yellow-600 dark:text-yellow-400 mb-1">Zuletzt gekauft</p>' : ''}
-              <p class="text-base text-gray-600 dark:text-gray-300 mb-2">${product.price.toFixed(2)} € <span class="mx-1">·</span> <span class="text-xs">Bestand: ${product.stock}</span></p>
+              ${product.recent ? '<p class="text-xs text-yellow-600 mb-1">Zuletzt gekauft</p>' : ''}
+              <p class="text-base text-gray-600 mb-2">${product.price.toFixed(2)} € <span class="mx-1">·</span> <span class="text-xs">Bestand: ${product.stock}</span></p>
             </div>
             <div class="mt-2 w-full">
               ${product.stock > 0
-          ? `<div class="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 mt-2 w-full">
+        ? `<div class="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 mt-2 w-full">
                     <div class='flex flex-row items-center gap-2 justify-center xs:justify-start'>
-                      <button type="button" aria-label="Weniger" class="bg-gray-200 dark:bg-gray-600 text-lg px-3 py-2 rounded-full font-bold focus:ring-2 focus:ring-cyan-400 qty-minus-btn" data-id="${product.id}" data-max="${product.stock}">-</button>
+                      <button type="button" aria-label="Weniger" class="bg-gray-200 text-lg px-3 py-2 rounded-full font-bold focus:ring-2 focus:ring-cyan-400 qty-minus-btn" data-id="${product.id}" data-max="${product.stock}">-</button>
                       <span id="qty-display-${product.id}" class="inline-block w-10 text-center select-none font-semibold text-lg">1</span>
-                      <button type="button" aria-label="Mehr" class="bg-gray-200 dark:bg-gray-600 text-lg px-3 py-2 rounded-full font-bold focus:ring-2 focus:ring-cyan-400 qty-plus-btn" data-id="${product.id}" data-max="${product.stock}">+</button>
+                      <button type="button" aria-label="Mehr" class="bg-gray-200 text-lg px-3 py-2 rounded-full font-bold focus:ring-2 focus:ring-cyan-400 qty-plus-btn" data-id="${product.id}" data-max="${product.stock}">+</button>
                     </div>
                     <button class="btn-main w-full xs:w-auto px-5 py-2 text-base buy-btn" style="min-width: 100px;" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">Kaufen</button>
                   </div>`
-          : '<span class="text-red-500 font-semibold">Ausverkauft</span>'
-        }
+        : '<span class="text-red-500 font-semibold">Ausverkauft</span>'
+      }
             </div>
           </div>
         </div>
       `;
-      list.appendChild(li);
-      // Progressive Image Loading
-      if (hasImage) {
-        const img = new window.Image();
-        img.src = product.image_url;
-        img.alt = product.name;
-        img.width = 128;
-        img.height = 128;
-        img.className = "w-28 h-28 sm:w-32 sm:h-32 object-contain rounded-xl shadow border border-gray-200 dark:border-gray-700 bg-white flex-shrink-0 mx-auto sm:mx-0";
-        img.onload = () => {
-          const container = li.querySelector('.shop-img-container');
-          if (container) container.innerHTML = '';
-          if (container) container.appendChild(img);
-        };
-        img.onerror = () => {
-          // Fehlerbild oder Platzhalter lassen
-        };
-      }
-    });
+    list.appendChild(li);
+    // Progressive Image Loading
+    if (hasImage) {
+      const img = new window.Image();
+      img.src = product.image_url;
+      img.alt = product.name;
+      img.width = 128;
+      img.height = 128;
+      img.className = "w-28 h-28 sm:w-32 sm:h-32 object-contain rounded-xl shadow border border-gray-200 bg-white flex-shrink-0 mx-auto sm:mx-0";
+      img.onload = () => {
+        const container = li.querySelector('.shop-img-container');
+        if (container) container.innerHTML = '';
+        if (container) container.appendChild(img);
+      };
+      img.onerror = () => {
+        // Fehlerbild oder Platzhalter lassen
+      };
+    }
+  });
   // Event Delegation für Kaufen und Menge ändern
   list.onclick = function (e) {
     const minusBtn = e.target.closest('.qty-minus-btn');
@@ -375,22 +346,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ...
   }
 
-  // Darkmode logic
-  const darkModeBtn = document.getElementById('darkModeBtn');
-  if (darkModeBtn) {
-    darkModeBtn.addEventListener('click', () => {
-      const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-    });
-  }
-  if (localStorage.getItem('darkMode') === null) {
-    document.documentElement.classList.add('dark');
-    localStorage.setItem('darkMode', 'true');
-  } else if (localStorage.getItem('darkMode') !== 'false') {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-  }
+
 
   // Logout and session timeout logic
   const logoutBtn = document.getElementById('logoutBtn');

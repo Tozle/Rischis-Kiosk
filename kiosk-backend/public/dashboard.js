@@ -1,4 +1,9 @@
-const logoutBtn = document.getElementById('logoutBtn');
+// dashboard.js – Best Practice Refactor
+// Hilfsfunktion für DOM-Elemente
+const $ = (id) => document.getElementById(id);
+
+// Logout-Button
+const logoutBtn = $('logoutBtn');
 if (logoutBtn) {
   logoutBtn.addEventListener('click', () => {
     fetch('/api/logout', { method: 'POST', credentials: 'include' })
@@ -8,10 +13,11 @@ if (logoutBtn) {
       });
   });
 }
+
 // FAQ Overlay-Logik nur im Dashboard
-const faqBtn = document.getElementById('faq-btn');
-const faqOverlay = document.getElementById('faq-overlay');
-const faqClose = document.getElementById('faq-close');
+const faqBtn = $('faq-btn');
+const faqOverlay = $('faq-overlay');
+const faqClose = $('faq-close');
 if (faqBtn && faqOverlay && faqClose) {
   faqBtn.addEventListener('click', () => {
     faqOverlay.classList.remove('hidden');
@@ -34,53 +40,13 @@ if (faqBtn && faqOverlay && faqClose) {
     }
   });
 }
-// ...
-// Entfernt: Doppelte DOMContentLoaded-Logik. Siehe unten für die kombinierte Version.
-// CSP-konforme Event-Handler für Logout, Darkmode und Admin-Button
-window.addEventListener('DOMContentLoaded', async () => {
-  const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      fetch('/api/logout', { method: 'POST', credentials: 'include' })
-        .finally(() => {
-          sessionStorage.clear();
-          window.location.href = '/index.html';
-        });
-    });
-  }
-  // FAQ Overlay-Logik nur im Dashboard
-  const faqBtn = document.getElementById('faq-btn');
-  const faqOverlay = document.getElementById('faq-overlay');
-  const faqClose = document.getElementById('faq-close');
-  if (faqBtn && faqOverlay && faqClose) {
-    faqBtn.addEventListener('click', () => {
-      faqOverlay.classList.remove('hidden');
-      faqClose.focus();
-    });
-    faqClose.addEventListener('click', () => {
-      faqOverlay.classList.add('hidden');
-      faqBtn.focus();
-    });
-    faqOverlay.addEventListener('click', (e) => {
-      if (e.target === faqOverlay) {
-        faqOverlay.classList.add('hidden');
-        faqBtn.focus();
-      }
-    });
-    document.addEventListener('keydown', (e) => {
-      if (!faqOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) {
-        faqOverlay.classList.add('hidden');
-        faqBtn.focus();
-      }
-    });
-  }
 
-  // Adminbereich-Button nur für Admins sichtbar
-  const adminBtn = document.getElementById('admin-btn');
-  if (adminBtn) {
-    try {
-      const res = await fetch('/api/auth/me', { credentials: 'include' });
-      const data = await res.json();
+// Adminbereich-Button nur für Admins sichtbar
+const adminBtn = $('admin-btn');
+if (adminBtn) {
+  fetch('/api/auth/me', { credentials: 'include' })
+    .then((res) => res.json())
+    .then((data) => {
       if (data?.loggedIn && data.user?.role === 'admin') {
         adminBtn.classList.remove('hidden');
         adminBtn.setAttribute('aria-hidden', 'false');
@@ -89,21 +55,20 @@ window.addEventListener('DOMContentLoaded', async () => {
       } else {
         adminBtn.parentNode && adminBtn.parentNode.removeChild(adminBtn);
       }
-    } catch {
+    })
+    .catch(() => {
       adminBtn.parentNode && adminBtn.parentNode.removeChild(adminBtn);
-    }
-  }
-});
-// dashboard.js – Admin-Zugriff und Session-Check
+    });
+}
 
-// Adresse des Backends
-// Backend und Frontend laufen auf derselben Domain
-// Einheitliche Definition für alle Frontend-Skripte
+// Adresse des Backends (Frontend & Backend gleiche Domain)
 const BACKEND_URL = window.location.origin;
 
+// AbortController für Fetches
 const controller = new AbortController();
 window.addEventListener('beforeunload', () => controller.abort());
 
+// CSRF-Token holen
 async function getCsrfToken() {
   try {
     const res = await fetch(`${BACKEND_URL}/api/csrf-token`, {
@@ -118,15 +83,10 @@ async function getCsrfToken() {
     return null;
   }
 }
-function toggleDarkMode() {
-  const isDark = document.documentElement.classList.toggle('dark');
-  localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-}
 
-if (localStorage.getItem('darkMode') !== 'false') {
-  document.documentElement.classList.add('dark');
-}
 
+
+// Kunden der Woche laden (optional)
 async function loadCustomerOfWeek() {
   try {
     const res = await fetch(`${BACKEND_URL}/api/customer-of-week`, {
@@ -140,5 +100,3 @@ async function loadCustomerOfWeek() {
     console.error('Fehler beim Laden des Kunden der Woche', err);
   }
 }
-
-// ...Ende dashboard.js: Datei jetzt korrekt abgeschlossen

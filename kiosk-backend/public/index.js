@@ -11,136 +11,115 @@ async function getCsrfToken() {
     const res = await fetch(`${BACKEND_URL}/api/csrf-token`, {
       credentials: 'include',
     });
-    const data = await res.json();
-    return data.csrfToken;
-  } catch (err) {
-    console.error('CSRF-Token konnte nicht geladen werden', err);
-    return null;
-  }
-}
+    // index.js – Best Practice Refactor
+    const $ = (id) => document.getElementById(id);
+    const BACKEND_URL = window.location.origin;
 
-// Meldung anzeigen
-function showMessage(text, success = false) {
-  const message = document.getElementById('message');
-  message.textContent = text;
-  message.className = success
-    ? 'text-green-600 mt-4 text-center'
-    : 'text-red-500 mt-4 text-center';
-  message.classList.remove('hidden');
-  setTimeout(() => message.classList.add('hidden'), 5000);
-}
-
-// Formular-Umschaltung
-function switchForm(mode) {
-  const isLogin = mode === 'login';
-  document.getElementById('login-form').classList.toggle('hidden', !isLogin);
-  document.getElementById('register-form').classList.toggle('hidden', isLogin);
-  document.getElementById('message').classList.add('hidden');
-}
-
-
-// Darkmode
-// CSP: Event-Binding für Formular-Umschaltung
-const showRegister = document.getElementById('show-register-link');
-if (showRegister) {
-  showRegister.addEventListener('click', (e) => {
-    e.preventDefault();
-    switchForm('register');
-  });
-}
-const showLogin = document.getElementById('show-login-link');
-if (showLogin) {
-  showLogin.addEventListener('click', (e) => {
-    e.preventDefault();
-    switchForm('login');
-  });
-}
-
-// REGISTRIERUNG
-
-
-
-document
-  .getElementById('register-form')
-  .addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('register-name').value.trim();
-    const email = document.getElementById('register-email').value.trim();
-    const password = document.getElementById('register-password').value;
-    const repeat = document.getElementById('register-password-repeat').value;
-
-    const btn = document.querySelector('#register-form button[type="submit"]');
-    const btnText = document.getElementById('register-btn-text');
-    const loader = document.getElementById('register-loader');
-    btn.setAttribute('aria-busy', 'true');
-    btn.disabled = true;
-    btnText.classList.add('opacity-50');
-    loader.classList.remove('hidden');
-
-    // Frontend-Validierung auf Deutsch
-    if (!name || name.length < 2) {
-      showMessage('Bitte gib einen Namen mit mindestens 2 Zeichen an.');
-      btn.removeAttribute('aria-busy');
-      btn.disabled = false;
-      btnText.classList.remove('opacity-50');
-      loader.classList.add('hidden');
-      return;
+    async function getCsrfToken() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/csrf-token`, { credentials: 'include' });
+        const data = await res.json();
+        return data.csrfToken;
+      } catch (err) {
+        console.error('CSRF-Token konnte nicht geladen werden', err);
+        return null;
+      }
     }
-    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-      showMessage('Bitte gib eine gültige E-Mail-Adresse ein.');
-      btn.removeAttribute('aria-busy');
-      btn.disabled = false;
-      btnText.classList.remove('opacity-50');
-      loader.classList.add('hidden');
-      return;
+
+    function showMessage(text, success = false) {
+      const message = $('message');
+      if (!message) return;
+      message.textContent = text;
+      message.className = success ? 'text-green-600 mt-4 text-center' : 'text-red-500 mt-4 text-center';
+      message.classList.remove('hidden');
+      setTimeout(() => message.classList.add('hidden'), 5000);
     }
+
+    function switchForm(mode) {
+      const isLogin = mode === 'login';
+      $('login-form').classList.toggle('hidden', !isLogin);
+      $('register-form').classList.toggle('hidden', isLogin);
+      $('message').classList.add('hidden');
+    }
+
+    // Event-Binding für Formular-Umschaltung
+    const showRegister = $('show-register-link');
+    if (showRegister) {
+      showRegister.addEventListener('click', (e) => { e.preventDefault(); switchForm('register'); });
+    }
+    const showLogin = $('show-login-link');
+    if (showLogin) {
+      showLogin.addEventListener('click', (e) => { e.preventDefault(); switchForm('login'); });
+    }
+
+    // REGISTRIERUNG
+    const registerForm = $('register-form');
+    if (registerForm) {
+      registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = $('register-name').value.trim();
+        const email = $('register-email').value.trim();
+        const password = $('register-password').value;
+        const repeat = $('register-password-repeat').value;
+        const btn = registerForm.querySelector('button[type="submit"]');
+        const btnText = $('register-btn-text');
+        const loader = $('register-loader');
+        btn.setAttribute('aria-busy', 'true');
+        btn.disabled = true;
+        btnText.classList.add('opacity-50');
+        loader.classList.remove('hidden');
+        // Frontend-Validierung auf Deutsch
+        btnText.classList.remove('opacity-50');
+        loader.classList.add('hidden');
+        return;
+      }
     if (!password || password.length < 6) {
-      showMessage('Das Passwort muss mindestens 6 Zeichen lang sein.');
-      btn.removeAttribute('aria-busy');
-      btn.disabled = false;
-      btnText.classList.remove('opacity-50');
-      loader.classList.add('hidden');
-      return;
-    }
-    if (password !== repeat) {
-      showMessage('Passwörter stimmen nicht überein.');
-      btn.removeAttribute('aria-busy');
-      btn.disabled = false;
-      btnText.classList.remove('opacity-50');
-      loader.classList.add('hidden');
-      return;
-    }
+        showMessage('Das Passwort muss mindestens 6 Zeichen lang sein.');
+        btn.removeAttribute('aria-busy');
+        btn.disabled = false;
+        btnText.classList.remove('opacity-50');
+        loader.classList.add('hidden');
+        return;
+      }
+      if (password !== repeat) {
+        showMessage('Passwörter stimmen nicht überein.');
+        btn.removeAttribute('aria-busy');
+        btn.disabled = false;
+        btnText.classList.remove('opacity-50');
+        loader.classList.add('hidden');
+        return;
+      }
 
-    try {
-      const token = await getCsrfToken();
-      const res = await fetch(`${BACKEND_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-csrf-token': token,
-        },
-        credentials: 'include',
-        body: JSON.stringify({ name, email, password }),
-      });
+      try {
+        const token = await getCsrfToken();
+        const res = await fetch(`${BACKEND_URL}/api/auth/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': token,
+          },
+          credentials: 'include',
+          body: JSON.stringify({ name, email, password }),
+        });
 
-      const result = await res.json();
-      if (!res.ok)
-        throw new Error(result.error || 'Registrierung fehlgeschlagen');
+        const result = await res.json();
+        if (!res.ok)
+          throw new Error(result.error || 'Registrierung fehlgeschlagen');
 
-      // Modernes Overlay anzeigen
-      let overlay = document.createElement('div');
-      overlay.id = 'register-success-overlay';
-      overlay.style.position = 'fixed';
-      overlay.style.inset = '0';
-      overlay.style.background = 'rgba(16,185,129,0.95)';
-      overlay.style.display = 'flex';
-      overlay.style.flexDirection = 'column';
-      overlay.style.alignItems = 'center';
-      overlay.style.justifyContent = 'center';
-      overlay.style.zIndex = '9999';
-      overlay.style.transition = 'opacity 0.5s';
-      overlay.style.opacity = '0';
-      overlay.innerHTML = `
+        // Modernes Overlay anzeigen
+        let overlay = document.createElement('div');
+        overlay.id = 'register-success-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.inset = '0';
+        overlay.style.background = 'rgba(16,185,129,0.95)';
+        overlay.style.display = 'flex';
+        overlay.style.flexDirection = 'column';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.zIndex = '9999';
+        overlay.style.transition = 'opacity 0.5s';
+        overlay.style.opacity = '0';
+        overlay.innerHTML = `
         <div style="background:rgba(255,255,255,0.95);color:#134e4a;padding:2.5rem 2rem 2rem 2rem;border-radius:2rem;box-shadow:0 8px 32px 0 rgba(16,185,129,0.18);font-size:2rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:1.2rem;max-width:90vw;text-align:center;animation:bounceIn 0.7s;">
           <span style="font-size:2.5rem;">🎉</span>
           <span>Registrierung erfolgreich!<br><span style='font-size:1.1rem;font-weight:400;'>Du kannst dich jetzt einloggen.</span></span>
@@ -154,123 +133,123 @@ document
           }
         </style>
       `;
-      document.body.appendChild(overlay);
-      setTimeout(() => { overlay.style.opacity = '1'; }, 10);
-      setTimeout(() => {
-        overlay.style.opacity = '0';
+        document.body.appendChild(overlay);
+        setTimeout(() => { overlay.style.opacity = '1'; }, 10);
         setTimeout(() => {
-          overlay.remove();
-          switchForm('login');
-        }, 500);
-      }, 1700);
-    } catch (err) {
-      console.error(err);
-      // Backend-Fehler auf Deutsch anzeigen, falls möglich
-      let msg = err.message || 'Fehler bei Registrierung';
-      if (/name/i.test(msg) && /zeichen|zeichenlang|zeichen lang|zu kurz|mindestens/i.test(msg)) {
-        msg = 'Bitte gib einen Namen mit mindestens 2 Zeichen an.';
-      } else if (/email/i.test(msg) && /ungültig|invalid/i.test(msg)) {
-        msg = 'Bitte gib eine gültige E-Mail-Adresse ein.';
-      } else if (/passwort|password/i.test(msg) && /ungültig|invalid|mindestens|zu kurz|zeichen/i.test(msg)) {
-        msg = 'Das Passwort muss mindestens 6 Zeichen lang sein.';
-      }
-      showMessage(msg);
-    } finally {
-      btn.removeAttribute('aria-busy');
-      btn.disabled = false;
-      btnText.classList.remove('opacity-50');
-      loader.classList.add('hidden');
-    }
-  });
-
-// LOGIN
-document.getElementById('login-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
-  const rememberMe = document.getElementById('remember-me').checked;
-  const btn = document.querySelector('#login-form button[type="submit"]');
-  const btnText = document.getElementById('login-btn-text');
-  const loader = document.getElementById('login-loader');
-  btn.setAttribute('aria-busy', 'true');
-  btn.disabled = true;
-  btnText.classList.add('opacity-50');
-  loader.classList.remove('hidden');
-  try {
-    const token = await getCsrfToken();
-    const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-csrf-token': token,
-      },
-      credentials: 'include',
-      body: JSON.stringify({ email, password, rememberMe }),
-    });
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error || 'Login fehlgeschlagen');
-    // Personalisierte Begrüßung anzeigen (mit echtem Namen)
-    sessionStorage.setItem('firstLogin', 'true');
-    let name = null;
-    for (let i = 0; i < 10; i++) {
-      try {
-        const meRes = await fetch(`${BACKEND_URL}/api/auth/me`, { credentials: 'include' });
-        const meData = await meRes.json();
-        if (meRes.ok && meData.loggedIn && meData.user && meData.user.name) {
-          name = meData.user.name;
-          break;
+          overlay.style.opacity = '0';
+          setTimeout(() => {
+            overlay.remove();
+            switchForm('login');
+          }, 500);
+        }, 1700);
+      } catch (err) {
+        console.error(err);
+        // Backend-Fehler auf Deutsch anzeigen, falls möglich
+        let msg = err.message || 'Fehler bei Registrierung';
+        if (/name/i.test(msg) && /zeichen|zeichenlang|zeichen lang|zu kurz|mindestens/i.test(msg)) {
+          msg = 'Bitte gib einen Namen mit mindestens 2 Zeichen an.';
+        } else if (/email/i.test(msg) && /ungültig|invalid/i.test(msg)) {
+          msg = 'Bitte gib eine gültige E-Mail-Adresse ein.';
+        } else if (/passwort|password/i.test(msg) && /ungültig|invalid|mindestens|zu kurz|zeichen/i.test(msg)) {
+          msg = 'Das Passwort muss mindestens 6 Zeichen lang sein.';
         }
-      } catch { }
-      await new Promise((r) => setTimeout(r, 500));
-    }
-    showLoginGreeting(name || email.split('@')[0]);
-  } catch (err) {
-    console.error(err);
-    showMessage(err.message || 'Fehler beim Login');
-  } finally {
-    btn.removeAttribute('aria-busy');
-    btn.disabled = false;
-    btnText.classList.remove('opacity-50');
-    loader.classList.add('hidden');
-  }
-});
+        showMessage(msg);
+      } finally {
+        btn.removeAttribute('aria-busy');
+        btn.disabled = false;
+        btnText.classList.remove('opacity-50');
+        loader.classList.add('hidden');
+      }
+    });
 
-// Lustige Begrüßung mit Animation nach Login
-function showLoginGreeting(email) {
-  const greetings = [
-    'Willkommen zurück, {name}! 😺',
-    'Schön, dass du wieder da bist, {name}! 🎉',
-    'Bereit für Snacks, {name}? 🍫',
-    'Möge der Kiosk mit dir sein, {name}! 🚀',
-    'Let’s Kiosk, {name}! 😎',
-    'Zeit für eine Pause, {name}! ☕',
-    'Du bist der Kiosk-King, {name}! 👑',
-    'Snack-Alarm für {name}! 🛎️',
-    'Miau, {name}! 🐾',
-    'Kiosk-Power aktiviert, {name}! ⚡',
-  ];
-  // Name kann direkt übergeben werden
-  let name = email;
-  if (typeof name === 'string') {
-    name = name.charAt(0).toUpperCase() + name.slice(1);
-  } else {
-    name = 'Gast';
-  }
-  const greeting = greetings[Math.floor(Math.random() * greetings.length)].replace('{name}', name);
-  // Overlay erzeugen
-  let overlay = document.createElement('div');
-  overlay.id = 'login-greeting-overlay';
-  overlay.style.position = 'fixed';
-  overlay.style.inset = '0';
-  overlay.style.background = 'rgba(16,185,129,0.95)';
-  overlay.style.display = 'flex';
-  overlay.style.flexDirection = 'column';
-  overlay.style.alignItems = 'center';
-  overlay.style.justifyContent = 'center';
-  overlay.style.zIndex = '9999';
-  overlay.style.transition = 'opacity 0.5s';
-  overlay.style.opacity = '0';
-  overlay.innerHTML = `
+    // LOGIN
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const rememberMe = document.getElementById('remember-me').checked;
+      const btn = document.querySelector('#login-form button[type="submit"]');
+      const btnText = document.getElementById('login-btn-text');
+      const loader = document.getElementById('login-loader');
+      btn.setAttribute('aria-busy', 'true');
+      btn.disabled = true;
+      btnText.classList.add('opacity-50');
+      loader.classList.remove('hidden');
+      try {
+        const token = await getCsrfToken();
+        const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': token,
+          },
+          credentials: 'include',
+          body: JSON.stringify({ email, password, rememberMe }),
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || 'Login fehlgeschlagen');
+        // Personalisierte Begrüßung anzeigen (mit echtem Namen)
+        sessionStorage.setItem('firstLogin', 'true');
+        let name = null;
+        for (let i = 0; i < 10; i++) {
+          try {
+            const meRes = await fetch(`${BACKEND_URL}/api/auth/me`, { credentials: 'include' });
+            const meData = await meRes.json();
+            if (meRes.ok && meData.loggedIn && meData.user && meData.user.name) {
+              name = meData.user.name;
+              break;
+            }
+          } catch { }
+          await new Promise((r) => setTimeout(r, 500));
+        }
+        showLoginGreeting(name || email.split('@')[0]);
+      } catch (err) {
+        console.error(err);
+        showMessage(err.message || 'Fehler beim Login');
+      } finally {
+        btn.removeAttribute('aria-busy');
+        btn.disabled = false;
+        btnText.classList.remove('opacity-50');
+        loader.classList.add('hidden');
+      }
+    });
+
+    // Lustige Begrüßung mit Animation nach Login
+    function showLoginGreeting(email) {
+      const greetings = [
+        'Willkommen zurück, {name}! 😺',
+        'Schön, dass du wieder da bist, {name}! 🎉',
+        'Bereit für Snacks, {name}? 🍫',
+        'Möge der Kiosk mit dir sein, {name}! 🚀',
+        'Let’s Kiosk, {name}! 😎',
+        'Zeit für eine Pause, {name}! ☕',
+        'Du bist der Kiosk-King, {name}! 👑',
+        'Snack-Alarm für {name}! 🛎️',
+        'Miau, {name}! 🐾',
+        'Kiosk-Power aktiviert, {name}! ⚡',
+      ];
+      // Name kann direkt übergeben werden
+      let name = email;
+      if (typeof name === 'string') {
+        name = name.charAt(0).toUpperCase() + name.slice(1);
+      } else {
+        name = 'Gast';
+      }
+      const greeting = greetings[Math.floor(Math.random() * greetings.length)].replace('{name}', name);
+      // Overlay erzeugen
+      let overlay = document.createElement('div');
+      overlay.id = 'login-greeting-overlay';
+      overlay.style.position = 'fixed';
+      overlay.style.inset = '0';
+      overlay.style.background = 'rgba(16,185,129,0.95)';
+      overlay.style.display = 'flex';
+      overlay.style.flexDirection = 'column';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.style.zIndex = '9999';
+      overlay.style.transition = 'opacity 0.5s';
+      overlay.style.opacity = '0';
+      overlay.innerHTML = `
     <div style="background:rgba(255,255,255,0.95);color:#134e4a;padding:2.5rem 2rem 2rem 2rem;border-radius:2rem;box-shadow:0 8px 32px 0 rgba(16,185,129,0.18);font-size:2rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:1.2rem;max-width:90vw;text-align:center;animation:bounceIn 0.7s;">
       <span style="font-size:2.5rem;">🎈</span>
       <span>${greeting}</span>
@@ -284,15 +263,15 @@ function showLoginGreeting(email) {
       }
     </style>
   `;
-  document.body.appendChild(overlay);
-  setTimeout(() => { overlay.style.opacity = '1'; }, 10);
-  // Nach 1.7s ausblenden und weiterleiten
-  setTimeout(() => {
-    overlay.style.opacity = '0';
-    setTimeout(() => {
-      overlay.remove();
-      window.location.href = 'dashboard.html';
-    }, 500);
-  }, 1700);
-}
+      document.body.appendChild(overlay);
+      setTimeout(() => { overlay.style.opacity = '1'; }, 10);
+      // Nach 1.7s ausblenden und weiterleiten
+      setTimeout(() => {
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+          overlay.remove();
+          window.location.href = 'dashboard.html';
+        }, 500);
+      }, 1700);
+    }
 

@@ -1,24 +1,10 @@
-// CSP-konformes Event-Binding für Darkmode-Button
-function toggleDarkModeMentos() {
-    const isDark = document.documentElement.classList.toggle('dark');
-    localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-}
-if (localStorage.getItem('darkMode') !== 'false') {
-    document.documentElement.classList.add('dark');
-}
-document.addEventListener('DOMContentLoaded', () => {
-    const darkBtn = document.getElementById('darkmode-toggle-btn');
-    if (darkBtn) {
-        darkBtn.addEventListener('click', toggleDarkModeMentos);
-    }
-});
+// Darkmode-Logik entfernt
 // mentos.js – jetzt wie shop.js: alle Datenzugriffe über das Backend
 const BACKEND_URL = window.location.origin;
 
 const feedingsBody = document.getElementById('feedings-body');
 const lastFeedDiv = document.getElementById('last-feed');
-const btnNass = document.getElementById('btn-nass');
-const btnTrocken = document.getElementById('btn-trocken');
+
 
 async function loadFeedings() {
     try {
@@ -123,12 +109,16 @@ async function addFeeding(futterart) {
     }
 }
 
-btnNass?.addEventListener('click', () => addFeeding('Nassfutter'));
-btnTrocken?.addEventListener('click', () => addFeeding('Trockenfutter'));
+
 
 document.addEventListener('DOMContentLoaded', () => {
-
     loadFeedings();
+
+    // Feeding-Buttons initialisieren
+    const btnNass = document.getElementById('btn-nass');
+    const btnTrocken = document.getElementById('btn-trocken');
+    if (btnNass) btnNass.addEventListener('click', () => addFeeding('Nassfutter'));
+    if (btnTrocken) btnTrocken.addEventListener('click', () => addFeeding('Trockenfutter'));
 
     // Admin-Buttons sichtbar machen, wenn User Admin ist
     import('./user.js').then(({ getCurrentUser }) => {
@@ -177,16 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
         faqClose.addEventListener('click', () => { faqOverlay.classList.add('hidden'); faqBtn.focus(); });
         faqOverlay.addEventListener('click', (e) => { if (e.target === faqOverlay) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
         document.addEventListener('keydown', (e) => { if (!faqOverlay.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) { faqOverlay.classList.add('hidden'); faqBtn.focus(); } });
-    }
-
-    // Darkmode-Initialisierung (nur falls noch nicht gesetzt)
-    if (localStorage.getItem('darkMode') === null) {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('darkMode', 'true');
-    } else if (localStorage.getItem('darkMode') !== 'false') {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
     }
 
     // Logout-Button
