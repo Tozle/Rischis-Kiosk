@@ -19,6 +19,7 @@ async function getCsrfToken() {
     console.error('CSRF-Token konnte nicht geladen werden', err);
     return null;
 
+
   }
 }
 
