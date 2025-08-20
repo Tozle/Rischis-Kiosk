@@ -165,42 +165,61 @@ function filterAndRenderProducts() {
 function renderProductList(products) {
   const list = document.getElementById('product-list');
   list.innerHTML = '';
-  products.forEach((product) => {
-    const li = document.createElement('li');
-    li.className =
-      'border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 p-4 rounded-xl shadow-md hover:shadow-lg transition text-gray-800 dark:text-white';
-    if (product.recent) {
-      li.className += ' border-yellow-400';
-    }
-    // Bild nur anzeigen, wenn image_url gesetzt und nicht leer
-    const hasImage = product.image_url && product.image_url.trim() !== '';
-    li.innerHTML = `
-      <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-        ${hasImage ? `<img src="${product.image_url}" alt="${product.name}" class="w-28 h-28 sm:w-32 sm:h-32 object-contain rounded-xl shadow border border-gray-200 dark:border-gray-700 bg-white flex-shrink-0 mx-auto sm:mx-0" loading="lazy">` : ''}
-        <div class="flex-1 flex flex-col justify-between h-full w-full">
-          <div>
-            <p class="text-lg font-bold mb-1">${product.name}</p>
-            ${product.recent ? '<p class="text-xs text-yellow-600 dark:text-yellow-400 mb-1">Zuletzt gekauft</p>' : ''}
-            <p class="text-base text-gray-600 dark:text-gray-300 mb-2">${product.price.toFixed(2)} € <span class="mx-1">·</span> <span class="text-xs">Bestand: ${product.stock}</span></p>
-          </div>
-          <div class="mt-2 w-full">
-            ${product.stock > 0
-        ? `<div class="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 mt-2 w-full">
-                  <div class='flex flex-row items-center gap-2 justify-center xs:justify-start'>
-                    <button type="button" aria-label="Weniger" class="bg-gray-200 dark:bg-gray-600 text-lg px-3 py-2 rounded-full font-bold focus:ring-2 focus:ring-cyan-400 qty-minus-btn" data-id="${product.id}" data-max="${product.stock}">-</button>
-                    <span id="qty-display-${product.id}" class="inline-block w-10 text-center select-none font-semibold text-lg">1</span>
-                    <button type="button" aria-label="Mehr" class="bg-gray-200 dark:bg-gray-600 text-lg px-3 py-2 rounded-full font-bold focus:ring-2 focus:ring-cyan-400 qty-plus-btn" data-id="${product.id}" data-max="${product.stock}">+</button>
-                  </div>
-                  <button class="btn-main w-full xs:w-auto px-5 py-2 text-base buy-btn" style="min-width: 100px;" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">Kaufen</button>
-                </div>`
-        : '<span class="text-red-500 font-semibold">Ausverkauft</span>'
+    products.forEach((product) => {
+      const li = document.createElement('li');
+      li.className =
+        'border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 p-4 rounded-xl shadow-md hover:shadow-lg transition text-gray-800 dark:text-white';
+      if (product.recent) {
+        li.className += ' border-yellow-400';
       }
+      // Bild nur anzeigen, wenn image_url gesetzt und nicht leer
+      const hasImage = product.image_url && product.image_url.trim() !== '';
+      // Platzhalter-Image (SVG)
+      const placeholder = `<div class=\"w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 mx-auto sm:mx-0\"><svg width=\"48\" height=\"48\" fill=\"none\" stroke=\"#94a3b8\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"4\"/><path d=\"M3 17l6-6a2 2 0 012.8 0l7.2 7\"/></svg></div>`;
+      li.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div class="shop-img-container">${hasImage ? placeholder : ''}</div>
+          <div class="flex-1 flex flex-col justify-between h-full w-full">
+            <div>
+              <p class="text-lg font-bold mb-1">${product.name}</p>
+              ${product.recent ? '<p class="text-xs text-yellow-600 dark:text-yellow-400 mb-1">Zuletzt gekauft</p>' : ''}
+              <p class="text-base text-gray-600 dark:text-gray-300 mb-2">${product.price.toFixed(2)} € <span class="mx-1">·</span> <span class="text-xs">Bestand: ${product.stock}</span></p>
+            </div>
+            <div class="mt-2 w-full">
+              ${product.stock > 0
+          ? `<div class="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 mt-2 w-full">
+                    <div class='flex flex-row items-center gap-2 justify-center xs:justify-start'>
+                      <button type="button" aria-label="Weniger" class="bg-gray-200 dark:bg-gray-600 text-lg px-3 py-2 rounded-full font-bold focus:ring-2 focus:ring-cyan-400 qty-minus-btn" data-id="${product.id}" data-max="${product.stock}">-</button>
+                      <span id="qty-display-${product.id}" class="inline-block w-10 text-center select-none font-semibold text-lg">1</span>
+                      <button type="button" aria-label="Mehr" class="bg-gray-200 dark:bg-gray-600 text-lg px-3 py-2 rounded-full font-bold focus:ring-2 focus:ring-cyan-400 qty-plus-btn" data-id="${product.id}" data-max="${product.stock}">+</button>
+                    </div>
+                    <button class="btn-main w-full xs:w-auto px-5 py-2 text-base buy-btn" style="min-width: 100px;" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">Kaufen</button>
+                  </div>`
+          : '<span class="text-red-500 font-semibold">Ausverkauft</span>'
+        }
+            </div>
           </div>
         </div>
-      </div>
-    `;
-    list.appendChild(li);
-  });
+      `;
+      list.appendChild(li);
+      // Progressive Image Loading
+      if (hasImage) {
+        const img = new window.Image();
+        img.src = product.image_url;
+        img.alt = product.name;
+        img.width = 128;
+        img.height = 128;
+        img.className = "w-28 h-28 sm:w-32 sm:h-32 object-contain rounded-xl shadow border border-gray-200 dark:border-gray-700 bg-white flex-shrink-0 mx-auto sm:mx-0";
+        img.onload = () => {
+          const container = li.querySelector('.shop-img-container');
+          if (container) container.innerHTML = '';
+          if (container) container.appendChild(img);
+        };
+        img.onerror = () => {
+          // Fehlerbild oder Platzhalter lassen
+        };
+      }
+    });
   // Event Delegation für Kaufen und Menge ändern
   list.onclick = function (e) {
     const minusBtn = e.target.closest('.qty-minus-btn');
