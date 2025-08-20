@@ -253,8 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                             <div class="flex gap-2 items-center">
                                 ${(isInLobby || isCreator)
-                                    ? `<button class=\"open-lobby-btn btn-main\" data-id=\"${lobby.id}\">Lobby öffnen</button>`
-                                    : `<button class=\"join-lobby-btn btn-main\" data-id=\"${lobby.id}\">Beitreten</button>`}
+                                ? `<button class=\"open-lobby-btn btn-main\" data-id=\"${lobby.id}\">Lobby öffnen</button>`
+                                : `<button class=\"join-lobby-btn btn-main\" data-id=\"${lobby.id}\">Beitreten</button>`}
                             </div>
                         </div>
                         `;
@@ -272,9 +272,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Initiales Laden
-    loadLobbies();
-    // Automatisches Reload alle 5 Sekunden
-    setInterval(loadLobbies, 5000);
+        loadLobbies();
+        // Automatisches Reload alle 5 Sekunden
+        setInterval(loadLobbies, 5000);
 
         // Event-Delegation für Join/Start
         lobbyList.addEventListener('click', async (e) => {

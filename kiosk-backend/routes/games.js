@@ -104,7 +104,7 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
         // Spiel initialisieren
         const { data: game, error: gameError } = await supabase
             .from('brain9_games')
-            .insert({ lobby_id: lobbyId })
+            .insert({ lobby_id: lobbyId, game_type: lobby.game_type })
             .select()
             .single();
         if (gameError) {
