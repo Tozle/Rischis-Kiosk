@@ -113,14 +113,111 @@ document.addEventListener('DOMContentLoaded', () => {
             modal.addEventListener('click', (e) => { if (e.target === modal) { modal.classList.add('hidden'); createBtn.focus(); } });
             document.addEventListener('keydown', (e) => { if (!modal.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) { modal.classList.add('hidden'); createBtn.focus(); } });
         }
-        if (form) {
-            form.addEventListener('submit', (e) => {
+        // --- Lobby-Logik ---
+        const lobbyList = $("lobby-list");
+        const gameSelect = $("game-select");
+        if (form && lobbyList) {
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                showToast('Es sind aktuell noch keine Spiele verfügbar.', 'info');
-                modal.classList.add('hidden');
-                createBtn.focus();
+                // Nur ein Spieltyp verfügbar
+                const lobbySize = parseInt(form.lobby_size.value, 10);
+                const bet = parseFloat(form.lobby_bet.value);
+                try {
+                    const res = await fetch('/api/games/lobby', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ lobbySize, bet })
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.lobbyId) {
+                        showToast('Lobby erstellt!');
+                        modal.classList.add('hidden');
+                        createBtn.focus();
+                        await loadLobbies();
+                    } else {
+                        showToast(data.error || 'Fehler beim Erstellen', 'error');
+                    }
+                } catch (err) {
+                    showToast('Fehler beim Erstellen', 'error');
+                }
             });
         }
+
+        async function loadLobbies() {
+            // MVP: Hole alle offenen Lobbys (aus Backend, hier Demo: alle)
+            try {
+                const res = await fetch('/api/games/lobby', { credentials: 'include' });
+                const data = await res.json();
+                if (Array.isArray(data.lobbies) && data.lobbies.length) {
+                    lobbyList.innerHTML = data.lobbies.map(lobby => `
+                        <div class="bg-cyan-50 dark:bg-gray-800 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow">
+                            <div>
+                                <div class="font-bold text-cyan-700 dark:text-cyan-300 text-lg flex items-center gap-2">
+                                    Lobby #${lobby.id.slice(-4)}
+                                    <span class="ml-2 text-xs font-normal text-gray-500">${lobby.players.length}/${lobby.lobbySize} Spieler</span>
+                                </div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400">Einsatz: <span class="font-semibold">€${lobby.bet.toFixed(2)}</span></div>
+                                <div class="flex gap-2 mt-2">
+                                    ${lobby.players.map(p => `<img src="${p.profile_image_url}" alt="${p.name}" class="w-8 h-8 rounded-full border" title="${p.name}" />`).join('')}
+                                </div>
+                            </div>
+                            <div class="flex gap-2 items-center">
+                                <button class="join-lobby-btn btn-main" data-id="${lobby.id}">Beitreten</button>
+                                ${lobby.players.length >= 2 && !lobby.started ? `<button class="start-lobby-btn btn-main bg-green-600 hover:bg-green-700" data-id="${lobby.id}">Starten</button>` : ''}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    lobbyList.innerHTML = `<div class="text-center text-gray-500 dark:text-gray-400 py-8">
+                        <svg xmlns='http://www.w3.org/2000/svg' class='w-12 h-12 mx-auto mb-2 text-cyan-200' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9.75 17L6 21h12l-3.75-4M12 3v14' /></svg>
+                        <div class="font-semibold">Noch keine Lobbys vorhanden.</div>
+                        <div>Erstelle die erste Lobby mit dem Button oben!</div>
+                    </div>`;
+                }
+            } catch {
+                lobbyList.innerHTML = `<div class="text-center text-red-500 py-8">Fehler beim Laden der Lobbys.</div>`;
+            }
+        }
+
+        // Initiales Laden
+        loadLobbies();
+
+        // Event-Delegation für Join/Start
+        lobbyList.addEventListener('click', async (e) => {
+            const joinBtn = e.target.closest('.join-lobby-btn');
+            const startBtn = e.target.closest('.start-lobby-btn');
+            if (joinBtn) {
+                const id = joinBtn.dataset.id;
+                try {
+                    const res = await fetch(`/api/games/lobby/${id}/join`, { method: 'POST', credentials: 'include' });
+                    const data = await res.json();
+                    if (res.ok) {
+                        showToast('Lobby beigetreten!');
+                        await loadLobbies();
+                    } else {
+                        showToast(data.error || 'Fehler beim Beitreten', 'error');
+                    }
+                } catch {
+                    showToast('Fehler beim Beitreten', 'error');
+                }
+            }
+            if (startBtn) {
+                const id = startBtn.dataset.id;
+                try {
+                    const res = await fetch(`/api/games/lobby/${id}/start`, { method: 'POST', credentials: 'include' });
+                    const data = await res.json();
+                    if (res.ok && data.gameId) {
+                        showToast('Spiel gestartet!');
+                        // TODO: Game-UI anzeigen
+                    } else {
+                        showToast(data.error || 'Fehler beim Starten', 'error');
+                    }
+                } catch {
+                    showToast('Fehler beim Starten', 'error');
+                }
+            }
+        });
 
         // --- Online-User-Button und Overlay steuern ---
         const onlineBtn = $("games-online-btn");
