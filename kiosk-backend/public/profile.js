@@ -81,7 +81,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     // Modal-Öffnen-Listener immer setzen
     if (profileBtn && profileModal) {
-    profileBtn.addEventListener('click', async () => {
+        profileBtn.addEventListener('click', async () => {
             // Prüfe Login-Status live
             let user = userData;
             if (!user) {
@@ -96,8 +96,8 @@ window.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
             // Hole aktuellen Usernamen, Profilbild und Guthaben
-            usernameInput.value = user?.name || '';
-            imageUrlInput.value = user?.profile_image_url || '';
+            if (usernameInput) usernameInput.value = user?.name || '';
+            if (imageUrlInput) imageUrlInput.value = user?.profile_image_url || '';
             // Guthaben anzeigen
             const balanceElem = document.getElementById('profile-balance');
             if (balanceElem) {
@@ -109,47 +109,64 @@ window.addEventListener('DOMContentLoaded', async () => {
                 }
             }
             // Nur Auswahl anzeigen, alle Formulare ausblenden
-            document.getElementById('profile-choice').classList.remove('hidden');
-            document.getElementById('profile-image-form').classList.add('hidden');
-            document.getElementById('profile-name-form').classList.add('hidden');
-            document.getElementById('profile-password-form').classList.add('hidden');
-            profileModal.classList.remove('hidden');
+            const choice = document.getElementById('profile-choice');
+            const imageForm = document.getElementById('profile-image-form');
+            const nameForm = document.getElementById('profile-name-form');
+            const passwordForm = document.getElementById('profile-password-form');
+            if (choice) choice.classList.remove('hidden');
+            if (imageForm) imageForm.classList.add('hidden');
+            if (nameForm) nameForm.classList.add('hidden');
+            if (passwordForm) passwordForm.classList.add('hidden');
+            if (profileModal) profileModal.classList.remove('hidden');
         });
         // Auswahl-Buttons
         const editImageBtn = document.getElementById('profile-edit-image-btn');
         const editNameBtn = document.getElementById('profile-edit-name-btn');
         const editPasswordBtn = document.getElementById('profile-edit-password-btn');
-        if (editImageBtn) {
+        const choice = document.getElementById('profile-choice');
+        const imageForm = document.getElementById('profile-image-form');
+        const nameForm = document.getElementById('profile-name-form');
+        const passwordForm = document.getElementById('profile-password-form');
+        if (editImageBtn && choice && imageForm) {
             editImageBtn.onclick = () => {
-                document.getElementById('profile-choice').classList.add('hidden');
-                document.getElementById('profile-image-form').classList.remove('hidden');
+                choice.classList.add('hidden');
+                imageForm.classList.remove('hidden');
             };
         }
-        if (editNameBtn) {
+        if (editNameBtn && choice && nameForm) {
             editNameBtn.onclick = () => {
-                document.getElementById('profile-choice').classList.add('hidden');
-                document.getElementById('profile-name-form').classList.remove('hidden');
+                choice.classList.add('hidden');
+                nameForm.classList.remove('hidden');
             };
         }
-        if (editPasswordBtn) {
+        if (editPasswordBtn && choice && passwordForm) {
             editPasswordBtn.onclick = () => {
-                document.getElementById('profile-choice').classList.add('hidden');
-                document.getElementById('profile-password-form').classList.remove('hidden');
+                choice.classList.add('hidden');
+                passwordForm.classList.remove('hidden');
             };
         }
         // Abbrechen-Buttons
-        document.getElementById('profile-cancel-image').onclick = () => {
-            document.getElementById('profile-image-form').classList.add('hidden');
-            document.getElementById('profile-choice').classList.remove('hidden');
-        };
-        document.getElementById('profile-cancel-name').onclick = () => {
-            document.getElementById('profile-name-form').classList.add('hidden');
-            document.getElementById('profile-choice').classList.remove('hidden');
-        };
-        document.getElementById('profile-cancel-password').onclick = () => {
-            document.getElementById('profile-password-form').classList.add('hidden');
-            document.getElementById('profile-choice').classList.remove('hidden');
-        };
+        const cancelImageBtn = document.getElementById('profile-cancel-image');
+        const cancelNameBtn = document.getElementById('profile-cancel-name');
+        const cancelPasswordBtn = document.getElementById('profile-cancel-password');
+        if (cancelImageBtn && imageForm && choice) {
+            cancelImageBtn.onclick = () => {
+                imageForm.classList.add('hidden');
+                choice.classList.remove('hidden');
+            };
+        }
+        if (cancelNameBtn && nameForm && choice) {
+            cancelNameBtn.onclick = () => {
+                nameForm.classList.add('hidden');
+                choice.classList.remove('hidden');
+            };
+        }
+        if (cancelPasswordBtn && passwordForm && choice) {
+            cancelPasswordBtn.onclick = () => {
+                passwordForm.classList.add('hidden');
+                choice.classList.remove('hidden');
+            };
+        }
     }
 
     // Live-Bildvorschau und Fehleranzeige
