@@ -200,15 +200,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (form && lobbyList) {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                // Nur ein Spieltyp verfügbar
-                const lobbySize = parseInt(form.lobby_size.value, 10);
-                const bet = parseFloat(form.lobby_bet.value);
+                const lobbySize = parseInt(form['lobby-size'].value, 10);
+                const bet = parseFloat(form['lobby-bet'].value);
+                const game = form['game-select'] ? form['game-select'].value : 'brain9';
                 try {
                     const res = await fetch('/api/games/lobby', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
-                        body: JSON.stringify({ lobbySize, bet })
+                        body: JSON.stringify({ lobbySize, bet, game })
                     });
                     const data = await res.json();
                     if (res.ok && data.lobbyId) {
@@ -392,12 +392,7 @@ function showGameModal(gameId) {
         document.addEventListener('keydown', (e) => { if (!modal.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) { modal.classList.add('hidden'); createBtn.focus(); } });
     }
     if (form) {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            showToast('Es sind aktuell noch keine Spiele verfügbar.', 'info');
-            modal.classList.add('hidden');
-            createBtn.focus();
-        });
+    // Nur der echte Submit-Handler bleibt aktiv (siehe weiter oben)
     }
 
     // --- Online-User-Button und Overlay steuern ---

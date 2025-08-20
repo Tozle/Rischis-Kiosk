@@ -63,11 +63,11 @@
     <div class="w-full max-w-2xl mx-auto mt-8 p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-xl animate-fade-in">
         <div class="mb-8">
         <div class="flex justify-end mb-4">
-            <button id="create-lobby-btn" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-full shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 transition flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                Lobby erstellen
-            </button>
         </div>
+        <!-- Floating Lobby erstellen Button unten rechts -->
+        <button id="create-lobby-btn" class="fixed bottom-4 right-4 z-50 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg w-14 h-14 flex flex-col items-center justify-center text-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 transition" aria-label="Lobby erstellen" title="Lobby erstellen">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+        </button>
             <h1 class="text-2xl font-bold text-cyan-700 dark:text-cyan-300 flex items-center gap-2 justify-center">
                 <svg xmlns='http://www.w3.org/2000/svg' class='w-7 h-7 text-cyan-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                     <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9.75 17L6 21h12l-3.75-4M12 3v14' />

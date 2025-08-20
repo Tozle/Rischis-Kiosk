@@ -23,20 +23,24 @@ router.get('/brain9/stats', async (req, res) => {
 });
 
 // Lobby erstellen
-router.post('/lobby', requireAuth, (req, res) => {
-  const { lobbySize, bet } = req.body;
+router.post('/lobby', requireAuth, async (req, res) => {
+  const { lobbySize, bet, game } = req.body;
   const user = req.user;
   if (!lobbySize || !bet || lobbySize < 2 || bet < 0) return res.status(400).json({ error: 'Ungültige Lobbydaten' });
-  const lobbyId = uuidv4();
-  lobbies[lobbyId] = {
-    id: lobbyId,
-    players: [{ id: user.id, name: user.name, balance: user.balance, profile_image_url: user.profile_image_url }],
-    lobbySize,
+  // Persistente Lobby in Supabase anlegen
+  const { data, error } = await supabase.from('game_lobbies').insert({
+    game: game || 'brain9',
+    lobby_size: lobbySize,
     bet,
-    started: false,
-    createdAt: Date.now(),
-  };
-  res.json({ lobbyId });
+    created_by: user.id
+  }).select().single();
+  if (error) return res.status(500).json({ error: error.message });
+  // Spieler direkt als ersten Teilnehmer eintragen
+  await supabase.from('game_lobby_players').insert({
+    lobby_id: data.id,
+    user_id: user.id
+  });
+  res.json({ lobbyId: data.id });
 });
 
 // Lobby beitreten
