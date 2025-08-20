@@ -1,8 +1,8 @@
 // utils/socket.js
-const { Server } = require('socket.io');
+import { Server } from 'socket.io';
 let io;
 
-function init(server) {
+export function init(server) {
   io = new Server(server, {
     cors: {
       origin: '*',
@@ -12,11 +12,9 @@ function init(server) {
   return io;
 }
 
-function getIO() {
+export function getIO() {
   if (!io) {
     throw new Error('Socket.io not initialized!');
   }
   return io;
 }
-
-module.exports = { init, getIO };
