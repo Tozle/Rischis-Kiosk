@@ -95,19 +95,19 @@
             </h2>
             <form id="lobby-form" class="w-full flex flex-col gap-4" autocomplete="off">
                 <label class="flex flex-col gap-1">
-                    <span class="font-medium">Spiel</span>
-                    <select id="game-select" name="game" class="rounded border px-3 py-2 bg-gray-50 dark:bg-gray-800" required>
+                    <span class="font-medium text-gray-800 dark:text-gray-200">Spiel</span>
+                    <select id="game-select" name="game" class="rounded border px-3 py-2 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400" required>
                         <option value="brain9">Brain9</option>
                         <!-- Weitere Spiele können hier ergänzt werden -->
                     </select>
                 </label>
                 <label class="flex flex-col gap-1">
-                    <span class="font-medium">Lobby-Größe</span>
-                    <input type="number" id="lobby-size" name="lobbySize" min="2" max="8" value="2" class="rounded border px-3 py-2 bg-gray-50 dark:bg-gray-800" required />
+                    <span class="font-medium text-gray-800 dark:text-gray-200">Lobby-Größe</span>
+                    <input type="number" id="lobby-size" name="lobbySize" min="2" max="8" value="2" class="rounded border px-3 py-2 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400" required placeholder="z.B. 2-8" />
                 </label>
                 <label class="flex flex-col gap-1">
-                    <span class="font-medium">Einsatz (Coins)</span>
-                    <input type="number" id="lobby-bet" name="bet" min="0" value="0" class="rounded border px-3 py-2 bg-gray-50 dark:bg-gray-800" required />
+                    <span class="font-medium text-gray-800 dark:text-gray-200">Einsatz (Coins)</span>
+                    <input type="number" id="lobby-bet" name="bet" min="0" value="0" class="rounded border px-3 py-2 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400" required placeholder="z.B. 0" />
                 </label>
                 <button type="submit" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-full shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 transition">Lobby erstellen</button>
             </form>

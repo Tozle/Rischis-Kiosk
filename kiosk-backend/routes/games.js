@@ -29,7 +29,7 @@ router.post('/lobby', requireAuth, async (req, res) => {
   if (!lobbySize || !bet || lobbySize < 2 || bet < 0) return res.status(400).json({ error: 'Ungültige Lobbydaten' });
   // Persistente Lobby in Supabase anlegen
   const { data, error } = await supabase.from('game_lobbies').insert({
-    game: game || 'brain9',
+    game_type: game || 'brain9',
     lobby_size: lobbySize,
     bet,
     created_by: user.id
