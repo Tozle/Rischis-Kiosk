@@ -85,8 +85,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         adminBtn.classList.remove('hidden');
         adminBtn.setAttribute('aria-hidden', 'false');
         adminBtn.setAttribute('tabindex', '0');
+        adminBtn.style.display = '';
       } else {
-        // Button komplett entfernen für Nicht-Admins
         adminBtn.parentNode && adminBtn.parentNode.removeChild(adminBtn);
       }
     } catch {
