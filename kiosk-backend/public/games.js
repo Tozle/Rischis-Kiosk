@@ -80,7 +80,8 @@ async function makeBrain9Move(gameId, buttonIndex) {
     }
 }
 // games.js – Best Practice Refactor
-import { $, showToast } from './utils/frontend.js';
+// Entferne alle ES6-Imports, nutze stattdessen window.$ und window.showToast
+
 // === SOCKET.IO Echtzeit-Events ===
 // Socket.IO-Client-Initialisierung und Listener ganz ans Ende verschoben
 
