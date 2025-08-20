@@ -86,9 +86,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Modal für Lobby-Erstellung ---
     const createBtn = document.getElementById('create-lobby-btn');
-    const modal = document.getElementById('create-lobby-modal');
-    const closeBtn = document.getElementById('close-lobby-modal');
-    const form = document.getElementById('create-lobby-form');
+    const modal = document.getElementById('lobby-modal');
+    const closeBtn = document.getElementById('lobby-modal-close');
+    const form = document.getElementById('lobby-form');
 
     if (createBtn && modal && closeBtn) {
         createBtn.addEventListener('click', () => {
