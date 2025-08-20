@@ -126,16 +126,19 @@ async function makeBrain9Move(gameId, buttonIndex) {
 // Socket.IO-Client-Initialisierung und Listener ganz ans Ende verschoben
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Wenn games.html?gameId=... geladen wird, direkt Spiel-Modal öffnen
+    // Wenn games.html?gameId=... geladen wird, direkt das Spiel anzeigen (kein Modal mehr)
     const urlParams = new URLSearchParams(window.location.search);
     const gameIdFromUrl = urlParams.get('gameId');
     if (gameIdFromUrl) {
-        showGameModal(gameIdFromUrl);
-        // Optional: Dem Socket-Raum für das Spiel beitreten (falls nötig)
+        // Dem Socket-Raum für die Lobby beitreten (damit gameStarted-Event empfangen wird)
         if (window.io) {
             const socket = window.io();
-            socket.emit('joinLobby', gameIdFromUrl); // oder ggf. joinGame
+            socket.emit('joinLobby', gameIdFromUrl); // Lobby-ID und Game-ID sind identisch oder müssen ggf. gemappt werden
         }
+        // Direkt das Spiel rendern (ohne Modal)
+        pollAndRenderGame(gameIdFromUrl);
+        if (brain9PollInterval) clearInterval(brain9PollInterval);
+        brain9PollInterval = setInterval(() => pollAndRenderGame(gameIdFromUrl), 2000);
     }
     // --- Online-User-Tracking (Backend) ---
 
