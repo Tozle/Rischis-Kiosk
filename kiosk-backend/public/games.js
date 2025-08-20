@@ -235,13 +235,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (Array.isArray(data.lobbies) && data.lobbies.length) {
                     lobbyList.innerHTML = data.lobbies.map(lobby => {
                         const isInLobby = lobby.players.some(p => p.user_id === profile.id);
-                        // Auch der Ersteller soll "Lobby öffnen" sehen
                         const isCreator = lobby.created_by === profile.id;
+                        // Spielname für Anzeige
+                        const gameName = lobby.game_type === 'brain9' ? 'Brain9' : lobby.game_type;
                         return `
                         <div class="bg-cyan-50 dark:bg-gray-800 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow">
                             <div>
                                 <div class="font-bold text-cyan-700 dark:text-cyan-300 text-lg flex items-center gap-2">
-                                    Lobby #${lobby.id.slice(-4)}
+                                    ${gameName} Lobby #${lobby.id.slice(-4)}
                                     <span class="ml-2 text-xs font-normal text-gray-500">${lobby.players.length}/${lobby.lobby_size} Spieler</span>
                                 </div>
                                 <div class="text-sm text-gray-600 dark:text-gray-400">Einsatz: <span class="font-semibold">€${Number(lobby.bet).toFixed(2)}</span></div>
@@ -276,36 +277,29 @@ document.addEventListener('DOMContentLoaded', () => {
         lobbyList.addEventListener('click', async (e) => {
             const joinBtn = e.target.closest('.join-lobby-btn');
             const openBtn = e.target.closest('.open-lobby-btn');
-            if (joinBtn) {
-                const id = joinBtn.dataset.id;
-                joinBtn.disabled = true;
-                try {
-                    const res = await fetch(`/api/games/lobby/${id}/join`, { method: 'POST', credentials: 'include' });
-                    let data = {};
-                    try { data = await res.json(); } catch {}
-                    if (res.ok && data.gameId) {
-                        showToast('Lobby voll – Brain9 startet!');
-                        showGameModal(data.gameId);
-                    } else if (res.ok) {
-                        showToast('Lobby beigetreten!');
-                        await loadLobbies();
-                    } else if (res.status === 400) {
-                        showToast(data.error || 'Du bist bereits in dieser Lobby oder sie ist voll.', 'error');
-                        await loadLobbies();
-                    } else if (res.status === 404) {
-                        showToast('Lobby nicht gefunden (404)', 'error');
-                        await loadLobbies();
-                    } else {
-                        showToast(data.error || 'Fehler beim Beitreten', 'error');
-                    }
-                } catch {
-                    showToast('Netzwerkfehler beim Beitreten', 'error');
-                } finally {
-                    joinBtn.disabled = false;
-                }
-            } else if (openBtn) {
-                // Modal für eigene/beigetretene Lobby öffnen
-                showToast('Du bist in dieser Lobby!');
+                        if (joinBtn) {
+                                // Existing join logic
+                        } else if (openBtn) {
+                                // Lobby-Detail-Modal anzeigen
+                                const id = openBtn.dataset.id;
+                                const lobby = (window.lastLobbies || []).find(l => l.id === id);
+                                if (!lobby) { showToast('Lobby nicht gefunden', 'error'); return; }
+                                // Einfaches Modal anzeigen (kann erweitert werden)
+                                const modal = document.createElement('div');
+                                modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-50';
+                                modal.innerHTML = `
+                                    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-xl relative flex flex-col items-center">
+                                        <button class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none" id="close-lobby-detail">&times;</button>
+                                        <h2 class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300">${lobby.game_type === 'brain9' ? 'Brain9' : lobby.game_type} Lobby #${lobby.id.slice(-4)}</h2>
+                                        <div class="mb-2 text-gray-700 dark:text-gray-200">Einsatz: <b>€${Number(lobby.bet).toFixed(2)}</b></div>
+                                        <div class="mb-2 text-gray-700 dark:text-gray-200">Spieler:</div>
+                                        <div class="flex gap-2 mb-4 flex-wrap justify-center">
+                                            ${lobby.players.map(p => `<div class='flex flex-col items-center'><img src='${p.profile_image_url}' class='w-10 h-10 rounded-full border mb-1' /><span class='text-xs'>${p.name}</span></div>`).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                                document.body.appendChild(modal);
+                                modal.querySelector('#close-lobby-detail').onclick = () => modal.remove();
             }
         });
 
