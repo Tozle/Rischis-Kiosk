@@ -135,10 +135,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const socket = window.io();
             socket.emit('joinLobby', gameIdFromUrl); // Lobby-ID und Game-ID sind identisch oder müssen ggf. gemappt werden
         }
-        // Direkt das Spiel rendern (ohne Modal)
+        // Hauptbereich für das Spiel vorbereiten
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            mainContent.innerHTML = `
+                <h2 class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2">
+                    <svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4' />
+                    </svg>
+                    Spielrunde
+                </h2>
+                <div id="game-status" class="mb-4 text-center text-base font-medium text-gray-700 dark:text-gray-200"></div>
+                <div id="simon-grid" class="grid grid-cols-3 gap-3 mb-4" aria-label="Simon Says Spielfeld" role="grid"></div>
+                <div id="game-players" class="flex flex-wrap gap-2 justify-center mb-2"></div>
+                <div id="game-actions" class="flex gap-2 justify-center"></div>
+                <div id="game-ready-status" class="flex flex-col items-center mt-2"></div>
+            `;
+        }
         pollAndRenderGame(gameIdFromUrl);
         if (brain9PollInterval) clearInterval(brain9PollInterval);
         brain9PollInterval = setInterval(() => pollAndRenderGame(gameIdFromUrl), 2000);
+        // Optional: Lobby-UI ausblenden
+        const lobbyList = document.getElementById('lobby-list');
+        if (lobbyList) lobbyList.style.display = 'none';
+        const createBtn = document.getElementById('create-lobby-btn');
+        if (createBtn) createBtn.style.display = 'none';
     }
     // --- Online-User-Tracking (Backend) ---
 
