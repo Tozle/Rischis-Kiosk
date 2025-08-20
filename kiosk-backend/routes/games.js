@@ -181,31 +181,7 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
             button_index,
             correct
         });
-        // Prüfen ob jemand eliminiert wurde
-        let winner = null;
-        let finished = false;
-        if (!correct) {
-            if (activePlayers.length - 1 === 1) {
-                finished = true;
-                winner = activePlayers.find(id => id !== user.id);
-                await supabase.from('brain9_games').update({ finished_at: new Date().toISOString(), winner_id: winner }).eq('id', gameId);
-                // Auszahlung an Gewinner
-                const einsatz = game.lobby.bet;
-                const payout = einsatz * allPlayers.length;
-                await supabase.from('users').update({ balance: supabase.rpc('add_balance', { user_id: winner, amount: payout }) }).eq('id', winner);
-            }
-        } else if (activePlayers.length === 1) {
-            finished = true;
-            winner = activePlayers[0];
-            await supabase.from('brain9_games').update({ finished_at: new Date().toISOString(), winner_id: winner }).eq('id', gameId);
-            // Auszahlung an Gewinner
-            const einsatz = game.lobby.bet;
-            const payout = einsatz * allPlayers.length;
-            await supabase.from('users').update({ balance: supabase.rpc('add_balance', { user_id: winner, amount: payout }) }).eq('id', winner);
-        }
-        res.json({ success: true, next: activePlayers[(turn + 1) % activePlayers.length], sequence: correct ? [...sequence, buttonIndex] : sequence, winner });
     });
-
 }
 
 module.exports = router;
