@@ -82,7 +82,6 @@ async function makeBrain9Move(gameId, buttonIndex) {
 // games.js – Best Practice Refactor
 import { $, showToast } from './utils/frontend.js';
 // === SOCKET.IO Echtzeit-Events ===
-import { io as socketio } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js';
 let socket;
 document.addEventListener('DOMContentLoaded', () => {
     // --- Online-User-Tracking (Backend) ---
@@ -418,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Socket.IO initialisieren
-        socket = socketio();
+        socket = window.io();
         // Eigene User-ID auslesen
         let profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
         // Nach Lobby-Join automatisch dem Lobby-Raum beitreten
