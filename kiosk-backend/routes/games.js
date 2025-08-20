@@ -236,10 +236,17 @@ router.post('/lobby/:id/start', requireAuth, async (req, res) => {
         .select('*, players:game_lobby_players(user_id)')
         .eq('id', lobbyId)
         .single();
-    if (error || !lobby) return res.status(404).json({ error: 'Lobby nicht gefunden' });
+
+    if (error || !lobby) {
+        console.error('Lobby fetch error:', error);
+        return res.status(404).json({ error: 'Lobby nicht gefunden' });
+    }
+
+    console.log('Lobby data:', lobby);
 
     // Überprüfen, ob die Lobby voll ist
     if ((lobby.players || []).length < lobby.lobby_size) {
+        console.warn('Lobby is not full:', { players: lobby.players, lobbySize: lobby.lobby_size });
         return res.status(400).json({ error: 'Lobby ist noch nicht voll' });
     }
 
@@ -252,14 +259,26 @@ router.post('/lobby/:id/start', requireAuth, async (req, res) => {
         })
         .select()
         .single();
-    if (gameError) return res.status(500).json({ error: 'Fehler beim Starten des Spiels' });
+
+    if (gameError) {
+        console.error('Game creation error:', gameError);
+        return res.status(500).json({ error: 'Fehler beim Starten des Spiels' });
+    }
+
+    console.log('Game created:', game);
 
     // Aktualisiere den Lobby-Status
     const { error: updateError } = await supabase
         .from('game_lobbies')
         .update({ started: true })
         .eq('id', lobbyId);
-    if (updateError) return res.status(500).json({ error: 'Fehler beim Aktualisieren des Lobby-Status' });
+
+    if (updateError) {
+        console.error('Lobby status update error:', updateError);
+        return res.status(500).json({ error: 'Fehler beim Aktualisieren des Lobby-Status' });
+    }
+
+    console.log('Lobby status updated to started');
 
     res.json({ game });
 });
