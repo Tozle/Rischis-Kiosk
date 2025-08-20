@@ -69,26 +69,27 @@ async function getCsrfToken() {
         btnText.classList.add('opacity-50');
         loader.classList.remove('hidden');
         // Frontend-Validierung auf Deutsch
-        btnText.classList.remove('opacity-50');
-        loader.classList.add('hidden');
-        return;
-      }
-    if (!password || password.length < 6) {
-        showMessage('Das Passwort muss mindestens 6 Zeichen lang sein.');
-        btn.removeAttribute('aria-busy');
-        btn.disabled = false;
-        btnText.classList.remove('opacity-50');
-        loader.classList.add('hidden');
-        return;
-      }
-      if (password !== repeat) {
-        showMessage('Passwörter stimmen nicht überein.');
-        btn.removeAttribute('aria-busy');
-        btn.disabled = false;
-        btnText.classList.remove('opacity-50');
-        loader.classList.add('hidden');
-        return;
-      }
+        if (!name || !email) {
+          btnText.classList.remove('opacity-50');
+          loader.classList.add('hidden');
+          return;
+        }
+        if (!password || password.length < 6) {
+          showMessage('Das Passwort muss mindestens 6 Zeichen lang sein.');
+          btn.removeAttribute('aria-busy');
+          btn.disabled = false;
+          btnText.classList.remove('opacity-50');
+          loader.classList.add('hidden');
+          return;
+        }
+        if (password !== repeat) {
+          showMessage('Passwörter stimmen nicht überein.');
+          btn.removeAttribute('aria-busy');
+          btn.disabled = false;
+          btnText.classList.remove('opacity-50');
+          loader.classList.add('hidden');
+          return;
+        }
 
       try {
         const token = await getCsrfToken();
