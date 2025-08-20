@@ -272,7 +272,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Initiales Laden
-        loadLobbies();
+    loadLobbies();
+    // Automatisches Reload alle 5 Sekunden
+    setInterval(loadLobbies, 5000);
 
         // Event-Delegation für Join/Start
         lobbyList.addEventListener('click', async (e) => {
@@ -284,23 +286,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     const res = await fetch(`/api/games/lobby/${id}/join`, { method: 'POST', credentials: 'include' });
                     let data = {};
-                    try { data = await res.json(); } catch {}
+                    let errorMsg = '';
+                    try { data = await res.json(); } catch { }
                     if (res.ok && data.gameId) {
                         showToast('Lobby voll – Brain9 startet!');
                         showGameModal(data.gameId);
                     } else if (res.ok) {
                         showToast('Lobby beigetreten!');
                         await loadLobbies();
-                    } else if (res.status === 400) {
-                        showToast(data.error || 'Du bist bereits in dieser Lobby oder sie ist voll.', 'error');
-                        await loadLobbies();
-                    } else if (res.status === 404) {
-                        showToast('Lobby nicht gefunden (404)', 'error');
-                        await loadLobbies();
                     } else {
-                        showToast(data.error || 'Fehler beim Beitreten', 'error');
+                        if (data && data.error) {
+                            errorMsg = data.error;
+                        } else {
+                            errorMsg = `Fehler beim Beitreten (Status ${res.status})`;
+                        }
+                        showToast(errorMsg, 'error');
+                        await loadLobbies();
                     }
-                } catch {
+                } catch (err) {
                     showToast('Netzwerkfehler beim Beitreten', 'error');
                 } finally {
                     joinBtn.disabled = false;
