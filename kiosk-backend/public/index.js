@@ -21,7 +21,8 @@ async function getCsrfToken() {
 
 
 
-  }
+
+}
 }
 
 function showMessage(text, success = false) {
