@@ -22,7 +22,7 @@ function exportPurchasesCSV() {
 
 function filterAndRenderUsers() {
   const search = document.getElementById('user-search')?.value?.toLowerCase() || '';
-  const list = document.getElementById('user-list');
+  const list = document.getElementById('user-manage-list');
   if (!list) return;
   const filtered = (window.allUsersCache || []).filter(u =>
     u.name.toLowerCase().includes(search) || u.email.toLowerCase().includes(search)
@@ -31,9 +31,32 @@ function filterAndRenderUsers() {
   filtered.forEach(u => {
     const li = document.createElement('li');
     li.className = 'border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm mb-2 flex flex-col sm:flex-row sm:items-center justify-between';
-    li.innerHTML = `<span class="flex-1 font-semibold">${u.name} (${u.email})</span><span class="font-bold ${u.balance < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">${u.balance.toFixed(2)} €</span>`;
+    li.innerHTML = `
+      <span class="flex-1 font-semibold">${u.name} (${u.email})</span>
+      <span class="font-bold ${u.balance < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">${u.balance.toFixed(2)} €</span>
+      <div class="flex gap-2 mt-2 sm:mt-0">
+        <button class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-xs edit-user-btn" data-id="${u.id}" data-name="${u.name}">Bearbeiten</button>
+        <button class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 text-xs delete-user-btn" data-id="${u.id}">Löschen</button>
+      </div>
+    `;
     list.appendChild(li);
   });
+  // Event Delegation für Bearbeiten/Löschen
+  list.onclick = function(e) {
+    const editBtn = e.target.closest('.edit-user-btn');
+    if (editBtn) {
+      const id = editBtn.dataset.id;
+      const name = editBtn.dataset.name;
+      editUser(id, name);
+      return;
+    }
+    const delBtn = e.target.closest('.delete-user-btn');
+    if (delBtn) {
+      const id = delBtn.dataset.id;
+      if (confirm('Diesen Nutzer wirklich löschen?')) deleteUser(id);
+      return;
+    }
+  };
 }
 
 function filterAndRenderPurchases() {
