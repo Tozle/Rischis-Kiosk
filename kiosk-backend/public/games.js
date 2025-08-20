@@ -180,8 +180,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div id="game-actions" class="flex gap-2 justify-center"></div>
                     <div id="game-ready-status" class="flex flex-col items-center mt-2"></div>
                 `;
+                // Erst nach DOM-Update pollAndRenderGame aufrufen
+                setTimeout(() => {
+                    pollAndRenderGame(gameIdFromUrl);
+                }, 0);
             }
-            pollAndRenderGame(gameIdFromUrl);
             if (brain9PollInterval) clearInterval(brain9PollInterval);
             brain9PollInterval = setInterval(() => pollAndRenderGame(gameIdFromUrl), 2000);
             // Lobby-UI ausblenden
