@@ -36,7 +36,28 @@ function renderBrain9Game(game) {
     const grid = $("simon-grid");
     const players = $("game-players");
     const readyStatus = $("game-ready-status");
-    if (!status || !grid || !players || !readyStatus) return;
+    if (!status || !grid || !players || !readyStatus) {
+        // Versuche, das Spiel-UI dynamisch zu erzeugen, falls es fehlt
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            mainContent.innerHTML = `
+                <h2 class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2">
+                    <svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4' />
+                    </svg>
+                    Spielrunde
+                </h2>
+                <div id="game-status" class="mb-4 text-center text-base font-medium text-gray-700 dark:text-gray-200"></div>
+                <div id="simon-grid" class="grid grid-cols-3 gap-3 mb-4" aria-label="Simon Says Spielfeld" role="grid"></div>
+                <div id="game-players" class="flex flex-wrap gap-2 justify-center mb-2"></div>
+                <div id="game-actions" class="flex gap-2 justify-center"></div>
+                <div id="game-ready-status" class="flex flex-col items-center mt-2"></div>
+            `;
+            // Nach dem Einfügen erneut versuchen
+            return renderBrain9Game(game);
+        }
+        return;
+    }
     // Spieler und Ready-Status anzeigen
     players.innerHTML = game.players.map(p => {
         const isReady = (game.readyPlayers || []).includes(p.id);
