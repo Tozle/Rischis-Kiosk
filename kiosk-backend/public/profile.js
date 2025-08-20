@@ -116,8 +116,16 @@ window.addEventListener('DOMContentLoaded', async () => {
                 let balance = user?.balance;
                 if (typeof balance === 'number') {
                     balanceElem.textContent = balance.toFixed(2).replace('.', ',') + ' €';
+                    if (balance < 0) {
+                        balanceElem.classList.remove('text-green-700');
+                        balanceElem.classList.add('text-red-600');
+                    } else {
+                        balanceElem.classList.remove('text-red-600');
+                        balanceElem.classList.add('text-green-700');
+                    }
                 } else {
                     balanceElem.textContent = '–';
+                    balanceElem.classList.remove('text-red-600', 'text-green-700');
                 }
             }
             // Nur Auswahl anzeigen, alle Formulare ausblenden
