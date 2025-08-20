@@ -233,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await res.json();
                 const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
                 if (Array.isArray(data.lobbies) && data.lobbies.length) {
+                    window.lastLobbies = data.lobbies;
                     lobbyList.innerHTML = data.lobbies.map(lobby => {
                         const isInLobby = lobby.players.some(p => p.user_id === profile.id);
                         const isCreator = lobby.created_by === profile.id;
@@ -247,13 +248,13 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </div>
                                 <div class="text-sm text-gray-600 dark:text-gray-400">Einsatz: <span class="font-semibold">€${Number(lobby.bet).toFixed(2)}</span></div>
                                 <div class="flex gap-2 mt-2">
-                                    ${lobby.players.map(p => `<img src="${p.profile_image_url || ''}" alt="" class="w-8 h-8 rounded-full border" />`).join('')}
+                                    ${lobby.players.map(p => `<img src=\"${p.profile_image_url || ''}\" alt=\"\" class=\"w-8 h-8 rounded-full border\" />`).join('')}
                                 </div>
                             </div>
                             <div class="flex gap-2 items-center">
                                 ${(isInLobby || isCreator)
-                                    ? `<button class="open-lobby-btn btn-main" data-id="${lobby.id}">Lobby öffnen</button>`
-                                    : `<button class="join-lobby-btn btn-main" data-id="${lobby.id}">Beitreten</button>`}
+                                    ? `<button class=\"open-lobby-btn btn-main\" data-id=\"${lobby.id}\">Lobby öffnen</button>`
+                                    : `<button class=\"join-lobby-btn btn-main\" data-id=\"${lobby.id}\">Beitreten</button>`}
                             </div>
                         </div>
                         `;
@@ -277,29 +278,54 @@ document.addEventListener('DOMContentLoaded', () => {
         lobbyList.addEventListener('click', async (e) => {
             const joinBtn = e.target.closest('.join-lobby-btn');
             const openBtn = e.target.closest('.open-lobby-btn');
-                        if (joinBtn) {
-                                // Existing join logic
-                        } else if (openBtn) {
-                                // Lobby-Detail-Modal anzeigen
-                                const id = openBtn.dataset.id;
-                                const lobby = (window.lastLobbies || []).find(l => l.id === id);
-                                if (!lobby) { showToast('Lobby nicht gefunden', 'error'); return; }
-                                // Einfaches Modal anzeigen (kann erweitert werden)
-                                const modal = document.createElement('div');
-                                modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-50';
-                                modal.innerHTML = `
-                                    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-xl relative flex flex-col items-center">
-                                        <button class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none" id="close-lobby-detail">&times;</button>
-                                        <h2 class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300">${lobby.game_type === 'brain9' ? 'Brain9' : lobby.game_type} Lobby #${lobby.id.slice(-4)}</h2>
-                                        <div class="mb-2 text-gray-700 dark:text-gray-200">Einsatz: <b>€${Number(lobby.bet).toFixed(2)}</b></div>
-                                        <div class="mb-2 text-gray-700 dark:text-gray-200">Spieler:</div>
-                                        <div class="flex gap-2 mb-4 flex-wrap justify-center">
-                                            ${lobby.players.map(p => `<div class='flex flex-col items-center'><img src='${p.profile_image_url}' class='w-10 h-10 rounded-full border mb-1' /><span class='text-xs'>${p.name}</span></div>`).join('')}
-                                        </div>
-                                    </div>
-                                `;
-                                document.body.appendChild(modal);
-                                modal.querySelector('#close-lobby-detail').onclick = () => modal.remove();
+            if (joinBtn) {
+                const id = joinBtn.dataset.id;
+                joinBtn.disabled = true;
+                try {
+                    const res = await fetch(`/api/games/lobby/${id}/join`, { method: 'POST', credentials: 'include' });
+                    let data = {};
+                    try { data = await res.json(); } catch {}
+                    if (res.ok && data.gameId) {
+                        showToast('Lobby voll – Brain9 startet!');
+                        showGameModal(data.gameId);
+                    } else if (res.ok) {
+                        showToast('Lobby beigetreten!');
+                        await loadLobbies();
+                    } else if (res.status === 400) {
+                        showToast(data.error || 'Du bist bereits in dieser Lobby oder sie ist voll.', 'error');
+                        await loadLobbies();
+                    } else if (res.status === 404) {
+                        showToast('Lobby nicht gefunden (404)', 'error');
+                        await loadLobbies();
+                    } else {
+                        showToast(data.error || 'Fehler beim Beitreten', 'error');
+                    }
+                } catch {
+                    showToast('Netzwerkfehler beim Beitreten', 'error');
+                } finally {
+                    joinBtn.disabled = false;
+                }
+            } else if (openBtn) {
+                // Lobby-Detail-Modal anzeigen
+                const id = openBtn.dataset.id;
+                const lobby = (window.lastLobbies || []).find(l => l.id === id);
+                if (!lobby) { showToast('Lobby nicht gefunden', 'error'); return; }
+                // Einfaches Modal anzeigen (kann erweitert werden)
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                  <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-xl relative flex flex-col items-center">
+                    <button class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none" id="close-lobby-detail">&times;</button>
+                    <h2 class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300">${lobby.game_type === 'brain9' ? 'Brain9' : lobby.game_type} Lobby #${lobby.id.slice(-4)}</h2>
+                    <div class="mb-2 text-gray-700 dark:text-gray-200">Einsatz: <b>€${Number(lobby.bet).toFixed(2)}</b></div>
+                    <div class="mb-2 text-gray-700 dark:text-gray-200">Spieler:</div>
+                    <div class="flex gap-2 mb-4 flex-wrap justify-center">
+                      ${lobby.players.map(p => `<div class='flex flex-col items-center'><img src='${p.profile_image_url}' class='w-10 h-10 rounded-full border mb-1' /><span class='text-xs'>${p.name}</span></div>`).join('')}
+                    </div>
+                  </div>
+                `;
+                document.body.appendChild(modal);
+                modal.querySelector('#close-lobby-detail').onclick = () => modal.remove();
             }
         });
 
