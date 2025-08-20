@@ -182,6 +182,6 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
             correct
         });
     });
-}
+});
 
 module.exports = router;
