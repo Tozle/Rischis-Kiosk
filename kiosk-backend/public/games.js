@@ -36,10 +36,12 @@ function renderBrain9Game(game) {
     const grid = $("simon-grid");
     const players = $("game-players");
     const readyStatus = $("game-ready-status");
+    // Endlos-Rekursion verhindern
     if (!status || !grid || !players || !readyStatus) {
         // Versuche, das Spiel-UI dynamisch zu erzeugen, falls es fehlt
         const mainContent = document.getElementById('main-content');
-        if (mainContent) {
+        if (mainContent && !window._brain9_ui_injected) {
+            window._brain9_ui_injected = true;
             mainContent.innerHTML = `
                 <h2 class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2">
                     <svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
@@ -57,11 +59,15 @@ function renderBrain9Game(game) {
             setTimeout(() => {
                 renderBrain9Game(game);
             }, 0);
-        } else {
+        } else if (!mainContent) {
             // mainContent fehlt, Fehler anzeigen und abbrechen
             window.showToast && window.showToast('Fehler: Hauptbereich (main-content) nicht gefunden!', 'error');
+            console.error('Game-UI konnte nicht erzeugt werden: main-content fehlt im DOM.');
         }
         return;
+    } else {
+        // Reset für spätere Aufrufe
+        window._brain9_ui_injected = false;
     }
     // Spieler und Ready-Status anzeigen
     if (players) {
