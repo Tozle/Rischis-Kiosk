@@ -81,7 +81,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     try {
       const res = await fetch('/api/auth/me', { credentials: 'include' });
       const data = await res.json();
-      if (data?.user?.role === 'admin' || data?.user?.role === 'superadmin') {
+      if (data?.loggedIn && (data.user?.role === 'admin' || data.user?.role === 'superadmin')) {
         adminBtn.classList.remove('hidden');
       } else {
         adminBtn.classList.add('hidden');
