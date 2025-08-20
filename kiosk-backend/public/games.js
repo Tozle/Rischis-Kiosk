@@ -18,7 +18,7 @@ async function pollAndRenderGame(gameId) {
         if (!res.ok) return;
         const game = await res.json();
         renderBrain9Game(game);
-    } catch {}
+    } catch { }
 }
 
 function renderBrain9Game(game) {
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     };
                     localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
                 }
-            } catch {}
+            } catch { }
         }
     }
     // Profil sicherstellen, dann weitermachen
@@ -280,16 +280,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         showToast(data.error || 'Fehler beim Beitreten', 'error');
                     }
-// Brain9 Game-UI anzeigen
-function showGameModal(gameId) {
-    const modal = $("game-modal");
-    if (!modal) return;
-    modal.classList.remove("hidden");
-    // Game-Status laden und UI rendern (Platzhalter)
-    const status = $("game-status");
-    if (status) status.textContent = "Brain9 läuft! (Game-ID: " + gameId + ")";
-    // TODO: Hier die Spiellogik und das Grid rendern
-}
+                    // Brain9 Game-UI anzeigen
+                    function showGameModal(gameId) {
+                        const modal = $("game-modal");
+                        if (!modal) return;
+                        modal.classList.remove("hidden");
+                        // Game-Status laden und UI rendern (Platzhalter)
+                        const status = $("game-status");
+                        if (status) status.textContent = "Brain9 läuft! (Game-ID: " + gameId + ")";
+                        // TODO: Hier die Spiellogik und das Grid rendern
+                    }
                 } catch {
                     showToast('Fehler beim Beitreten', 'error');
                 }
@@ -392,7 +392,7 @@ function showGameModal(gameId) {
         document.addEventListener('keydown', (e) => { if (!modal.classList.contains('hidden') && (e.key === 'Escape' || e.key === 'Esc')) { modal.classList.add('hidden'); createBtn.focus(); } });
     }
     if (form) {
-    // Nur der echte Submit-Handler bleibt aktiv (siehe weiter oben)
+        // Nur der echte Submit-Handler bleibt aktiv (siehe weiter oben)
     }
 
     // --- Online-User-Button und Overlay steuern ---
