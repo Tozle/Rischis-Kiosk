@@ -204,26 +204,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 const lobbySize = parseInt(form['lobby-size'].value, 10);
                 const bet = parseFloat(form['lobby-bet'].value);
                 const game = form['game-select'] ? form['game-select'].value : 'brain9';
-                                try {
-                                        const res = await fetch('/api/games/lobby', {
-                                                method: 'POST',
-                                                headers: { 'Content-Type': 'application/json' },
-                                                credentials: 'include',
-                                                body: JSON.stringify({ lobbySize, bet, game })
-                                        });
-                                        const data = await res.json();
-                                        if (res.ok && data.lobbyId) {
-                                                showToast('Lobby erstellt!');
-                                                modal.classList.add('hidden');
-                                                createBtn.focus();
-                                                await loadLobbies();
-                                                // Lobby-Detail-Ansicht direkt öffnen
-                                                setTimeout(() => {
-                                                    const lobby = (window.lastLobbies || []).find(l => l.id === data.lobbyId);
-                                                    if (lobby) {
-                                                        const modal = document.createElement('div');
-                                                        modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-50';
-                                                        modal.innerHTML = `
+                try {
+                    const res = await fetch('/api/games/lobby', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ lobbySize, bet, game })
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.lobbyId) {
+                        showToast('Lobby erstellt!');
+                        modal.classList.add('hidden');
+                        createBtn.focus();
+                        await loadLobbies();
+                        // Lobby-Detail-Ansicht direkt öffnen
+                        setTimeout(() => {
+                            const lobby = (window.lastLobbies || []).find(l => l.id === data.lobbyId);
+                            if (lobby) {
+                                const modal = document.createElement('div');
+                                modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-50';
+                                modal.innerHTML = `
                                                             <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-xl relative flex flex-col items-center">
                                                                 <button class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none" id="close-lobby-detail">&times;</button>
                                                                 <h2 class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300">${lobby.game_type === 'brain9' ? 'Brain9' : lobby.game_type} Lobby #${lobby.id.slice(-4)}</h2>
@@ -234,16 +234,16 @@ document.addEventListener('DOMContentLoaded', () => {
                                                                 </div>
                                                             </div>
                                                         `;
-                                                        document.body.appendChild(modal);
-                                                        modal.querySelector('#close-lobby-detail').onclick = () => modal.remove();
-                                                    }
-                                                }, 300);
-                                        } else {
-                                                showToast(data.error || 'Fehler beim Erstellen', 'error');
-                                        }
-                                } catch (err) {
-                                        showToast('Fehler beim Erstellen', 'error');
-                                }
+                                document.body.appendChild(modal);
+                                modal.querySelector('#close-lobby-detail').onclick = () => modal.remove();
+                            }
+                        }, 300);
+                    } else {
+                        showToast(data.error || 'Fehler beim Erstellen', 'error');
+                    }
+                } catch (err) {
+                    showToast('Fehler beim Erstellen', 'error');
+                }
             });
         }
 
@@ -301,56 +301,56 @@ document.addEventListener('DOMContentLoaded', () => {
         lobbyList.addEventListener('click', async (e) => {
             const joinBtn = e.target.closest('.join-lobby-btn');
             const openBtn = e.target.closest('.open-lobby-btn');
-                        if (joinBtn) {
-                                const id = joinBtn.dataset.id;
-                                joinBtn.disabled = true;
-                                                try {
-                                                        const res = await fetch(`/api/games/lobby/${id}/join`, { method: 'POST', credentials: 'include' });
-                                                        let data = {};
-                                                        let errorMsg = '';
-                                                        try { data = await res.json(); } catch { }
-                                                        if (res.ok && data.gameId) {
-                                                                showToast('Lobby voll – Brain9 startet!');
-                                                                // 3-Sekunden-Countdown als Overlay
-                                                                const countdownOverlay = document.createElement('div');
-                                                                countdownOverlay.style.position = 'fixed';
-                                                                countdownOverlay.style.inset = '0';
-                                                                countdownOverlay.style.background = 'rgba(0,0,0,0.7)';
-                                                                countdownOverlay.style.zIndex = '9999';
-                                                                countdownOverlay.style.display = 'flex';
-                                                                countdownOverlay.style.alignItems = 'center';
-                                                                countdownOverlay.style.justifyContent = 'center';
-                                                                countdownOverlay.innerHTML = `
+            if (joinBtn) {
+                const id = joinBtn.dataset.id;
+                joinBtn.disabled = true;
+                try {
+                    const res = await fetch(`/api/games/lobby/${id}/join`, { method: 'POST', credentials: 'include' });
+                    let data = {};
+                    let errorMsg = '';
+                    try { data = await res.json(); } catch { }
+                    if (res.ok && data.gameId) {
+                        showToast('Lobby voll – Brain9 startet!');
+                        // 3-Sekunden-Countdown als Overlay
+                        const countdownOverlay = document.createElement('div');
+                        countdownOverlay.style.position = 'fixed';
+                        countdownOverlay.style.inset = '0';
+                        countdownOverlay.style.background = 'rgba(0,0,0,0.7)';
+                        countdownOverlay.style.zIndex = '9999';
+                        countdownOverlay.style.display = 'flex';
+                        countdownOverlay.style.alignItems = 'center';
+                        countdownOverlay.style.justifyContent = 'center';
+                        countdownOverlay.innerHTML = `
                                                                     <div style="background:white;padding:2.5rem 2.5rem;border-radius:1.5rem;box-shadow:0 4px 32px #0002;text-align:center;min-width:220px;">
                                                                         <div style="font-size:2.5rem;font-weight:bold;color:#0891b2;" id="lobby-countdown">3</div>
                                                                         <div style="font-size:1.2rem;color:#333;margin-top:0.5rem;">Das Spiel startet ...</div>
                                                                     </div>
                                                                 `;
-                                                                document.body.appendChild(countdownOverlay);
-                                                                let seconds = 3;
-                                                                const updateCountdown = () => {
-                                                                    seconds--;
-                                                                    const el = document.getElementById('lobby-countdown');
-                                                                    if (el) el.textContent = seconds;
-                                                                    if (seconds > 0) {
-                                                                        setTimeout(updateCountdown, 1000);
-                                                                    } else {
-                                                                        countdownOverlay.remove();
-                                                                        showGameModal(data.gameId);
-                                                                    }
-                                                                };
-                                                                setTimeout(updateCountdown, 1000);
-                                                                // Die Lobby bleibt sichtbar, Modal öffnet sich nach Countdown
-                                                        } else if (res.ok) {
-                                                                showToast('Lobby beigetreten!');
-                                                                await loadLobbies();
-                                                                // Lobby-Detail-Ansicht direkt öffnen
-                                                                setTimeout(() => {
-                                                                    const lobby = (window.lastLobbies || []).find(l => l.players.some(p => p.user_id === profile.id));
-                                                                    if (lobby) {
-                                                                        const modal = document.createElement('div');
-                                                                        modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-50';
-                                                                        modal.innerHTML = `
+                        document.body.appendChild(countdownOverlay);
+                        let seconds = 3;
+                        const updateCountdown = () => {
+                            seconds--;
+                            const el = document.getElementById('lobby-countdown');
+                            if (el) el.textContent = seconds;
+                            if (seconds > 0) {
+                                setTimeout(updateCountdown, 1000);
+                            } else {
+                                countdownOverlay.remove();
+                                showGameModal(data.gameId);
+                            }
+                        };
+                        setTimeout(updateCountdown, 1000);
+                        // Die Lobby bleibt sichtbar, Modal öffnet sich nach Countdown
+                    } else if (res.ok) {
+                        showToast('Lobby beigetreten!');
+                        await loadLobbies();
+                        // Lobby-Detail-Ansicht direkt öffnen
+                        setTimeout(() => {
+                            const lobby = (window.lastLobbies || []).find(l => l.players.some(p => p.user_id === profile.id));
+                            if (lobby) {
+                                const modal = document.createElement('div');
+                                modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-50';
+                                modal.innerHTML = `
                                                                             <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-xl relative flex flex-col items-center">
                                                                                 <button class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none" id="close-lobby-detail">&times;</button>
                                                                                 <h2 class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300">${lobby.game_type === 'brain9' ? 'Brain9' : lobby.game_type} Lobby #${lobby.id.slice(-4)}</h2>
@@ -361,24 +361,24 @@ document.addEventListener('DOMContentLoaded', () => {
                                                                                 </div>
                                                                             </div>
                                                                         `;
-                                                                        document.body.appendChild(modal);
-                                                                        modal.querySelector('#close-lobby-detail').onclick = () => modal.remove();
-                                                                    }
-                                                                }, 300);
-                                                        } else {
-                                                                if (data && data.error) {
-                                                                        errorMsg = data.error;
-                                                                } else {
-                                                                        errorMsg = `Fehler beim Beitreten (Status ${res.status})`;
-                                                                }
-                                                                showToast(errorMsg, 'error');
-                                                                await loadLobbies();
-                                                        }
-                                                } catch (err) {
-                                                        showToast('Netzwerkfehler beim Beitreten', 'error');
-                                                } finally {
-                                                        joinBtn.disabled = false;
-                                                }
+                                document.body.appendChild(modal);
+                                modal.querySelector('#close-lobby-detail').onclick = () => modal.remove();
+                            }
+                        }, 300);
+                    } else {
+                        if (data && data.error) {
+                            errorMsg = data.error;
+                        } else {
+                            errorMsg = `Fehler beim Beitreten (Status ${res.status})`;
+                        }
+                        showToast(errorMsg, 'error');
+                        await loadLobbies();
+                    }
+                } catch (err) {
+                    showToast('Netzwerkfehler beim Beitreten', 'error');
+                } finally {
+                    joinBtn.disabled = false;
+                }
             } else if (openBtn) {
                 // Lobby-Detail-Modal anzeigen
                 const id = openBtn.dataset.id;
