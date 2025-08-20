@@ -1,6 +1,40 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
+CREATE TABLE public.brain9_games (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  lobby_id uuid NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  finished boolean NOT NULL DEFAULT false,
+  winner_id uuid,
+  finished_at timestamp with time zone,
+  game_type text,
+  CONSTRAINT brain9_games_pkey PRIMARY KEY (id),
+  CONSTRAINT brain9_games_lobby_id_fkey FOREIGN KEY (lobby_id) REFERENCES public.game_lobbies(id) ON DELETE CASCADE,
+  CONSTRAINT brain9_games_winner_id_fkey FOREIGN KEY (winner_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.game_lobbies (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  game_type text NOT NULL,
+  created_by uuid NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  bet numeric NOT NULL DEFAULT 0,
+  lobby_size integer NOT NULL CHECK (lobby_size >= 2),
+  started boolean NOT NULL DEFAULT false,
+  finished boolean NOT NULL DEFAULT false,
+  last_activity timestamp with time zone DEFAULT now(),
+  CONSTRAINT game_lobbies_pkey PRIMARY KEY (id),
+  CONSTRAINT game_lobbies_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.game_lobby_players (
+  lobby_id uuid NOT NULL,
+  user_id uuid NOT NULL,
+  joined_at timestamp with time zone DEFAULT now(),
+  eliminated boolean NOT NULL DEFAULT false,
+  CONSTRAINT game_lobby_players_pkey PRIMARY KEY (lobby_id, user_id),
+  CONSTRAINT game_lobby_players_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
+  CONSTRAINT game_lobby_players_lobby_id_fkey FOREIGN KEY (lobby_id) REFERENCES public.game_lobbies(id) ON DELETE CASCADE
+);
 CREATE TABLE public.mentos_feedings (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   zeitstempel timestamp with time zone NOT NULL DEFAULT now(),
@@ -43,8 +77,8 @@ CREATE TABLE public.purchases (
   quantity integer NOT NULL DEFAULT 1 CHECK (quantity > 0),
   created_at timestamp with time zone DEFAULT now(),
   CONSTRAINT purchases_pkey PRIMARY KEY (id),
-  CONSTRAINT purchases_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
-  CONSTRAINT purchases_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)
+  CONSTRAINT purchases_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id),
+  CONSTRAINT purchases_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
 );
 CREATE TABLE public.user_sessions (
   user_id uuid NOT NULL,

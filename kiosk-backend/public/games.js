@@ -55,6 +55,9 @@ function renderBrain9Game(game) {
             `;
             // Nach dem Einfügen erneut versuchen
             return renderBrain9Game(game);
+        } else {
+            // mainContent fehlt, Fehler anzeigen und abbrechen
+            window.showToast && window.showToast('Fehler: Hauptbereich (main-content) nicht gefunden!', 'error');
         }
         return;
     }
