@@ -82,7 +82,8 @@ async function makeBrain9Move(gameId, buttonIndex) {
 // games.js – Best Practice Refactor
 import { $, showToast } from './utils/frontend.js';
 // === SOCKET.IO Echtzeit-Events ===
-let socket;
+// Socket.IO-Client-Initialisierung und Listener ganz ans Ende verschoben
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- Online-User-Tracking (Backend) ---
 
@@ -416,25 +417,27 @@ document.addEventListener('DOMContentLoaded', () => {
             document.addEventListener('keydown', s => { if (!onlineOverlay.classList.contains('hidden') && (s.key === 'Escape' || s.key === 'Esc')) { onlineOverlay.classList.add('hidden'); onlineBtn.focus(); } });
         }
 
-        // Socket.IO initialisieren
-        socket = window.io();
-        // Eigene User-ID auslesen
-        let profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
-        // Nach Lobby-Join automatisch dem Lobby-Raum beitreten
-        window.joinLobbyRoom = function(lobbyId) {
-            if (socket && lobbyId) socket.emit('joinLobby', lobbyId);
-        };
-        // Listener für Lobby-Updates
-        socket.on('lobbyUpdated', async () => {
-            await loadLobbies();
-        });
-        // Listener für Spielstart
-        socket.on('gameStarted', (game) => {
-            if (game && game.id) {
-                showToast('Das Spiel startet!');
-                showGameModal(game.id);
-            }
-        });
+        // Socket.IO initialisieren, wenn verfügbar
+        if (window.io) {
+            const socket = window.io();
+            // Eigene User-ID auslesen
+            let profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+            // Nach Lobby-Join automatisch dem Lobby-Raum beitreten
+            window.joinLobbyRoom = function(lobbyId) {
+                if (socket && lobbyId) socket.emit('joinLobby', lobbyId);
+            };
+            // Listener für Lobby-Updates
+            socket.on('lobbyUpdated', async () => {
+                await loadLobbies();
+            });
+            // Listener für Spielstart
+            socket.on('gameStarted', (game) => {
+                if (game && game.id) {
+                    showToast('Das Spiel startet!');
+                    showGameModal(game.id);
+                }
+            });
+        }
     });
 
     async function heartbeat() {
