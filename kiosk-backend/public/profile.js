@@ -72,12 +72,22 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Modal öffnen
     if (profileBtn && profileModal) {
         profileBtn.addEventListener('click', async () => {
-            // Hole aktuellen Usernamen und Profilbild
+            // Hole aktuellen Usernamen, Profilbild und Guthaben
             try {
                 const res = await fetch('/api/auth/me', { credentials: 'include' });
                 const data = await res.json();
                 usernameInput.value = data?.user?.name || '';
                 imageUrlInput.value = data?.user?.profile_image_url || '';
+                // Guthaben anzeigen
+                const balanceElem = document.getElementById('profile-balance');
+                if (balanceElem) {
+                    let balance = data?.user?.balance;
+                    if (typeof balance === 'number') {
+                        balanceElem.textContent = balance.toFixed(2).replace('.', ',') + ' €';
+                    } else {
+                        balanceElem.textContent = '–';
+                    }
+                }
                 if (imagePreview) {
                     if (data?.user?.profile_image_url) {
                         imagePreview.src = data.user.profile_image_url;
@@ -96,6 +106,8 @@ window.addEventListener('DOMContentLoaded', async () => {
             } catch {
                 usernameInput.value = '';
                 imageUrlInput.value = '';
+                const balanceElem = document.getElementById('profile-balance');
+                if (balanceElem) balanceElem.textContent = '–';
                 if (imagePreview) imagePreview.classList.add('hidden');
                 if (imageError) imageError.textContent = '';
                 if (imageMessage) imageMessage.textContent = '';

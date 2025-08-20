@@ -118,6 +118,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
+  const rememberMe = document.getElementById('remember-me').checked;
   const btn = document.querySelector('#login-form button[type="submit"]');
   const btnText = document.getElementById('login-btn-text');
   const loader = document.getElementById('login-loader');
@@ -134,7 +135,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         'x-csrf-token': token,
       },
       credentials: 'include',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, rememberMe }),
     });
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || 'Login fehlgeschlagen');
