@@ -1,4 +1,3 @@
-
 import express from 'express';
 import { requireAuth } from '../middleware/auth.js';
 import { supabase } from '../utils/supabase.js';
@@ -207,4 +206,4 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
         res.json({ success: true, next: activePlayers[(turn + 1) % activePlayers.length], sequence: correct ? [...sequence, buttonIndex] : sequence, winner });
     });
 
-    module.exports = router;
+export default router;
