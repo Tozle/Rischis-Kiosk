@@ -92,12 +92,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     let profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
     async function ensureProfile() {
-        if (!profile.name || !profile.image) {
+        if (!profile.id || !profile.name || !profile.image) {
             try {
                 const res = await fetch('/api/auth/me', { credentials: 'include' });
                 const data = await res.json();
                 if (data?.loggedIn && data.user) {
                     profile = {
+                        id: data.user.id,
                         name: data.user.name || '',
                         image: data.user.profile_image_url || ''
                     };
@@ -234,6 +235,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (Array.isArray(data.lobbies) && data.lobbies.length) {
                     lobbyList.innerHTML = data.lobbies.map(lobby => {
                         const isInLobby = lobby.players.some(p => p.user_id === profile.id);
+                        // Auch der Ersteller soll "Lobby öffnen" sehen
+                        const isCreator = lobby.created_by === profile.id;
                         return `
                         <div class="bg-cyan-50 dark:bg-gray-800 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow">
                             <div>
@@ -247,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </div>
                             </div>
                             <div class="flex gap-2 items-center">
-                                ${isInLobby
+                                ${(isInLobby || isCreator)
                                     ? `<button class="open-lobby-btn btn-main" data-id="${lobby.id}">Lobby öffnen</button>`
                                     : `<button class="join-lobby-btn btn-main" data-id="${lobby.id}">Beitreten</button>`}
                             </div>

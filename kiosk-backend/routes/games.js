@@ -7,15 +7,32 @@ const router = express.Router();
 
 // Offene Lobbys abrufen
 router.get('/lobby', async (req, res) => {
-    // Hole alle nicht gestarteten und nicht beendeten Lobbys
+    // Hole alle nicht gestarteten und nicht beendeten Lobbys inkl. Spieler-Profilen
     const { data, error } = await supabase
         .from('game_lobbies')
-        .select('id, game_type, created_by, created_at, bet, lobby_size, started, finished, players:game_lobby_players(user_id, eliminated)')
+        .select(`
+            id, game_type, created_by, created_at, bet, lobby_size, started, finished,
+            players:game_lobby_players(
+                user_id,
+                eliminated,
+                user:users(id, name, profile_image_url)
+            )
+        `)
         .eq('started', false)
         .eq('finished', false)
         .order('created_at', { ascending: false });
     if (error) return res.status(500).json({ error: error.message });
-    res.json({ lobbies: data });
+    // Spieler-Infos für Frontend aufbereiten
+    const lobbies = (data || []).map(lobby => ({
+        ...lobby,
+        players: (lobby.players || []).map(p => ({
+            user_id: p.user_id,
+            eliminated: p.eliminated,
+            name: p.user?.name || '',
+            profile_image_url: p.user?.profile_image_url || ''
+        }))
+    }));
+    res.json({ lobbies });
 });
 
 // Brain9 Highscore/Statistik
