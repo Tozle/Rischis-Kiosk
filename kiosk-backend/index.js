@@ -14,7 +14,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import http from 'http';
-import { Server } from 'socket.io';
+import { init as initSocket } from './utils/socket.js';
 
 // Routen-Imports (nur funktionsfähige Imports!)
 import feed from './routes/feed.js';
@@ -136,8 +136,9 @@ app.use(notFound);
 app.use(errorHandler);
 
 const server = http.createServer(app);
-const io = new Server(server);
+const io = initSocket(server);
 
+// Socket.IO Events
 io.on('connection', (socket) => {
   console.log('Ein Benutzer hat sich verbunden:', socket.id);
 

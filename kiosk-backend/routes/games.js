@@ -1,7 +1,7 @@
 import express from 'express';
 import { requireAuth } from '../middleware/auth.js';
 import { supabase } from '../utils/supabase.js';
-import { io } from '../utils/socket.js'; // Ensure io is imported from the correct module
+import { getIO } from '../utils/socket.js'; // Use getIO to access io instance
 
 const router = express.Router();
 
@@ -129,6 +129,12 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
     console.log('Player added to lobby:', { lobbyId, userId: user.id });
 
     // WebSocket-Update senden
+    let io;
+    try {
+        io = getIO();
+    } catch (e) {
+        io = null;
+    }
     if (io) {
         io.to(lobbyId).emit('lobbyUpdated');
     } else {
