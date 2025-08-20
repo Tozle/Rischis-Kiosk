@@ -1,3 +1,11 @@
+
+import express from 'express';
+import { requireAuth } from '../middleware/auth.js';
+import { supabase } from '../utils/supabase.js';
+import { getIO } from '../utils/socket.js'; // Use getIO to access io instance
+
+const router = express.Router();
+
 // Spieler ist bereit für das Spiel
 router.post('/game/:id/ready', requireAuth, async (req, res) => {
     const gameId = req.params.id;
@@ -35,12 +43,6 @@ router.post('/game/:id/ready', requireAuth, async (req, res) => {
     }
     res.json({ ready: true, allReady });
 });
-import express from 'express';
-import { requireAuth } from '../middleware/auth.js';
-import { supabase } from '../utils/supabase.js';
-import { getIO } from '../utils/socket.js'; // Use getIO to access io instance
-
-const router = express.Router();
 
 // Offene Lobbys abrufen
 router.get('/lobby', async (req, res) => {
