@@ -1,72 +1,109 @@
-# Buzzer-Spiel – Ablauf und Funktionen
 
-Diese Datei beschreibt den kompletten Ablauf des Buzzer-Spiels, wie es in "Rischis Kiosk" umgesetzt ist. Die Logik basiert auf Supabase und einer einfachen Express API.
+# 🛎️ Buzzer-Spiel – Schnellstart & Ablauf
 
-## 1. Rundenstart durch den Admin
+Willkommen zum Buzzer-Spiel von **Rischis Kiosk**! Hier erfährst du Schritt für Schritt, wie das Spiel funktioniert – einfach, schnell und mit Beispielen.
 
-- Der Admin wählt einen Einsatz in Euro (z. B. 1 €) und ein Punktelimit (z. B. 5 Punkte) bevor eine Runde startet.
-- Eine neue Runde wird in `buzzer_rounds` als aktiv gespeichert. Es kann immer nur eine aktive Runde geben.
+---
 
-## 2. Spieler beitreten
+## 🚀 Das Buzzer-Spiel in 1 Minute
 
-- Teilnahme ist nur möglich, wenn eine Runde aktiv ist.
-- Klickt ein Spieler auf **Beitreten**, entsteht ein Eintrag in `buzzer_participants`.
-- Der Einsatz wird sofort vom Guthaben abgezogen.
-- Der Spielerstatus wird gesetzt: `has_buzzed = false`, `has_skipped = false`.
+1. **Admin** startet eine Runde (Einsatz & Punktelimit wählen)
+2. **Spieler** treten bei (Einsatz wird abgezogen)
+3. **Admin** startet ein KOLO (Frage/Lied)
+4. **Spieler** buzzern oder skippen
+5. **Admin** bewertet den ersten Buzz
+6. **Admin** beendet KOLO, ggf. neue Runde
+7. **Gewinner** bekommt den Topf
 
-## 3. KOLO-Start durch den Admin
+---
 
-- Ein KOLO entspricht einem Lied oder einer Frage.
-- Der Admin startet das KOLO und legt einen Eintrag in `kolos` an (`active = true`).
-- Buzz und Skip der Teilnehmer werden zurückgesetzt.
-- Über ein SSE-Event wird der Buzzer für alle Spieler wieder freigeschaltet.
+## 1️⃣ Rundenstart durch den Admin
 
-## 4. Buzz-Phase
+🛡️ **Nur Admins können Runden starten!**
 
-- Jeder Spieler darf genau **einmal** buzzern.
-- Buzzes werden in `kolos.buzz_order` mit Zeitstempel gespeichert.
-- Ein SQL-Trigger stellt sicher, dass nur der erste Buzz als `first = true` markiert wird.
-- Nach einem Buzz kann der Spieler weder Buzz noch Skip nutzen.
-- Nachdem der erste Buzz eingegangen ist, wird der Buzzer für alle anderen automatisch gesperrt.
+- Einsatz (z. B. **1 €**) und Punktelimit (z. B. **5 Punkte**) festlegen
+- Neue Runde wird als *aktiv* gespeichert (`buzzer_rounds`)
+- Es kann immer nur **eine** aktive Runde geben
 
-## 5. Skip-Phase (optional)
+## 2️⃣ Spieler beitreten
 
-- Alternativ darf ein Spieler genau einmal skippen.
-- Die User-ID wird in `kolos.skip_user_ids` gespeichert.
-- Nach einem Skip sind Buzz und Skip ebenfalls gesperrt.
-- Ein Skip hat keine Auswirkung auf die Punkte.
+- Teilnahme **nur bei aktiver Runde** möglich
+- Klick auf **Beitreten** → Eintrag in `buzzer_participants`
+- **Einsatz** wird sofort vom Guthaben abgezogen
+- Status: `has_buzzed = false`, `has_skipped = false`
 
-## 6. Bewertung durch den Admin
+💡 **Tipp:** Wer kein Guthaben hat, kann nicht teilnehmen!
 
-- Der Admin sieht die Buzz-Reihenfolge.
-- Entscheidet er "richtig", erhält der `first_buzzer` einen Punkt (`buzzer_participants.score`).
-- Bei "falsch" gibt es keinen Punkt, aber der Buzz bleibt gespeichert.
-- Der Spieler ist für dieses KOLO gesperrt.
+## 3️⃣ KOLO-Start durch den Admin
 
-## 7. KOLO-Ende
+- Ein **KOLO** = ein Lied oder eine Frage
+- Admin startet das KOLO (`kolos.active = true`)
+- Buzz & Skip aller Teilnehmer werden **zurückgesetzt**
+- Über ein Event wird der Buzzer für alle **freigeschaltet**
 
-- Der Admin beendet das KOLO, der Eintrag wird auf inaktiv gesetzt.
-- Danach kann ein neues KOLO gestartet werden (zurück zu Schritt 3).
+## 4️⃣ Buzz-Phase
 
-## 8. Rundenende
+- Jeder Spieler darf **genau einmal** buzzern
+- Buzzes werden mit Zeitstempel gespeichert (`kolos.buzz_order`)
+- Nur der **erste Buzz** zählt als `first = true` (SQL-Trigger)
+- Nach dem Buzz: **Buzz & Skip gesperrt**
+- Nach dem ersten Buzz: Buzzer für alle anderen **gesperrt**
 
-- Erreicht ein Spieler das Punktelimit, muss der Admin die Runde manuell beenden.
-- Über `POST /api/buzzer/round/end` wird die Runde auf inaktiv gesetzt.
-- Der Gewinner wird in `buzzer_rounds.winner_id` vermerkt.
+❗ **Hinweis:** Wer zu spät buzzert, geht leer aus!
 
-## 9. Topf und Auszahlung
+## 5️⃣ Skip-Phase (optional)
 
-- Der Gesamtpot setzt sich aus Einsatz × Teilnehmerzahl zusammen.
-- Auszahlung: 95 % an den Gewinner, 5 % an den System-User "Bank".
-- Änderungen am Guthaben werden in `users.balance` gespeichert.
+- Jeder Spieler darf **einmal skippen** (statt buzzern)
+- User-ID wird in `kolos.skip_user_ids` gespeichert
+- Nach Skip: **Buzz & Skip gesperrt**
+- Skip hat **keine Auswirkung** auf Punkte
 
-## 10. Realtime-Funktionen
+## 6️⃣ Bewertung durch den Admin
 
-- Supabase Realtime wird für Spielstand, KOLO-Status und Buzz-Reihenfolge genutzt.
-- Der Online-Status der Spieler wird in `user_sessions.online` abgebildet.
+- Admin sieht die **Buzz-Reihenfolge**
+- Bei **richtig**: `first_buzzer` bekommt einen Punkt (`buzzer_participants.score`)
+- Bei **falsch**: kein Punkt, Buzz bleibt gespeichert
+- Spieler ist für dieses KOLO **gesperrt**
 
-## 11. Sicherheitslogik
+## 7️⃣ KOLO-Ende
 
-- Trigger stellen sicher, dass nur ein Buzz als "first" gezählt wird.
-- Buzz und Skip sind pro KOLO nur einmal pro Spieler zulässig.
-- Verwaltungsfunktionen sind ausschließlich für Admins sichtbar.
+- Admin beendet das KOLO (auf *inaktiv* setzen)
+- Danach kann ein neues KOLO gestartet werden (zurück zu Schritt 3)
+
+## 8️⃣ Rundenende
+
+- Erreicht ein Spieler das **Punktelimit**, muss der Admin die Runde **manuell beenden**
+- Über `POST /api/buzzer/round/end` wird die Runde auf *inaktiv* gesetzt
+- Gewinner wird in `buzzer_rounds.winner_id` gespeichert
+
+## 9️⃣ Topf und Auszahlung
+
+- **Gesamttopf** = Einsatz × Teilnehmerzahl
+- **Auszahlung:** 95 % an den Gewinner, 5 % an den System-User "Bank"
+- Änderungen am Guthaben werden in `users.balance` gespeichert
+
+## 🔄 Realtime-Funktionen
+
+- **Supabase Realtime** für Spielstand, KOLO-Status & Buzz-Reihenfolge
+- Online-Status der Spieler: `user_sessions.online`
+
+## 🔒 Sicherheitslogik
+
+- Trigger: Nur **ein Buzz** zählt als "first"
+- Buzz & Skip pro KOLO **nur einmal pro Spieler**
+- **Verwaltungsfunktionen** sind nur für Admins sichtbar
+
+---
+
+### ℹ️ Beispielablauf
+
+1. Admin startet Runde mit 2 € Einsatz, 3 Punkte
+2. 4 Spieler treten bei (Topf: 8 €)
+3. Admin startet KOLO (Song läuft)
+4. Spieler A buzzert als Erster, Admin bewertet als richtig → 1 Punkt für A
+5. Nächste KOLO, Spieler B skippt, Spieler C buzzert zu spät
+6. Nach 3 Punkten für A: Admin beendet Runde, A gewinnt 7,60 €, Bank 0,40 €
+
+---
+
+**Fragen?** Siehe FAQ im Dashboard oder frage den Admin!

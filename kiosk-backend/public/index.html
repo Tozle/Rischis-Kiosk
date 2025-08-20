@@ -34,7 +34,7 @@
       Rischis Kiosk
     </h1>
 
-    <form id="login-form" class="space-y-5" aria-label="Login-Formular" autocomplete="on">
+  <form id="login-form" class="space-y-5" aria-label="Login-Formular" autocomplete="on">
       <label for="login-email" class="sr-only">E-Mail</label>
       <input type="email" id="login-email" aria-label="E-Mail" autocomplete="username" required
         class="w-full px-4 py-3 border-2 rounded-2xl focus:ring-2 focus:ring-cyan-400 bg-white text-green-900 placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-300"
@@ -67,7 +67,7 @@
           tabindex="0">Jetzt registrieren</a></p>
     </form>
 
-    <form id="register-form" class="space-y-5 hidden" aria-label="Registrierungs-Formular" autocomplete="on">
+  <form id="register-form" class="space-y-5 hidden" aria-label="Registrierungs-Formular" autocomplete="on">
       <label for="register-name" class="sr-only">Benutzername</label>
       <input type="text" id="register-name" aria-label="Benutzername" autocomplete="nickname" required
         class="w-full px-4 py-3 border-2 rounded-2xl focus:ring-2 focus:ring-cyan-400" placeholder="Benutzername"
@@ -103,8 +103,8 @@
           tabindex="0">Zurück zum Login</a></p>
     </form>
 
-    <!-- Alte Message-Ausgabe bleibt als Fallback, wird aber nicht mehr genutzt -->
-    <p id="message" class="text-red-500 mt-4 hidden text-center" style="display:none"></p>
+  <!-- Feedback für Login/Registrierung -->
+  <p id="message" class="text-red-500 mt-4 text-center hidden" aria-live="polite"></p>
   </div>
 
   <script src="index.js"></script>

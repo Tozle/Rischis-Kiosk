@@ -57,6 +57,7 @@ if (showLogin) {
 }
 
 // REGISTRIERUNG
+
 document
   .getElementById('register-form')
   .addEventListener('submit', async (e) => {
@@ -66,8 +67,22 @@ document
     const password = document.getElementById('register-password').value;
     const repeat = document.getElementById('register-password-repeat').value;
 
-    if (password !== repeat)
-      return showMessage('Passwörter stimmen nicht überein.');
+    const btn = document.querySelector('#register-form button[type="submit"]');
+    const btnText = document.getElementById('register-btn-text');
+    const loader = document.getElementById('register-loader');
+    btn.setAttribute('aria-busy', 'true');
+    btn.disabled = true;
+    btnText.classList.add('opacity-50');
+    loader.classList.remove('hidden');
+
+    if (password !== repeat) {
+      showMessage('Passwörter stimmen nicht überein.');
+      btn.removeAttribute('aria-busy');
+      btn.disabled = false;
+      btnText.classList.remove('opacity-50');
+      loader.classList.add('hidden');
+      return;
+    }
 
     try {
       const token = await getCsrfToken();
@@ -90,6 +105,11 @@ document
     } catch (err) {
       console.error(err);
       showMessage(err.message || 'Fehler bei Registrierung');
+    } finally {
+      btn.removeAttribute('aria-busy');
+      btn.disabled = false;
+      btnText.classList.remove('opacity-50');
+      loader.classList.add('hidden');
     }
   });
 
