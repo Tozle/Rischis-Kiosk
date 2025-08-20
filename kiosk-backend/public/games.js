@@ -81,6 +81,9 @@ async function makeBrain9Move(gameId, buttonIndex) {
 }
 // games.js – Best Practice Refactor
 import { $, showToast } from './utils/frontend.js';
+// === SOCKET.IO Echtzeit-Events ===
+import { io as socketio } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js';
+let socket;
 document.addEventListener('DOMContentLoaded', () => {
     // --- Online-User-Tracking (Backend) ---
 
@@ -413,6 +416,26 @@ document.addEventListener('DOMContentLoaded', () => {
             onlineOverlay.addEventListener('click', s => { if (s.target === onlineOverlay) { onlineOverlay.classList.add('hidden'); onlineBtn.focus(); } });
             document.addEventListener('keydown', s => { if (!onlineOverlay.classList.contains('hidden') && (s.key === 'Escape' || s.key === 'Esc')) { onlineOverlay.classList.add('hidden'); onlineBtn.focus(); } });
         }
+
+        // Socket.IO initialisieren
+        socket = socketio();
+        // Eigene User-ID auslesen
+        let profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+        // Nach Lobby-Join automatisch dem Lobby-Raum beitreten
+        window.joinLobbyRoom = function(lobbyId) {
+            if (socket && lobbyId) socket.emit('joinLobby', lobbyId);
+        };
+        // Listener für Lobby-Updates
+        socket.on('lobbyUpdated', async () => {
+            await loadLobbies();
+        });
+        // Listener für Spielstart
+        socket.on('gameStarted', (game) => {
+            if (game && game.id) {
+                showToast('Das Spiel startet!');
+                showGameModal(game.id);
+            }
+        });
     });
 
     async function heartbeat() {
