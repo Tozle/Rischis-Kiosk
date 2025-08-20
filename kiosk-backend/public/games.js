@@ -464,8 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Listener für Spielstart
             socket.on('gameStarted', (game) => {
                 if (game && game.id) {
-                    showToast('Das Spiel startet!');
-                    showGameModal(game.id);
+                    window.location.href = "/games.html?gameId=" + game.id;
                 }
             });
         }
