@@ -1,0 +1,66 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.mentos_feedings (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  zeitstempel timestamp with time zone NOT NULL DEFAULT now(),
+  futterart text NOT NULL CHECK (futterart = ANY (ARRAY['Nassfutter'::text, 'Trockenfutter'::text])),
+  gefuettert_von text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT mentos_feedings_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.online_users (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid,
+  username text,
+  profile_image_url text,
+  session_id text UNIQUE,
+  page text,
+  last_active timestamp with time zone NOT NULL DEFAULT now(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT online_users_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.products (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  price numeric NOT NULL CHECK (price >= 0::numeric),
+  purchase_price numeric NOT NULL CHECK (purchase_price >= 0::numeric),
+  stock bigint NOT NULL CHECK (stock >= 0),
+  available boolean DEFAULT true,
+  created_by uuid NOT NULL,
+  category text,
+  image_url text,
+  CONSTRAINT products_pkey PRIMARY KEY (id),
+  CONSTRAINT products_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.purchases (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  product_id uuid,
+  product_name text NOT NULL,
+  user_id uuid NOT NULL,
+  user_name text NOT NULL,
+  price numeric NOT NULL CHECK (price >= 0::numeric),
+  quantity integer NOT NULL DEFAULT 1 CHECK (quantity > 0),
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT purchases_pkey PRIMARY KEY (id),
+  CONSTRAINT purchases_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
+  CONSTRAINT purchases_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)
+);
+CREATE TABLE public.user_sessions (
+  user_id uuid NOT NULL,
+  username text,
+  online boolean DEFAULT false,
+  CONSTRAINT user_sessions_pkey PRIMARY KEY (user_id),
+  CONSTRAINT fk_user_sessions_user_id FOREIGN KEY (user_id) REFERENCES public.users(id),
+  CONSTRAINT user_sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.users (
+  id uuid NOT NULL,
+  email text NOT NULL,
+  name text NOT NULL,
+  role text NOT NULL DEFAULT 'buyer'::text CHECK (role = ANY (ARRAY['admin'::text, 'buyer'::text])),
+  balance numeric NOT NULL DEFAULT 0,
+  profile_image_url text,
+  CONSTRAINT users_pkey PRIMARY KEY (id),
+  CONSTRAINT users_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
+);
