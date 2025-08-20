@@ -30,23 +30,33 @@ window.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // Profileinstellungen-Button und Modal standardmäßig ausblenden
-    if (profileBtn) profileBtn.style.display = 'none';
+    // Profileinstellungen-Modal standardmäßig ausblenden
     if (profileModal) profileModal.style.display = 'none';
 
-    // Prüfe Login und Rolle
+    // Profilbild und Userdaten setzen, wenn eingeloggt
+    let userData = null;
     try {
         const res = await fetch('/api/auth/me', { credentials: 'include' });
         const data = await res.json();
         if (data?.loggedIn) {
+            userData = data.user;
             if (profileBtn) {
-                profileBtn.style.display = '';
                 // Profilbild als Button anzeigen, falls vorhanden
+                profileBtn.innerHTML = '';
                 const imgUrl = data.user?.profile_image_url;
                 if (imgUrl) {
-                    profileBtn.innerHTML = `<img src="${imgUrl}" alt="Profilbild" style="width:100%;height:100%;object-fit:cover;border-radius:9999px;" />`;
+                    const img = document.createElement('img');
+                    img.src = imgUrl;
+                    img.alt = 'Profilbild';
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '9999px';
+                    profileBtn.appendChild(img);
                 } else {
-                    profileBtn.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' class='w-7 h-7' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z' /></svg>`;
+                    const svg = document.createElement('span');
+                    svg.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' class='w-7 h-7' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z' /></svg>`;
+                    profileBtn.appendChild(svg);
                 }
                 // Speichere Userdaten für Games-Seite
                 try {
@@ -69,30 +79,34 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     } catch { }
 
-    // Modal öffnen
+    // Modal-Öffnen-Listener immer setzen
     if (profileBtn && profileModal) {
-        profileBtn.addEventListener('click', async () => {
+    profileBtn.addEventListener('click', async () => {
+            // Prüfe Login-Status live
+            let user = userData;
+            if (!user) {
+                try {
+                    const res = await fetch('/api/auth/me', { credentials: 'include' });
+                    const data = await res.json();
+                    if (data?.loggedIn) user = data.user;
+                } catch {}
+            }
+            if (!user) {
+                alert('Bitte zuerst einloggen, um die Profileinstellungen zu öffnen.');
+                return;
+            }
             // Hole aktuellen Usernamen, Profilbild und Guthaben
-            try {
-                const res = await fetch('/api/auth/me', { credentials: 'include' });
-                const data = await res.json();
-                usernameInput.value = data?.user?.name || '';
-                imageUrlInput.value = data?.user?.profile_image_url || '';
-                // Guthaben anzeigen
-                const balanceElem = document.getElementById('profile-balance');
-                if (balanceElem) {
-                    let balance = data?.user?.balance;
-                    if (typeof balance === 'number') {
-                        balanceElem.textContent = balance.toFixed(2).replace('.', ',') + ' €';
-                    } else {
-                        balanceElem.textContent = '–';
-                    }
+            usernameInput.value = user?.name || '';
+            imageUrlInput.value = user?.profile_image_url || '';
+            // Guthaben anzeigen
+            const balanceElem = document.getElementById('profile-balance');
+            if (balanceElem) {
+                let balance = user?.balance;
+                if (typeof balance === 'number') {
+                    balanceElem.textContent = balance.toFixed(2).replace('.', ',') + ' €';
+                } else {
+                    balanceElem.textContent = '–';
                 }
-            } catch {
-                usernameInput.value = '';
-                imageUrlInput.value = '';
-                const balanceElem = document.getElementById('profile-balance');
-                if (balanceElem) balanceElem.textContent = '–';
             }
             // Nur Auswahl anzeigen, alle Formulare ausblenden
             document.getElementById('profile-choice').classList.remove('hidden');
@@ -183,7 +197,15 @@ window.addEventListener('DOMContentLoaded', async () => {
                 imageMessage.textContent = 'Profilbild gespeichert!';
                 imageMessage.className = 'text-green-600';
                 if (profileBtn) {
-                    profileBtn.innerHTML = `<img src="${imageUrl}" alt="Profilbild" style="width:100%;height:100%;object-fit:cover;border-radius:9999px;" />`;
+                    profileBtn.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.alt = 'Profilbild';
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '9999px';
+                    profileBtn.appendChild(img);
                 }
                 // Speichere neues Bild im LocalStorage für Games-Seite
                 try {
