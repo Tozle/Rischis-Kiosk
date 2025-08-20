@@ -58,25 +58,34 @@ router.post('/lobby', requireAuth, async (req, res) => {
 
 // Lobby beitreten
 router.post('/lobby/:id/join', requireAuth, async (req, res) => {
-    const lobby = lobbies[req.params.id];
+    const lobbyId = req.params.id;
     const user = req.user;
-    if (!lobby) return res.status(404).json({ error: 'Lobby nicht gefunden' });
-    if (lobby.players.find(p => p.id === user.id)) return res.status(400).json({ error: 'Schon beigetreten' });
-    if (lobby.players.length >= lobby.lobbySize) return res.status(400).json({ error: 'Lobby voll' });
-    lobby.players.push({ id: user.id, name: user.name, balance: user.balance, profile_image_url: user.profile_image_url });
-    // Wenn Lobby voll, Spiel automatisch starten
-    if (lobby.players.length === lobby.lobbySize) {
-        await supabase.from('game_lobbies').update({ started: true }).eq('id', lobby.id);
+    // Lobby aus DB holen
+    const { data: lobby, error: lobbyError } = await supabase
+        .from('game_lobbies')
+        .select('id, lobby_size, started, finished, players:game_lobby_players(user_id)')
+        .eq('id', lobbyId)
+        .single();
+    if (lobbyError || !lobby) return res.status(404).json({ error: 'Lobby nicht gefunden' });
+    if (lobby.started || lobby.finished) return res.status(400).json({ error: 'Lobby bereits gestartet oder beendet' });
+    if (lobby.players.some(p => p.user_id === user.id)) return res.status(400).json({ error: 'Schon beigetreten' });
+    if (lobby.players.length >= lobby.lobby_size) return res.status(400).json({ error: 'Lobby voll' });
+    // Spieler eintragen
+    await supabase.from('game_lobby_players').insert({ lobby_id: lobbyId, user_id: user.id });
+    // Wenn Lobby voll, Spiel starten
+    let gameId = null;
+    if (lobby.players.length + 1 === lobby.lobby_size) {
+        await supabase.from('game_lobbies').update({ started: true }).eq('id', lobbyId);
         // Spiel initialisieren
         const { data: game, error: gameError } = await supabase
             .from('brain9_games')
-            .insert({ lobby_id: lobby.id })
+            .insert({ lobby_id: lobbyId })
             .select()
             .single();
         if (gameError) return res.status(500).json({ error: gameError.message });
-        return res.json({ success: true, gameId: game.id });
+        gameId = game.id;
     }
-    res.json({ success: true });
+    res.json({ success: true, gameId });
 });
 
 // Spiel starten
