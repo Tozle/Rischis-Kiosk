@@ -18,11 +18,7 @@ async function getCsrfToken() {
   } catch (err) {
     console.error('CSRF-Token konnte nicht geladen werden', err);
     return null;
-
-
-
-
-}
+  }
 }
 
 function showMessage(text, success = false) {
@@ -273,5 +269,6 @@ if (registerForm) {
         window.location.href = 'dashboard.html';
       }, 500);
     }, 1700);
+    }
   }
 
