@@ -171,7 +171,20 @@ function renderProductList(products) {
       img.alt = product.name;
       img.width = 128;
       img.height = 128;
-      img.className = "w-28 h-28 sm:w-32 sm:h-32 object-contain rounded-xl shadow border border-cyan-900 bg-cyan-950 flex-shrink-0 mx-auto sm:mx-0 p-2";
+      img.className = [
+        "w-24 h-24 sm:w-28 sm:h-28",
+        "object-contain",
+        "rounded-xl",
+        "shadow-md",
+        "border",
+        "border-gray-200/60",
+        "bg-white",
+        "p-2",
+        "mx-auto",
+        "sm:mx-0",
+        "block"
+      ].join(" ");
+      img.style.background = '#fff'; // explizit für PNGs mit Transparenz
       img.onload = () => {
         const container = li.querySelector('.shop-img-container');
         if (container) container.innerHTML = '';
