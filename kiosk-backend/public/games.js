@@ -428,6 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 lobbyList.innerHTML = `<div class="text-center text-red-500 py-8">Fehler beim Laden der Lobbys.</div>`;
             }
         }
+        window.loadLobbies = loadLobbies;
 
         // Initiales Laden
         loadLobbies();
