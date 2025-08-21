@@ -57,7 +57,16 @@ function renderBrain9Game(game) {
             `;
             // Nach dem Einfügen: DOM-Elemente neu holen und erst dann erneut rendern
             requestAnimationFrame(() => {
-                renderBrain9Game(game);
+                // Nach DOM-Update: Elemente neu holen
+                status = $("game-status");
+                grid = $("simon-grid");
+                players = $("game-players");
+                readyStatus = $("game-ready-status");
+                if (status && grid && players && readyStatus) {
+                    renderBrain9Game(game);
+                } else {
+                    window.showToast && window.showToast('Fehler: Spiel-UI konnte nicht erzeugt werden!', 'error');
+                }
             });
         } else if (!mainContent) {
             window.showToast && window.showToast('Fehler: Hauptbereich (main-content) nicht gefunden!', 'error');
@@ -77,6 +86,8 @@ function renderBrain9Game(game) {
                 <span class="text-xs ${isReady ? 'text-green-600' : 'text-gray-400'}">${isReady ? 'Bereit' : 'Nicht bereit'}</span>
             </div>`;
         }).join('');
+    } else {
+        console.error('players-Element nicht gefunden, kann Spieler nicht anzeigen.');
     }
     // Ready-Button für eigenen Spieler anzeigen, falls nicht bereit
     const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
@@ -84,13 +95,19 @@ function renderBrain9Game(game) {
     if (readyStatus) {
         if (!isMeReady && !game.finished && game.waitingForReady) {
             readyStatus.innerHTML = `<button id="ready-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 transition">Bereit</button>`;
-            const btn = document.getElementById('ready-btn');
-            if (btn) btn.onclick = () => sendReady(game.id);
+            // Button erst holen, wenn wirklich im DOM
+            requestAnimationFrame(() => {
+                const btn = document.getElementById('ready-btn');
+                if (btn) btn.onclick = () => sendReady(game.id);
+                else console.error('ready-btn nicht gefunden, kann Event nicht binden.');
+            });
         } else if (game.waitingForReady && !game.finished) {
             readyStatus.innerHTML = `<span class="text-cyan-600 font-semibold">Warte auf andere Spieler...</span>`;
         } else {
             readyStatus.innerHTML = '';
         }
+    } else {
+        console.error('readyStatus-Element nicht gefunden, kann Ready-Button nicht anzeigen.');
     }
     // Sendet Ready-Status an Backend
     async function sendReady(gameId) {
