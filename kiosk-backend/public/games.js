@@ -73,6 +73,7 @@ async function updateOnlineUI() {
         }
     }
 }
+window.updateOnlineUI = updateOnlineUI;
 
 // === Haupt-Initialisierung und UI-Logik ===
 document.addEventListener('DOMContentLoaded', () => {
