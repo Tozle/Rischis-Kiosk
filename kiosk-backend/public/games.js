@@ -66,13 +66,11 @@ function $(id) {
                         window.showToast && window.showToast('Fehler: Hauptbereich (main-content) nicht gefunden!', 'error');
                         console.error('Game-UI konnte nicht erzeugt werden: main-content fehlt im DOM.');
                     }
-                    return;
                 } else {
                     window._brain9_ui_injected = false;
                 }
             }); // Ende requestAnimationFrame
         }
-        return;
     if (readyStatus) {
         readyStatus.innerHTML = '';
     } else {
@@ -83,7 +81,6 @@ function $(id) {
         const winner = game.players.find(p => p.id === game.winner);
         status.innerHTML = winner ? `<span class="text-green-600 font-bold">${winner.name} gewinnt Brain9!</span>` : 'Spiel beendet.';
         grid.innerHTML = '';
-        return;
     }
     // ...restlicher Code der Funktion...
 
