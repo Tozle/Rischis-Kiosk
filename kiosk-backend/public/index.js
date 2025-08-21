@@ -12,9 +12,12 @@ import { $, getCsrfToken, showMessage } from './utils/frontend.js';
 
 function switchForm(mode) {
   const isLogin = mode === 'login';
-  $('login-form').classList.toggle('hidden', !isLogin);
-  $('register-form').classList.toggle('hidden', isLogin);
-  $('message').classList.add('hidden');
+  const loginForm = $('login-form');
+  if (loginForm) loginForm.classList.toggle('hidden', !isLogin);
+  const registerForm = $('register-form');
+  if (registerForm) registerForm.classList.toggle('hidden', isLogin);
+  const message = $('message');
+  if (message) message.classList.add('hidden');
 }
 
 // Event-Binding für Formular-Umschaltung
@@ -32,37 +35,47 @@ const registerForm = $('register-form');
 if (registerForm) {
   registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const name = $('register-name').value.trim();
-    const email = $('register-email').value.trim();
-    const password = $('register-password').value;
-    const repeat = $('register-password-repeat').value;
+    const nameEl = $('register-name');
+    const emailEl = $('register-email');
+    const passwordEl = $('register-password');
+    const repeatEl = $('register-password-repeat');
     const btn = registerForm.querySelector('button[type="submit"]');
     const btnText = $('register-btn-text');
     const loader = $('register-loader');
-    btn.setAttribute('aria-busy', 'true');
-    btn.disabled = true;
-    btnText.classList.add('opacity-50');
-    loader.classList.remove('hidden');
+    const name = nameEl ? nameEl.value.trim() : '';
+    const email = emailEl ? emailEl.value.trim() : '';
+    const password = passwordEl ? passwordEl.value : '';
+    const repeat = repeatEl ? repeatEl.value : '';
+    if (btn) {
+      btn.setAttribute('aria-busy', 'true');
+      btn.disabled = true;
+    }
+    if (btnText) btnText.classList.add('opacity-50');
+    if (loader) loader.classList.remove('hidden');
     // Frontend-Validierung auf Deutsch
     if (!name || !email) {
-      btnText.classList.remove('opacity-50');
-      loader.classList.add('hidden');
+      if (btnText) btnText.classList.remove('opacity-50');
+      if (loader) loader.classList.add('hidden');
       return;
     }
     if (!password || password.length < 6) {
       showMessage('Das Passwort muss mindestens 6 Zeichen lang sein.');
-      btn.removeAttribute('aria-busy');
-      btn.disabled = false;
-      btnText.classList.remove('opacity-50');
-      loader.classList.add('hidden');
+      if (btn) {
+        btn.removeAttribute('aria-busy');
+        btn.disabled = false;
+      }
+      if (btnText) btnText.classList.remove('opacity-50');
+      if (loader) loader.classList.add('hidden');
       return;
     }
     if (password !== repeat) {
       showMessage('Passwörter stimmen nicht überein.');
-      btn.removeAttribute('aria-busy');
-      btn.disabled = false;
-      btnText.classList.remove('opacity-50');
-      loader.classList.add('hidden');
+      if (btn) {
+        btn.removeAttribute('aria-busy');
+        btn.disabled = false;
+      }
+      if (btnText) btnText.classList.remove('opacity-50');
+      if (loader) loader.classList.add('hidden');
       return;
     }
 
@@ -131,26 +144,34 @@ if (registerForm) {
       }
       showMessage(msg);
     } finally {
-      btn.removeAttribute('aria-busy');
-      btn.disabled = false;
-      btnText.classList.remove('opacity-50');
-      loader.classList.add('hidden');
+      if (btn) {
+        btn.removeAttribute('aria-busy');
+        btn.disabled = false;
+      }
+      if (btnText) btnText.classList.remove('opacity-50');
+      if (loader) loader.classList.add('hidden');
     }
   });
 
   // LOGIN
-  document.getElementById('login-form').addEventListener('submit', async (e) => {
+  const loginFormEl = document.getElementById('login-form');
+  if (loginFormEl) loginFormEl.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-    const rememberMe = document.getElementById('remember-me').checked;
+    const emailEl = document.getElementById('login-email');
+    const passwordEl = document.getElementById('login-password');
+    const rememberMeEl = document.getElementById('remember-me');
     const btn = document.querySelector('#login-form button[type="submit"]');
     const btnText = document.getElementById('login-btn-text');
     const loader = document.getElementById('login-loader');
-    btn.setAttribute('aria-busy', 'true');
-    btn.disabled = true;
-    btnText.classList.add('opacity-50');
-    loader.classList.remove('hidden');
+    const email = emailEl ? emailEl.value.trim() : '';
+    const password = passwordEl ? passwordEl.value : '';
+    const rememberMe = rememberMeEl ? rememberMeEl.checked : false;
+    if (btn) {
+      btn.setAttribute('aria-busy', 'true');
+      btn.disabled = true;
+    }
+    if (btnText) btnText.classList.add('opacity-50');
+    if (loader) loader.classList.remove('hidden');
     try {
       const token = await getCsrfToken();
       const res = await fetch(`${BACKEND_URL}/api/auth/login`, {

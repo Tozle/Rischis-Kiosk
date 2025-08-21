@@ -94,19 +94,19 @@ function renderBrain9Game(game) {
             readyStatus.innerHTML = '';
         }
     }
-// Sendet Ready-Status an Backend
-async function sendReady(gameId) {
-    try {
-        const res = await fetch(`/api/games/${gameId}/ready`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include'
-        });
-        if (!res.ok) showToast('Fehler beim Bereit-Melden', 'error');
-    } catch {
-        showToast('Fehler beim Bereit-Melden', 'error');
+    // Sendet Ready-Status an Backend
+    async function sendReady(gameId) {
+        try {
+            const res = await fetch(`/api/games/${gameId}/ready`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
+            });
+            if (!res.ok) showToast('Fehler beim Bereit-Melden', 'error');
+        } catch {
+            showToast('Fehler beim Bereit-Melden', 'error');
+        }
     }
-}
     // Status
     if (game.finished) {
         const winner = game.players.find(p => p.id === game.winner);
@@ -165,15 +165,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Wenn games.html?gameId=... geladen wird, direkt das Spiel anzeigen (kein Modal mehr)
     const urlParams = new URLSearchParams(window.location.search);
     const gameIdFromUrl = urlParams.get('gameId');
-        if (gameIdFromUrl) {
-            // Nur wenn ein Spiel läuft, Spiel-UI rendern und Lobby-UI ausblenden
-            if (window.io) {
-                const socket = window.io();
-                socket.emit('joinLobby', gameIdFromUrl);
-            }
-            const mainContent = document.getElementById('main-content');
-            if (mainContent) {
-                mainContent.innerHTML = `
+    if (gameIdFromUrl) {
+        // Nur wenn ein Spiel läuft, Spiel-UI rendern und Lobby-UI ausblenden
+        if (window.io) {
+            const socket = window.io();
+            socket.emit('joinLobby', gameIdFromUrl);
+        }
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            mainContent.innerHTML = `
                     <h2 class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2">
                         <svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                             <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4' />
@@ -186,31 +186,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div id="game-actions" class="flex gap-2 justify-center"></div>
                     <div id="game-ready-status" class="flex flex-col items-center mt-2"></div>
                 `;
-                // Erst nach DOM-Update pollAndRenderGame aufrufen
-                setTimeout(() => {
-                    pollAndRenderGame(gameIdFromUrl);
-                }, 0);
-            }
-            if (brain9PollInterval) clearInterval(brain9PollInterval);
-            brain9PollInterval = setInterval(() => pollAndRenderGame(gameIdFromUrl), 2000);
-            // Lobby-UI ausblenden
-            const lobbyList = document.getElementById('lobby-list');
-            if (lobbyList) lobbyList.style.display = 'none';
-            const createBtn = document.getElementById('create-lobby-btn');
-            if (createBtn) createBtn.style.display = 'none';
-        } else {
-            // Wenn KEIN Spiel läuft, stelle sicher, dass Lobby-UI sichtbar ist und KEIN Spiel gerendert wird
-            const lobbyList = document.getElementById('lobby-list');
-            if (lobbyList) lobbyList.style.display = '';
-            const createBtn = document.getElementById('create-lobby-btn');
-            if (createBtn) createBtn.style.display = '';
-            // Entferne ggf. Spiel-UI aus main-content
-            const mainContent = document.getElementById('main-content');
-            if (mainContent) {
-                // Hier könnte man die Lobby-UI rendern, falls nötig
-                // mainContent.innerHTML = ...
-            }
+            // Erst nach DOM-Update pollAndRenderGame aufrufen
+            setTimeout(() => {
+                pollAndRenderGame(gameIdFromUrl);
+            }, 0);
         }
+        if (brain9PollInterval) clearInterval(brain9PollInterval);
+        brain9PollInterval = setInterval(() => pollAndRenderGame(gameIdFromUrl), 2000);
+        // Lobby-UI ausblenden
+        const lobbyList = document.getElementById('lobby-list');
+        if (lobbyList) lobbyList.style.display = 'none';
+        const createBtn = document.getElementById('create-lobby-btn');
+        if (createBtn) createBtn.style.display = 'none';
+    } else {
+        // Wenn KEIN Spiel läuft, stelle sicher, dass Lobby-UI sichtbar ist und KEIN Spiel gerendert wird
+        const lobbyList = document.getElementById('lobby-list');
+        if (lobbyList) lobbyList.style.display = '';
+        const createBtn = document.getElementById('create-lobby-btn');
+        if (createBtn) createBtn.style.display = '';
+        // Entferne ggf. Spiel-UI aus main-content
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            // Hier könnte man die Lobby-UI rendern, falls nötig
+            // mainContent.innerHTML = ...
+        }
+    }
     // --- Online-User-Tracking (Backend) ---
 
     const PROFILE_KEY = 'user_profile';
