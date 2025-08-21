@@ -71,17 +71,6 @@ function $(id) {
         }
     }); // Ende requestAnimationFrame
 }
-if (readyStatus) {
-    readyStatus.innerHTML = '';
-} else {
-    console.error('readyStatus-Element nicht gefunden, kann Ready-Button nicht anzeigen.');
-}
-// Status
-if (game.finished) {
-    const winner = game.players.find(p => p.id === game.winner);
-    status.innerHTML = winner ? `<span class="text-green-600 font-bold">${winner.name} gewinnt Brain9!</span>` : 'Spiel beendet.';
-    grid.innerHTML = '';
-}
 // ...restlicher Code der Funktion...
 
 async function makeBrain9Move(gameId, buttonIndex) {
