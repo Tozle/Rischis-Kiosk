@@ -3,24 +3,28 @@ console.log("games.js loaded!");
 window.onerror = function(msg, url, line, col, error) {
     console.error("Global JS-Error:", msg, "at", url + ":" + line + ":" + col, error);
 };
+try { console.log('games.js: nach onerror'); } catch(e) { console.error('Block1', e); }
 // Hilfsfunktionen für Browser-Kompatibilität
 function $(id) {
-window._gamesjs_end = true;
-console.log("games.js end reached!");
     return document.getElementById(id);
+}
+try { console.log('games.js: nach $-Funktion'); } catch(e) { console.error('Block2', e); }
 if (typeof window.showToast !== 'function') {
     window.showToast = function (msg, type) {
         alert(msg); // Fallback: Einfaches Alert
     };
 }
-
+// ...restlicher Code...
 // Brain9 Game-UI anzeigen und Spiellogik
 let brain9PollInterval = null;
 function showGameModal(gameId) {
+try { console.log('games.js: vor document.addEventListener'); } catch(e) { console.error('Block3', e); }
     const modal = $("game-modal");
     if (!modal) return;
+    try { console.log('games.js: DOMContentLoaded-Handler gestartet'); } catch(e) { console.error('Block4', e); }
     modal.classList.remove("hidden");
     pollAndRenderGame(gameId);
+try { window._gamesjs_end = true; console.log("games.js end reached!"); } catch(e) { console.error('Block5', e); }
     if (brain9PollInterval) clearInterval(brain9PollInterval);
     brain9PollInterval = setInterval(() => pollAndRenderGame(gameId), 2000);
     // Close-Button
