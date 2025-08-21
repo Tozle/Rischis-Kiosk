@@ -160,11 +160,12 @@ async function makeBrain9Move(gameId, buttonIndex) {
 // Socket.IO-Client-Initialisierung und Listener ganz ans Ende verschoben
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Wenn games.html?gameId=... geladen wird, direkt das Spiel anzeigen (kein Modal mehr)
+    // Routing: gameId = Spiel läuft, lobbyId = Warten auf Spielstart
     const urlParams = new URLSearchParams(window.location.search);
     const gameIdFromUrl = urlParams.get('gameId');
+    const lobbyIdFromUrl = urlParams.get('lobbyId');
     if (gameIdFromUrl) {
-        // Nur wenn ein Spiel läuft, Spiel-UI rendern und Lobby-UI ausblenden
+        // Spiel läuft: Spiel-UI anzeigen
         if (window.io) {
             const socket = window.io();
             socket.emit('joinLobby', gameIdFromUrl);
@@ -184,13 +185,40 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div id="game-actions" class="flex gap-2 justify-center"></div>
                     <div id="game-ready-status" class="flex flex-col items-center mt-2"></div>
                 `;
-            // Erst nach DOM-Update pollAndRenderGame aufrufen
             setTimeout(() => {
                 pollAndRenderGame(gameIdFromUrl);
             }, 0);
         }
         if (brain9PollInterval) clearInterval(brain9PollInterval);
         brain9PollInterval = setInterval(() => pollAndRenderGame(gameIdFromUrl), 2000);
+        // Lobby-UI ausblenden
+        const lobbyList = document.getElementById('lobby-list');
+        if (lobbyList) lobbyList.style.display = 'none';
+        const createBtn = document.getElementById('create-lobby-btn');
+        if (createBtn) createBtn.style.display = 'none';
+    } else if (lobbyIdFromUrl) {
+        // Warten auf Spielstart: Zeige Wartescreen
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            mainContent.innerHTML = `
+                <div class="flex flex-col items-center justify-center min-h-[40vh]">
+                    <div class="text-2xl font-bold text-cyan-700 dark:text-cyan-300 mb-4">Warte auf Spielstart...</div>
+                    <div class="text-base text-gray-600 dark:text-gray-300 mb-2">Sobald die Lobby voll ist, startet das Spiel automatisch.</div>
+                    <div id="lobby-wait-spinner" class="animate-spin rounded-full h-12 w-12 border-t-4 border-cyan-400 border-opacity-50"></div>
+                </div>
+            `;
+        }
+        // Socket-Listener für Spielstart
+        if (window.io) {
+            const socket = window.io();
+            socket.emit('joinLobby', lobbyIdFromUrl);
+            socket.on('gameStarted', (game) => {
+                if (game && game.id) {
+                    // Weiterleitung auf ?gameId=...
+                    window.location.href = window.location.pathname + '?gameId=' + game.id;
+                }
+            });
+        }
         // Lobby-UI ausblenden
         const lobbyList = document.getElementById('lobby-list');
         if (lobbyList) lobbyList.style.display = 'none';
