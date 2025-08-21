@@ -32,10 +32,10 @@ async function pollAndRenderGame(gameId) {
 }
 
 function renderBrain9Game(game) {
-    const status = $("game-status");
-    const grid = $("simon-grid");
-    const players = $("game-players");
-    const readyStatus = $("game-ready-status");
+    let status = $("game-status");
+    let grid = $("simon-grid");
+    let players = $("game-players");
+    let readyStatus = $("game-ready-status");
     // Endlos-Rekursion verhindern
     if (!status || !grid || !players || !readyStatus) {
         // Versuche, das Spiel-UI dynamisch zu erzeugen, falls es fehlt
@@ -56,24 +56,22 @@ function renderBrain9Game(game) {
                 <div id="game-ready-status" class="flex flex-col items-center mt-2"></div>
             `;
             // Nach dem Einfügen: DOM-Elemente neu holen und erst dann erneut rendern
-            setTimeout(() => {
+            requestAnimationFrame(() => {
                 renderBrain9Game(game);
-            }, 0);
+            });
         } else if (!mainContent) {
-            // mainContent fehlt, Fehler anzeigen und abbrechen
             window.showToast && window.showToast('Fehler: Hauptbereich (main-content) nicht gefunden!', 'error');
             console.error('Game-UI konnte nicht erzeugt werden: main-content fehlt im DOM.');
         }
         return;
     } else {
-        // Reset für spätere Aufrufe
         window._brain9_ui_injected = false;
     }
     // Spieler und Ready-Status anzeigen
     if (players) {
-        players.innerHTML = game.players.map(p => {
+        players.innerHTML = (game.players || []).map(p => {
             const isReady = (game.readyPlayers || []).includes(p.id);
-            return `<div class="flex flex-col items-center ${game.activePlayers.includes(p.id) ? '' : 'opacity-40'}">
+            return `<div class="flex flex-col items-center ${game.activePlayers && game.activePlayers.includes(p.id) ? '' : 'opacity-40'}">
                 <img src="${p.profile_image_url}" alt="${p.name}" class="w-8 h-8 rounded-full border mb-1" />
                 <span class="text-xs">${p.name}</span>
                 <span class="text-xs ${isReady ? 'text-green-600' : 'text-gray-400'}">${isReady ? 'Bereit' : 'Nicht bereit'}</span>
