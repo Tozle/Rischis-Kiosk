@@ -1,7 +1,6 @@
 // Hilfsfunktionen für Browser-Kompatibilität
 function $(id) {
     return document.getElementById(id);
-}
 if (typeof window.showToast !== 'function') {
     window.showToast = function (msg, type) {
         alert(msg); // Fallback: Einfaches Alert
@@ -105,8 +104,10 @@ function renderBrain9Game(game) {
                 } else {
                     window._brain9_ui_injected = false;
                 }
-            }
+            }); // Ende requestAnimationFrame
         }
+        return;
+    }
     if (readyStatus) {
         readyStatus.innerHTML = '';
     } else {
