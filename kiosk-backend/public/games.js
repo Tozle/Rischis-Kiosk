@@ -325,7 +325,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // --- Make loadLobbies globally accessible ---
         async function loadLobbies() {
+            const lobbyList = document.getElementById('lobby-list');
             // MVP: Hole alle offenen Lobbys (aus Backend, hier Demo: alle)
             try {
                 const res = await fetch('/api/games/lobby', { credentials: 'include' });
