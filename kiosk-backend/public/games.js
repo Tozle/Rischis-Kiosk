@@ -12,7 +12,6 @@ if (typeof window.showToast !== 'function') {
     window.showToast = function (msg, type) {
         alert(msg); // Fallback: Einfaches Alert
     };
-}
 // ...restlicher Code...
 // Brain9 Game-UI anzeigen und Spiellogik
 let brain9PollInterval = null;
