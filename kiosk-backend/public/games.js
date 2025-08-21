@@ -7,12 +7,13 @@ try { console.log('games.js: nach onerror'); } catch (e) { console.error('Block1
 // Hilfsfunktionen für Browser-Kompatibilität
 function $(id) {
     return document.getElementById(id);
+}
 try { console.log('games.js: nach $-Funktion'); } catch (e) { console.error('Block2', e); }
 if (typeof window.showToast !== 'function') {
     window.showToast = function (msg, type) {
         alert(msg); // Fallback: Einfaches Alert
     };
-// ...restlicher Code...
+}
 // Brain9 Game-UI anzeigen und Spiellogik
 let brain9PollInterval = null;
 function showGameModal(gameId) {
@@ -687,4 +688,4 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('keydown', s => { if (!onlineOverlay.classList.contains('hidden') && (s.key === 'Escape' || s.key === 'Esc')) { onlineOverlay.classList.add('hidden'); onlineBtn.focus(); } });
     }
 });
-}
+// Ensured proper closure of all nested blocks and functions.
