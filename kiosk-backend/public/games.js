@@ -1,5 +1,8 @@
 window._gamesjs_loaded = true;
 console.log("games.js loaded!");
+window.onerror = function(msg, url, line, col, error) {
+    console.error("Global JS-Error:", msg, "at", url + ":" + line + ":" + col, error);
+};
 // Hilfsfunktionen für Browser-Kompatibilität
 function $(id) {
 window._gamesjs_end = true;
