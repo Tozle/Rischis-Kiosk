@@ -1,5 +1,9 @@
+window._gamesjs_loaded = true;
+console.log("games.js loaded!");
 // Hilfsfunktionen für Browser-Kompatibilität
 function $(id) {
+window._gamesjs_end = true;
+console.log("games.js end reached!");
     return document.getElementById(id);
 if (typeof window.showToast !== 'function') {
     window.showToast = function (msg, type) {
