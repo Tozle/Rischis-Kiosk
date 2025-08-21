@@ -340,35 +340,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     const data = await res.json();
                     if (res.ok && data.lobbyId) {
-                        showToast('Lobby erstellt!');
                         modal.classList.add('hidden');
                         createBtn.focus();
                         // Dem Socket-Raum beitreten
                         if (window.joinLobbyRoom) window.joinLobbyRoom(data.lobbyId);
-                        // Kurzes Delay, damit der Client sicher im Raum ist
-                        setTimeout(async () => {
-                            await loadLobbies();
-                            // Lobby-Detail-Ansicht direkt öffnen
-                            const lobby = (window.lastLobbies || []).find(l => l.id === data.lobbyId);
-                            if (lobby) {
-                                const modal = document.createElement('div');
-                                modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-50 lobby-detail-modal';
-                                modal.setAttribute('data-lobby-id', lobby.id);
-                                modal.innerHTML = `
-                                    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-xl relative flex flex-col items-center">
-                                        <button class="absolute top-3 right-3 text-2xl text-gray-400 hover:text-cyan-500 focus:outline-none" id="close-lobby-detail">&times;</button>
-                                        <h2 class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300">${lobby.game_type === 'brain9' ? 'Brain9' : lobby.game_type} Lobby #${lobby.id.slice(-4)}</h2>
-                                        <div class="mb-2 text-gray-700 dark:text-gray-200">Einsatz: <b>€${Number(lobby.bet).toFixed(2)}</b></div>
-                                        <div class="mb-2 text-gray-700 dark:text-gray-200">Spieler:</div>
-                                        <div class="flex gap-2 mb-4 flex-wrap justify-center">
-                                            ${lobby.players.map(p => `<div class='flex flex-col items-center'><img src='${p.profile_image_url}' class='w-10 h-10 rounded-full border mb-1' /><span class='text-xs'>${p.name}</span></div>`).join('')}
-                                        </div>
-                                    </div>
-                                `;
-                                document.body.appendChild(modal);
-                                modal.querySelector('#close-lobby-detail').onclick = () => modal.remove();
-                            }
-                        }, 200);
+                        // Direkt in die Lobby weiterleiten (wie bei Beitritt)
+                        window.location.href = '/games.html?lobbyId=' + encodeURIComponent(data.lobbyId);
                     } else {
                         showToast(data.error || 'Fehler beim Erstellen', 'error');
                     }
