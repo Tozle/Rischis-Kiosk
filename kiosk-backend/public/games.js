@@ -549,7 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let players = $("game-players");
         let readyStatus = $("game-ready-status");
         if (!status || !grid || !players || !readyStatus) {
-            // Try to dynamically create the game UI if missing
+            // Versuche, das Spiel-UI dynamisch zu erzeugen, falls es fehlt
             const mainContent = document.getElementById('main-content');
             if (mainContent && !window._brain9_ui_injected) {
                 window._brain9_ui_injected = true;
@@ -566,7 +566,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div id="game-actions" class="flex gap-2 justify-center"></div>
                     <div id="game-ready-status" class="flex flex-col items-center mt-2"></div>
                 `;
-                // After inserting, re-fetch DOM elements and re-render
+                // Nach dem Einfügen: DOM-Elemente neu holen und erst dann erneut rendern
                 requestAnimationFrame(() => {
                     status = $("game-status");
                     grid = $("simon-grid");
