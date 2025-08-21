@@ -333,9 +333,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (form && lobbyList) {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const lobbySize = parseInt(form['lobby-size'].value, 10);
-                const bet = parseFloat(form['lobby-bet'].value);
-                const game = form['game-select'] ? form['game-select'].value : 'brain9';
+                const lobbySize = parseInt(form['lobbySize'].value, 10);
+                const bet = parseFloat(form['bet'].value);
+                const game = form['game'] ? form['game'].value : 'brain9';
                 try {
                     const res = await fetch('/api/games/lobby', {
                         method: 'POST',
