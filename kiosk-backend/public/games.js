@@ -147,6 +147,10 @@ function renderBrain9Game(game) {
         // Socket.IO-Client-Initialisierung und Listener ganz ans Ende verschoben
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Debug: Funktionen global machen
+            window.loadLobbies = loadLobbies;
+            window.heartbeat = heartbeat;
+            window.updateOnlineUI = updateOnlineUI;
             // Routing: gameId = Spiel läuft, lobbyId = Warten auf Spielstart
             const urlParams = new URLSearchParams(window.location.search);
             const gameIdFromUrl = urlParams.get('gameId');
@@ -315,15 +319,15 @@ function renderBrain9Game(game) {
                 }
 
                 // Initial heartbeat und UI
-                heartbeat();
-                updateOnlineUI();
+                window.heartbeat();
+                window.updateOnlineUI();
                 // Alle 10s heartbeat und UI
-                const interval = setInterval(() => { heartbeat(); updateOnlineUI(); }, 10000);
+                const interval = setInterval(() => { window.heartbeat(); window.updateOnlineUI(); }, 10000);
                 // Beim Verlassen austragen
                 window.addEventListener('beforeunload', () => { removeOnline(); clearInterval(interval); });
                 window.addEventListener('visibilitychange', () => {
                     if (document.visibilityState === 'hidden') removeOnline();
-                    if (document.visibilityState === 'visible') { heartbeat(); updateOnlineUI(); }
+                    if (document.visibilityState === 'visible') { window.heartbeat(); window.updateOnlineUI(); }
                 });
 
                 // --- Modal für Lobby-Erstellung ---
