@@ -6,51 +6,7 @@ window.onerror = function (msg, url, line, col, error) {
 try { console.log('games.js: nach onerror'); } catch (e) { console.error('Block1', e); }
 // Hilfsfunktionen für Browser-Kompatibilität
 function $(id) {
-    return document.getElementById(id);
-}
-try { console.log('games.js: nach $-Funktion'); } catch (e) { console.error('Block2', e); }
-if (typeof window.showToast !== 'function') {
-    window.showToast = function (msg, type) {
-        alert(msg); // Fallback: Einfaches Alert
-    };
-}
-// Brain9 Game-UI anzeigen und Spiellogik
-let brain9PollInterval = null;
-function showGameModal(gameId) {
-    try { console.log('games.js: vor document.addEventListener'); } catch (e) { console.error('Block3', e); }
-    const modal = $("game-modal");
-    if (!modal) return;
-    try { console.log('games.js: DOMContentLoaded-Handler gestartet'); } catch (e) { console.error('Block4', e); }
-    modal.classList.remove("hidden");
-    pollAndRenderGame(gameId);
-    try { window._gamesjs_end = true; console.log("games.js end reached!"); } catch (e) { console.error('Block5', e); }
-    if (brain9PollInterval) clearInterval(brain9PollInterval);
-    brain9PollInterval = setInterval(() => pollAndRenderGame(gameId), 2000);
-    // Close-Button
-    const closeBtn = $("game-modal-close");
-    if (closeBtn) closeBtn.onclick = () => { modal.classList.add("hidden"); clearInterval(brain9PollInterval); };
-}
 
-async function pollAndRenderGame(gameId) {
-    try {
-        const res = await fetch(`/api/games/game/${gameId}`, { credentials: 'include' });
-        if (!res.ok) return;
-        const game = await res.json();
-        renderBrain9Game(game);
-    } catch { }
-}
-
-function renderBrain9Game(game) {
-    let status = $("game-status");
-    let grid = $("simon-grid");
-    let players = $("game-players");
-    let readyStatus = $("game-ready-status");
-    // Endlos-Rekursion verhindern
-    if (!status || !grid || !players || !readyStatus) {
-        // Versuche, das Spiel-UI dynamisch zu erzeugen, falls es fehlt
-        const mainContent = document.getElementById('main-content');
-        if (mainContent && !window._brain9_ui_injected) {
-            window._brain9_ui_injected = true;
             mainContent.innerHTML = `
                 <h2 class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2">
                     <svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
@@ -117,7 +73,6 @@ function renderBrain9Game(game) {
             }); // Ende requestAnimationFrame
         }
         return;
-    }
     if (readyStatus) {
         readyStatus.innerHTML = '';
     } else {
@@ -131,7 +86,6 @@ function renderBrain9Game(game) {
         return;
     }
     // ...restlicher Code der Funktion...
-}
 
 async function makeBrain9Move(gameId, buttonIndex) {
     try {
@@ -150,6 +104,7 @@ async function makeBrain9Move(gameId, buttonIndex) {
         showToast('Fehler beim Zug.', 'error');
     }
 }
+
 // games.js – Best Practice Refactor
 // Entferne alle ES6-Imports, nutze stattdessen window.$ und window.showToast
 
