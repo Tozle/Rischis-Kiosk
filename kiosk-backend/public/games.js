@@ -107,7 +107,6 @@ function renderBrain9Game(game) {
                 }
             }
         }
-    }
     if (readyStatus) {
         readyStatus.innerHTML = '';
     } else {
@@ -673,4 +672,5 @@ function renderBrain9Game(game) {
                 onlineOverlay.addEventListener('click', s => { if (s.target === onlineOverlay) { onlineOverlay.classList.add('hidden'); onlineBtn.focus(); } });
                 document.addEventListener('keydown', s => { if (!onlineOverlay.classList.contains('hidden') && (s.key === 'Escape' || s.key === 'Esc')) { onlineOverlay.classList.add('hidden'); onlineBtn.focus(); } });
             }
-        });
+    });
+}
