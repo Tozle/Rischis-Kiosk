@@ -60,10 +60,8 @@ function renderBrain9Game(game) {
                 // Nach DOM-Update: Elemente neu holen
                 status = $("game-status");
                 grid = $("simon-grid");
-                let status = $("game-status");
-                let grid = $("simon-grid");
-                let players = $("game-players");
-                let readyStatus = $("game-ready-status");
+                players = $("game-players");
+                readyStatus = $("game-ready-status");
                 if (!status || !grid || !players || !readyStatus) {
                     // Versuche, das Spiel-UI dynamisch zu erzeugen, falls es fehlt
                     const mainContent = document.getElementById('main-content');
@@ -107,39 +105,23 @@ function renderBrain9Game(game) {
                 } else {
                     window._brain9_ui_injected = false;
                 }
-            } else {
-                readyStatus.innerHTML = '';
             }
+        }
+    }
+    if (readyStatus) {
+        readyStatus.innerHTML = '';
     } else {
-            console.error('readyStatus-Element nicht gefunden, kann Ready-Button nicht anzeigen.');
-        }
-        // Sendet Ready-Status an Backend
-        async function sendReady(gameId) {
-            try {
-                const res = await fetch(`/api/games/${gameId}/ready`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include'
-                });
-                if (!res.ok) showToast('Fehler beim Bereit-Melden', 'error');
-            } catch {
-                showToast('Fehler beim Bereit-Melden', 'error');
-            }
-        }
-        // Status
-        if (game.finished) {
-            const winner = game.players.find(p => p.id === game.winner);
-            status.innerHTML = winner ? `<span class="text-green-600 font-bold">${winner.name} gewinnt Brain9!</span>` : 'Spiel beendet.';
-            grid.innerHTML = '';
-            return;
-            readyStatus.innerHTML = '';
-            // Hole eigene User-ID (aus /api/auth/me)
-            // Annahme: User ist eingeloggt und id ist in localStorage
-            const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
-            if (!profile || !profile.id) return false;
-            const currentPlayerId = game.activePlayers[game.turn % game.activePlayers.length];
-            return profile.id === currentPlayerId;
-        }
+        console.error('readyStatus-Element nicht gefunden, kann Ready-Button nicht anzeigen.');
+    }
+    // Status
+    if (game.finished) {
+        const winner = game.players.find(p => p.id === game.winner);
+        status.innerHTML = winner ? `<span class="text-green-600 font-bold">${winner.name} gewinnt Brain9!</span>` : 'Spiel beendet.';
+        grid.innerHTML = '';
+        return;
+    }
+    // ...restlicher Code der Funktion...
+}
 
         async function makeBrain9Move(gameId, buttonIndex) {
             try {
