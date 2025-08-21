@@ -512,6 +512,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             });
+            // Listener für Countdown vor Spielstart
+            socket.on('lobbyCountdown', (data) => {
+                // Countdown-Overlay erzeugen
+                let overlay = document.getElementById('countdown-overlay');
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.id = 'countdown-overlay';
+                    overlay.className = 'fixed inset-0 flex items-center justify-center z-[9999] bg-black/70';
+                    overlay.innerHTML = `<div id="countdown-timer" class="text-7xl font-bold text-white drop-shadow-lg bg-cyan-700/80 rounded-2xl px-12 py-8 border-4 border-cyan-300 animate-pulse"></div>`;
+                    document.body.appendChild(overlay);
+                }
+                const timer = overlay.querySelector('#countdown-timer');
+                let until = new Date(data.until).getTime();
+                function updateCountdown() {
+                    const now = Date.now();
+                    let seconds = Math.max(0, Math.ceil((until - now) / 1000));
+                    if (timer) timer.textContent = seconds > 0 ? seconds.toString() : 'Start!';
+                    if (seconds > 0) {
+                        setTimeout(updateCountdown, 100);
+                    } else {
+                        setTimeout(() => {
+                            overlay.remove();
+                        }, 800);
+                    }
+                }
+                updateCountdown();
+            });
             // Listener für Spielstart
             socket.on('gameStarted', (game) => {
                 if (game && game.id) {

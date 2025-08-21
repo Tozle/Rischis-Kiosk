@@ -204,38 +204,58 @@ router.post('/lobby/:id/join', requireAuth, async (req, res) => {
         console.warn('WebSocket server (io) is not defined. Skipping lobbyUpdated event.');
     }
 
-    // Spiel starten, wenn die Lobby voll ist
+    // Spiel starten, wenn die Lobby voll ist: Countdown statt sofortigem Start
     const updatedLobby = await supabase
         .from('game_lobby_players')
         .select('*')
         .eq('lobby_id', lobbyId);
 
     if (updatedLobby.data.length === lobby.lobby_size) {
-        const { data: game, error: gameError } = await supabase
-            .from('brain9_games')
-            .insert({
-                lobby_id: lobbyId,
-                game_type: lobby.game_type
-            })
-            .select()
-            .single();
-
-        if (gameError) {
-            console.error('Game creation error:', gameError);
-            return res.status(500).json({ error: 'Fehler beim Starten des Spiels' });
-        }
-
-        console.log('Game started:', game);
+        // Countdown-Zeitpunkt (10 Sekunden ab jetzt)
+        const countdownUntil = new Date(Date.now() + 10000).toISOString();
+        // Speichere countdown_until in der Lobby
+        await supabase
+            .from('game_lobbies')
+            .update({ countdown_until: countdownUntil })
+            .eq('id', lobbyId);
+        // Sende Countdown-Event an alle im Raum
         if (io) {
-            if (io.sockets && io.sockets.adapter && io.sockets.adapter.rooms) {
-                const room = io.sockets.adapter.rooms.get(lobbyId);
-                console.log(`[gameStarted] Sockets im Raum ${lobbyId}:`, room ? Array.from(room) : []);
-            }
-            console.log(`[gameStarted] Sende Event an Raum ${lobbyId} mit game:`, game);
-            io.to(lobbyId).emit('gameStarted', game);
-        } else {
-            console.warn('WebSocket server (io) is not defined. Skipping gameStarted event.');
+            io.to(lobbyId).emit('lobbyCountdown', { until: countdownUntil });
         }
+        // Starte das Spiel nach 10 Sekunden (Timeout im Backend)
+        setTimeout(async () => {
+            // Prüfe, ob das Spiel schon existiert (z.B. falls mehrfach ausgelöst)
+            const { data: existingGame } = await supabase
+                .from('brain9_games')
+                .select('id')
+                .eq('lobby_id', lobbyId)
+                .maybeSingle();
+            if (!existingGame) {
+                const { data: game, error: gameError } = await supabase
+                    .from('brain9_games')
+                    .insert({
+                        lobby_id: lobbyId,
+                        game_type: lobby.game_type
+                    })
+                    .select()
+                    .single();
+                if (gameError) {
+                    console.error('Game creation error:', gameError);
+                    return;
+                }
+                console.log('Game started:', game);
+                if (io) {
+                    if (io.sockets && io.sockets.adapter && io.sockets.adapter.rooms) {
+                        const room = io.sockets.adapter.rooms.get(lobbyId);
+                        console.log(`[gameStarted] Sockets im Raum ${lobbyId}:`, room ? Array.from(room) : []);
+                    }
+                    console.log(`[gameStarted] Sende Event an Raum ${lobbyId} mit game:`, game);
+                    io.to(lobbyId).emit('gameStarted', game);
+                } else {
+                    console.warn('WebSocket server (io) is not defined. Skipping gameStarted event.');
+                }
+            }
+        }, 10000);
     }
 
     res.json({ message: 'Lobby beigetreten', lobbyId });
