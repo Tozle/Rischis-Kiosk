@@ -60,49 +60,53 @@ function renderBrain9Game(game) {
                 // Nach DOM-Update: Elemente neu holen
                 status = $("game-status");
                 grid = $("simon-grid");
-                players = $("game-players");
-                readyStatus = $("game-ready-status");
-                if (status && grid && players && readyStatus) {
-                    renderBrain9Game(game);
+                let status = $("game-status");
+                let grid = $("simon-grid");
+                let players = $("game-players");
+                let readyStatus = $("game-ready-status");
+                if (!status || !grid || !players || !readyStatus) {
+                    // Versuche, das Spiel-UI dynamisch zu erzeugen, falls es fehlt
+                    const mainContent = document.getElementById('main-content');
+                    if (mainContent && !window._brain9_ui_injected) {
+                        window._brain9_ui_injected = true;
+                        mainContent.innerHTML = `
+                            <h2 class="text-xl font-bold mb-4 text-cyan-700 dark:text-cyan-300 flex items-center gap-2">
+                                <svg xmlns='http://www.w3.org/2000/svg' class='w-6 h-6 text-cyan-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4' />
+                                </svg>
+                                Spielrunde
+                            </h2>
+                            <div id="game-status" class="mb-4 text-center text-base font-medium text-gray-700 dark:text-gray-200"></div>
+                            <div id="simon-grid" class="grid grid-cols-3 gap-3 mb-4" aria-label="Simon Says Spielfeld" role="grid"></div>
+                            <div id="game-players" class="flex flex-wrap gap-2 justify-center mb-2"></div>
+                            <div id="game-actions" class="flex gap-2 justify-center"></div>
+                            <div id="game-ready-status" class="flex flex-col items-center mt-2"></div>
+                        `;
+                        // Nach dem Einfügen: DOM-Elemente neu holen und erst dann erneut rendern
+                        requestAnimationFrame(() => {
+                            // Nach DOM-Update: Elemente neu holen
+                            status = $("game-status");
+                            grid = $("simon-grid");
+                            players = $("game-players");
+                            readyStatus = $("game-ready-status");
+                            if (status && grid && players && readyStatus) {
+                                renderBrain9Game(game);
+                            } else {
+                                window.showToast && window.showToast('Fehler: Spiel-UI konnte nicht erzeugt werden!', 'error');
+                                if (!status) console.error('game-status Element fehlt!');
+                                if (!grid) console.error('simon-grid Element fehlt!');
+                                if (!players) console.error('game-players Element fehlt!');
+                                if (!readyStatus) console.error('game-ready-status Element fehlt!');
+                            }
+                        });
+                    } else if (!mainContent) {
+                        window.showToast && window.showToast('Fehler: Hauptbereich (main-content) nicht gefunden!', 'error');
+                        console.error('Game-UI konnte nicht erzeugt werden: main-content fehlt im DOM.');
+                    }
+                    return;
                 } else {
-                    window.showToast && window.showToast('Fehler: Spiel-UI konnte nicht erzeugt werden!', 'error');
+                    window._brain9_ui_injected = false;
                 }
-            });
-        } else if (!mainContent) {
-            window.showToast && window.showToast('Fehler: Hauptbereich (main-content) nicht gefunden!', 'error');
-            console.error('Game-UI konnte nicht erzeugt werden: main-content fehlt im DOM.');
-        }
-        return;
-    } else {
-        window._brain9_ui_injected = false;
-    }
-    // Spieler und Ready-Status anzeigen
-    if (players) {
-        players.innerHTML = (game.players || []).map(p => {
-            const isReady = (game.readyPlayers || []).includes(p.id);
-            return `<div class="flex flex-col items-center ${game.activePlayers && game.activePlayers.includes(p.id) ? '' : 'opacity-40'}">
-                <img src="${p.profile_image_url}" alt="${p.name}" class="w-8 h-8 rounded-full border mb-1" />
-                <span class="text-xs">${p.name}</span>
-                <span class="text-xs ${isReady ? 'text-green-600' : 'text-gray-400'}">${isReady ? 'Bereit' : 'Nicht bereit'}</span>
-            </div>`;
-        }).join('');
-    } else {
-        console.error('players-Element nicht gefunden, kann Spieler nicht anzeigen.');
-    }
-    // Ready-Button für eigenen Spieler anzeigen, falls nicht bereit
-    const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
-    const isMeReady = (game.readyPlayers || []).includes(profile.id);
-    if (readyStatus) {
-        if (!isMeReady && !game.finished && game.waitingForReady) {
-            readyStatus.innerHTML = `<button id="ready-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 transition">Bereit</button>`;
-            // Button erst holen, wenn wirklich im DOM
-            requestAnimationFrame(() => {
-                const btn = document.getElementById('ready-btn');
-                if (btn) btn.onclick = () => sendReady(game.id);
-                else console.error('ready-btn nicht gefunden, kann Event nicht binden.');
-            });
-        } else if (game.waitingForReady && !game.finished) {
-            readyStatus.innerHTML = `<span class="text-cyan-600 font-semibold">Warte auf andere Spieler...</span>`;
         } else {
             readyStatus.innerHTML = '';
         }
@@ -567,7 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             // Listener für Countdown vor Spielstart
             socket.on('lobbyCountdown', (data) => {
-                // Countdown-Overlay erzeugen
+                // Countdown-Overlay erzeugen (immer nur einmal)
                 let overlay = document.getElementById('countdown-overlay');
                 if (!overlay) {
                     overlay = document.createElement('div');
@@ -584,16 +588,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (timer) timer.textContent = seconds > 0 ? seconds.toString() : 'Start!';
                     if (seconds > 0) {
                         setTimeout(updateCountdown, 100);
-                    } else {
-                        setTimeout(() => {
-                            overlay.remove();
-                        }, 800);
                     }
                 }
                 updateCountdown();
+                // Overlay wird erst bei Spielstart entfernt!
             });
             // Listener für Spielstart
             socket.on('gameStarted', (game) => {
+                // Countdown-Overlay entfernen, falls noch sichtbar
+                const overlay = document.getElementById('countdown-overlay');
+                if (overlay) overlay.remove();
                 if (game && game.id) {
                     window.location.href = "/games.html?gameId=" + game.id;
                 }
