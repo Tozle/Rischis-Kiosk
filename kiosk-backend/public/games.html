@@ -64,10 +64,17 @@
     <div id="main-content"
         class="w-full max-w-2xl mx-auto mt-8 p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-xl animate-fade-in">
     <!-- Der Inhalt wird per JS dynamisch gesetzt: Entweder Lobby-UI oder Spiel-UI -->
-    <button id="create-lobby-btn" class="btn-main mb-4">Lobby erstellen</button>
     <div id="lobby-list"></div>
     </div>
-    <!-- Modal für neue Lobby -->
+    <!-- Plus-Button für neue Lobby unten rechts -->
+    <button id="create-lobby-btn"
+        class="fixed bottom-4 right-4 z-50 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-lg w-16 h-16 flex items-center justify-center text-4xl focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 transition"
+        aria-label="Lobby erstellen" title="Lobby erstellen">
+        <span class="sr-only">Lobby erstellen</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+    </button>
     <!-- Modal für Lobby-Erstellung -->
     <div id="lobby-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden" role="dialog"
         aria-modal="true" aria-labelledby="lobby-modal-title" tabindex="-1">
