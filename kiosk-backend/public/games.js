@@ -418,10 +418,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     let errorMsg = '';
                     try { data = await res.json(); } catch { }
                     if (res.ok && data.gameId) {
+                        // Modal schließen, falls offen
+                        const modal = document.querySelector('.lobby-detail-modal');
+                        if (modal) modal.remove();
                         window.joinLobbyRoom(data.lobbyId); // Socket-Raum beitreten
-                        window.location.href = '/games.html?lobbyId=' + encodeURIComponent(data.lobbyId);
+                        setTimeout(() => {
+                            window.location.href = '/games.html?lobbyId=' + encodeURIComponent(data.lobbyId);
+                        }, 50);
                     } else if (res.ok) {
                         await loadLobbies();
+                        // Modal schließen, falls offen
+                        const modal = document.querySelector('.lobby-detail-modal');
+                        if (modal) modal.remove();
                         // Fallback: Versuche, die Lobby zu finden und leite weiter
                         setTimeout(() => {
                             const lobby = (window.lastLobbies || []).find(l => l.players.some(p => p.user_id === profile.id));
