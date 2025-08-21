@@ -340,12 +340,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     const data = await res.json();
                     if (res.ok && data.lobbyId) {
-                        modal.classList.add('hidden');
-                        createBtn.focus();
-                        // Dem Socket-Raum beitreten
-                        if (window.joinLobbyRoom) window.joinLobbyRoom(data.lobbyId);
-                        // Direkt in die Lobby weiterleiten (wie bei Beitritt)
-                        window.location.href = '/games.html?lobbyId=' + encodeURIComponent(data.lobbyId);
+                        // Modal sofort schließen, dann Weiterleitung
+                        if (modal) modal.classList.add('hidden');
+                        setTimeout(() => {
+                            if (window.joinLobbyRoom) window.joinLobbyRoom(data.lobbyId);
+                            window.location.href = '/games.html?lobbyId=' + encodeURIComponent(data.lobbyId);
+                        }, 50);
                     } else {
                         showToast(data.error || 'Fehler beim Erstellen', 'error');
                     }
